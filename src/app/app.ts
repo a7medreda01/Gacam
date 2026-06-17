@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {ToastComponent} from './shared/components/toast/toast';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
-export class App {
-  protected readonly title = signal('ngGacam');
-}
+export class App {}
+

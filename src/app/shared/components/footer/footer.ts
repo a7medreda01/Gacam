@@ -1,0 +1,102 @@
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { LanguageService } from '../../../core/services/language';
+import { TranslatePipe } from '../../pipes/translate';
+
+@Component({
+  selector: 'app-footer',
+  standalone: true,
+  imports: [RouterLink, MatIconModule, TranslatePipe],
+  template: `
+    <footer class="bg-deep-teal text-white pt-12 md:pt-16 pb-6 border-t-4 border-champagne-gold">
+      <div class="container-gacam grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 pb-12 border-b border-white/10">
+        
+        <!-- Column 1: Brand & Strategic Vision -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full border border-champagne-gold bg-royal-teal flex items-center justify-center">
+              <span class="text-champagne-gold font-bold text-sm tracking-widest font-sans">GA</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-bold text-base tracking-wider font-sans uppercase">GACAM</span>
+              <span class="text-[9px] text-champagne-gold font-semibold uppercase tracking-widest">Canada</span>
+            </div>
+          </div>
+          <p class="text-xs text-white/70 leading-relaxed font-sans">
+            {{ langService.lang() === 'ar' 
+              ? 'الهيئة العامة للإعلام المرئي والمسموع والخليجي والعربي في كندا هي الرافد الأساسي للصحفي ومحايد لتنظيم البرامج والتكامل المستدام.' 
+              : 'The central Arab-gulf audiovisual regulatory, accreditation, and media training hub established in Canada.' 
+            }}
+          </p>
+          <div class="flex items-center gap-3 text-white/50 pt-2">
+            <a href="https://facebook.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">public</mat-icon></a>
+            <a href="https://instagram.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">photo_camera</mat-icon></a>
+            <a href="https://twitter.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">chat</mat-icon></a>
+            <a href="https://linkedin.com" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">group</mat-icon></a>
+          </div>
+        </div>
+
+        <!-- Column 2: Public Portals Links -->
+        <div class="flex flex-col gap-4">
+          <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
+            {{ langService.lang() === 'ar' ? 'روابط سريعة' : 'Quick Actions' }}
+          </h4>
+          <nav class="flex flex-col gap-2.5 text-xs text-white/85">
+            <a routerLink="/" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.HOME' | translate }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.ABOUT' | translate }}</a>
+            <a routerLink="/services" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.SERVICES' | translate }}</a>
+            <a routerLink="/volunteer" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.VOLUNTEER' | translate }}</a>
+            <a routerLink="/news" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.NEWS' | translate }}</a>
+          </nav>
+        </div>
+
+        <!-- Column 3: Institutional Protocols -->
+        <div class="flex flex-col gap-4">
+          <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
+            {{ langService.lang() === 'ar' ? 'السياسات والأنظمة' : 'Our Policies' }}
+          </h4>
+          <nav class="flex flex-col gap-2.5 text-xs text-white/85">
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'سياسة النزاهة والمصداقية' : 'Editorial Compliance' }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'مذكرة السياسة الشكاوى' : 'Complaints Policy' }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'التصحيحات والشفافية' : 'Corrections Guidelines' }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'أخلاقيات البث والنشر' : 'Code of Ethics' }}</a>
+            <a routerLink="/verify-certificate" class="hover:text-champagne-gold transition-colors">→ {{ 'CERT.VERIFY_TITLE' | translate }}</a>
+          </nav>
+        </div>
+
+        <!-- Column 4: Contact & Locations -->
+        <div class="flex flex-col gap-4">
+          <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
+            {{ langService.lang() === 'ar' ? 'المقر والتواصل' : 'Headquarters' }}
+          </h4>
+          <div class="flex flex-col gap-3 text-xs text-white/80">
+            <span class="flex items-start gap-2">
+              <mat-icon class="text-champagne-gold text-lg h-5 w-5">place</mat-icon>
+              <span>Toronto, Ontario, Canada - Ottawa Media Branch Office</span>
+            </span>
+            <span class="flex items-center gap-2">
+              <mat-icon class="text-champagne-gold text-lg h-5 w-5">email</mat-icon>
+              <span>info&#64;gacam.media</span>
+            </span>
+            <span class="flex items-center gap-2">
+              <mat-icon class="text-champagne-gold text-lg h-5 w-5">phone</mat-icon>
+              <span>+1 (437) 990-0166</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trademark Signatures & Slogan -->
+      <div class="container-gacam pt-6 flex flex-col md:flex-row justify-between items-center text-xs gap-3 text-white/60">
+        <span>&copy; 2026 GACAM Canada. {{ langService.lang() === 'ar' ? 'جميع الحقوق محفوظة للهيئة بكندا' : 'All Institutional Rights Reserved.' }}</span>
+        <div class="flex items-center gap-2">
+          <span class="text-champagne-gold">One Media • One Future</span>
+        </div>
+      </div>
+    </footer>
+  `
+})
+export class FooterComponent {
+  langService = inject(LanguageService);
+}

@@ -1,1 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-royal-teal: #003F4A;
+  --color-champagne-gold: #C9A96B;
+  --color-light-ivory: #F7F3EC;
+  --color-deep-gold: #A97B36;
+  --color-deep-teal: #0B2D35;
+}
+
+/* Base style setups */
+body {
+  background-color: #F7F3EC; /* Light Ivory */
+  color: #0B2D35; /* Deep Teal */
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+}
+
+/* Simple animation styles */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dynamic container */
+.container-gacam {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Language-specific RTL helpers */
+[dir="rtl"] {
+  font-family: "Cairo", "Inter", sans-serif;
+}

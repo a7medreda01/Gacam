@@ -1,0 +1,65 @@
+<div class="flex flex-col gap-6 animate-fade-in text-start">
+  <div>
+    <h2 id="cms-management-title" class="text-xl font-bold uppercase text-royal-teal tracking-wide">
+      Dynamic CMS Template Editor
+    </h2>
+    <p class="text-xs text-deep-teal/60">Manage dynamic localization content, legal agreements, and corporate details across website page nodes</p>
+  </div>
+
+  <div id="cms-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+    
+    <!-- Left side: Select page nodes (4 spans) -->
+    <div id="cms-selector-sidebar" class="lg:col-span-4 bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-royal-teal mb-4">Dynamic Nodes</h3>
+      
+      <div class="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
+        @for (item of availablePages; track item.slug) {
+          <button (click)="loadCmsPage(item.slug)" class="w-full text-start p-3 bg-light-ivory hover:bg-champagne-gold/15 text-xs font-bold rounded-lg duration-100 transition-all flex items-center gap-2 border-l-2"
+                  [class.border-royal-teal]="cmsSlug() === item.slug" [class.text-royal-teal]="cmsSlug() === item.slug" [class.border-transparent]="cmsSlug() !== item.slug">
+            <span>📄</span>
+            <span>{{ langService.lang() === 'ar' ? item.labelAr : item.labelEn }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Right side: CMS Forms (8 spans) -->
+    <div id="cms-fields-panel" class="lg:col-span-8 bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-4">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-royal-teal">Edit Page Template</h3>
+
+      @if (loading()) {
+        <div id="cms-loading" class="h-32 flex items-center justify-center animate-pulse text-xs font-semibold">
+          Synchronizing content node, please wait...
+        </div>
+      } @else {
+        <form [formGroup]="cmsForm" (ngSubmit)="onSaveCms()" class="flex flex-col gap-4 font-sans">
+          <div class="flex flex-col gap-1">
+            <label for="cms-title-en" class="text-xs font-bold text-deep-teal">Page Title (English) *</label>
+            <input id="cms-title-en" type="text" formControlName="titleEn" class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="cms-title-ar" class="text-xs font-bold text-deep-teal">Page Title (Arabic) *</label>
+            <input id="cms-title-ar" type="text" formControlName="titleAr" class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="cms-image-url" class="text-xs font-bold text-deep-teal">Hero Image URL (Optional - leave empty for No Image)</label>
+            <input id="cms-image-url" type="text" formControlName="imageUrl" placeholder="https://picsum.photos/800/400" class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" />
+          </div>
+          <div class="flex flex-col gap-1 font-sans">
+            <label for="cms-content-en" class="text-xs font-bold text-deep-teal">HTML/Text Content (English) *</label>
+            <textarea id="cms-content-en" formControlName="contentEn" rows="6" class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"></textarea>
+          </div>
+          <div class="flex flex-col gap-1 font-sans">
+            <label for="cms-content-ar" class="text-xs font-bold text-deep-teal">HTML/Text Content (Arabic) *</label>
+            <textarea id="cms-content-ar" formControlName="contentAr" rows="6" class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"></textarea>
+          </div>
+
+          <button type="submit" [disabled]="cmsForm.invalid" class="px-4 py-2 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal text-xs rounded-lg transition-colors cursor-pointer">
+            Save HTML Template Changes
+          </button>
+        </form>
+      }
+    </div>
+
+  </div>
+</div>

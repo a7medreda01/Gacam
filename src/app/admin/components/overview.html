@@ -1,0 +1,69 @@
+<div class="flex flex-col gap-8 animate-fade-in text-start">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-champagne-gold/20 pb-4">
+    <div>
+      <h2 id="overview-dashboard-title" class="text-xl font-bold uppercase text-royal-teal tracking-wide">
+        {{ 'ADMIN.METRICS_HEALTH' | translate }}
+      </h2>
+      <p class="text-xs text-deep-teal/60">GACAM central administrative metrics and compliance node</p>
+    </div>
+  </div>
+  
+  @if (loading()) {
+    <div id="loading-spinner-container" class="h-64 flex items-center justify-center animate-pulse font-semibold">
+      Querying active nodes, please wait...
+    </div>
+  } @else {
+    <!-- Bento Stats Cards -->
+    <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div id="card-total-accreditations" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Total Cards</span>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ accsCount() }}</span>
+      </div>
+      <div id="card-active-students" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Active Students</span>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ enrollmentsCount() }}</span>
+      </div>
+      <div id="card-secured-revenue" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Secured Revenue</span>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-emerald-600">{{ totalRevenue() }} CAD</span>
+      </div>
+      <div id="card-volunteer-limit" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Volunteer Node Limit</span>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ volsCount() }} / 50</span>
+      </div>
+    </div>
+
+    <!-- Reports Export Center -->
+    <div id="reports-export-banner" class="bg-royal-teal text-white border border-champagne-gold/20 p-6 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="text-start">
+        <h3 class="text-sm font-bold text-champagne-gold uppercase tracking-wider">GACAM Financial Spreadsheet Exports</h3>
+        <p class="text-[11px] text-white/75 mt-0.5">Generate valid XML spreadsheets containing active transactions, user rosters, and audit trails.</p>
+      </div>
+      <div class="flex gap-3">
+        <button id="btn-export-payments" (click)="exportReport('payments')" class="px-4 py-2 bg-champagne-gold text-royal-teal hover:bg-white hover:text-royal-teal font-extrabold rounded-lg text-xs cursor-pointer transition-colors flex items-center gap-1">
+          <mat-icon class="text-sm">download_for_offline</mat-icon>
+          <span>Payments.xls</span>
+        </button>
+        <button id="btn-export-audit" (click)="exportReport('auditlogs')" class="px-4 py-2 bg-champagne-gold text-royal-teal hover:bg-white hover:text-royal-teal font-extrabold rounded-lg text-xs cursor-pointer transition-colors flex items-center gap-1">
+          <mat-icon class="text-sm">download_for_offline</mat-icon>
+          <span>SystemLogs.xls</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- General Health & Latency Indicators -->
+    <div id="db-health-banner" class="bg-white rounded-2xl p-6 border border-champagne-gold/15 shadow-sm text-xs">
+      <h3 class="font-bold text-royal-teal mb-3 uppercase tracking-wider">Database Status</h3>
+      <div class="flex gap-4 font-mono">
+        <div class="flex items-center gap-1">
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Node: ACTIVE</span>
+        </div>
+        <div class="text-deep-teal/50">|</div>
+        <div>Latency: <span class="text-emerald-600">~14ms</span></div>
+        <div class="text-deep-teal/50">|</div>
+        <div>Platform State: <span class="font-bold text-royal-teal">Production Active</span></div>
+      </div>
+    </div>
+  }
+</div>

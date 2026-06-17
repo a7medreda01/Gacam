@@ -1,0 +1,352 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-light-ivory py-16 text-start">
+  <div class="container-gacam max-w-6xl">
+
+    <!-- Header Profile Banner -->
+    <div class="bg-royal-teal text-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/25 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-6 mb-10 relative overflow-hidden">
+      <div class="absolute -right-12 -bottom-12 w-40 h-40 rounded-full bg-champagne-gold/10 blur-2xl"></div>
+
+      <div class="flex flex-col sm:flex-row items-center gap-4 relative">
+
+        <!-- Avatar + Role Badge -->
+        <div class="relative shrink-0">
+          <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-deep-teal border-[3px] flex items-center justify-center shadow-lg font-bold font-sans text-xl sm:text-2xl uppercase transition-all"
+               [class]="getRoleStyles().ring + ' border-[3px]'">
+            <span [class]="getRoleStyles().badge.includes('text-white') ? 'text-white' : 'text-royal-teal'">
+              {{ authService.currentUser()?.fullName?.charAt(0) }}
+            </span>
+          </div>
+
+          <!-- Role pill under avatar -->
+          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold whitespace-nowrap shadow-md"
+               [class]="getRoleStyles().badge">
+            <mat-icon class="text-[10px]" style="font-size:10px; width:10px; height:10px; line-height:10px;">
+              {{ getRoleStyles().icon }}
+            </mat-icon>
+            <span>{{ getUserRoleLabel() }}</span>
+          </div>
+        </div>
+
+        <div class="text-center sm:text-start mt-3 sm:mt-0">
+          <h2 class="text-lg sm:text-xl font-extrabold tracking-wide uppercase">{{ authService.currentUser()?.fullName }}</h2>
+          <p class="text-xs text-champagne-gold">{{ authService.currentUser()?.email }}</p>
+          <p class="text-[11px] text-white/75 mt-1 font-sans">
+            Affiliate Node: <span class="font-bold">{{ authService.currentUser()?.organization }}</span> • Location: {{ authService.currentUser()?.country }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="authService.logout()"
+                class="px-5 py-2.5 bg-red-650/15 border border-red-550/30 text-white font-bold hover:bg-red-500 rounded-lg text-xs transition-colors cursor-pointer flex items-center gap-1">
+          <mat-icon class="text-sm">power_settings_new</mat-icon>
+          <span>{{ 'NAV.LOGOUT' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+      <!-- LEFT RAIL: Course Catalog -->
+      <div class="lg:col-span-4 flex flex-col gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">school</mat-icon>
+            <span>GACAM Academy Catalog</span>
+          </h3>
+
+          <div class="flex flex-col gap-4">
+            @for (c of courses(); track c.id) {
+              @if (c.isActive) {
+                <div class="p-4 rounded-xl border bg-light-ivory/30 flex flex-col gap-2 relative transition-colors"
+                     [class]="isEnrolled(c.id) ? 'border-emerald-200 bg-emerald-50/40' : 'border-light-ivory'">
+
+                  <!-- Fee badge -->
+                  <span class="absolute top-3 right-3 text-[10px] font-bold text-champagne-gold bg-royal-teal/5 px-2 py-0.5 rounded font-mono">
+                    {{ c.feeAmount }} CAD
+                  </span>
+
+                  <h4 class="text-xs font-bold text-royal-teal pr-16">
+                    {{ langService.lang() === 'ar' ? c.titleAr : c.titleEn }}
+                  </h4>
+                  <p class="text-[10px] text-deep-teal/50 font-sans">
+                    {{ c.startDate | date:'mediumDate' }} → {{ c.endDate | date:'mediumDate' }}
+                  </p>
+
+                  <!-- Enrolled state -->
+                  @if (isEnrolled(c.id)) {
+                    <div class="mt-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-100 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
+                      <mat-icon class="text-xs" style="font-size:14px;width:14px;height:14px;line-height:14px;">check_circle</mat-icon>
+                      <span>{{ langService.lang() === 'ar' ? 'مسجّل بالفعل' : 'Already Enrolled' }}</span>
+                    </div>
+                  } @else {
+                    <button (click)="openPayModal(c)"
+                            class="mt-1 text-[10px] font-extrabold text-white bg-royal-teal hover:bg-champagne-gold hover:text-royal-teal py-1.5 rounded-lg text-center transition-all cursor-pointer flex items-center justify-center gap-1">
+                      <mat-icon class="text-xs">payments</mat-icon>
+                      <span>{{ langService.lang() === 'ar' ? 'سجّل وادفع' : 'Enroll & Pay' }}</span>
+                    </button>
+                  }
+
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT RAIL -->
+      <div class="lg:col-span-8 flex flex-col gap-8">
+
+        <!-- 1. My Enrollments -->
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">history_edu</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'مسيرتي التعليمية والدورات' : 'My Courses' }}</span>
+          </h3>
+
+          @if (enrollments().length === 0) {
+            <p class="text-xs text-deep-teal/50 font-sans italic text-center py-6">
+              You have not registered for any classes yet. Choose a class from the GACAM Academy catalog.
+            </p>
+          } @else {
+            <div class="flex flex-col gap-3">
+              @for (en of enrollments(); track en.id) {
+                <div class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex flex-col gap-3 text-xs">
+
+                  <!-- Row 1: title + status badge -->
+                  <div class="flex justify-between items-start gap-2">
+                    <div>
+                      <h4 class="font-bold text-royal-teal">{{ getCourseTitle(en) }}</h4>
+                      <p class="text-[10px] text-deep-teal/60 font-mono mt-0.5">
+                        {{ langService.lang() === 'ar' ? 'تاريخ التسجيل:' : 'Enrolled on' }}
+                        {{ en.createdAt | date }}
+                      </p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[10px] shrink-0" [class]="getEnrollmentStatusClass(en.status)">
+                      {{ getEnrollmentStatusText(en.status) }}
+                    </span>
+                  </div>
+
+                  <!-- Row 2: Certificate action (only if Approved) -->
+                  @if (isApproved(en.status)) {
+                    @let cert = getCertForEnrollment(en);
+                    @if (cert) {
+                      <!-- Already has a certificate → show download -->
+                      <div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <div class="flex items-center gap-1.5 text-emerald-700">
+                          <mat-icon class="text-sm" style="font-size:15px;width:15px;height:15px;line-height:15px;">workspace_premium</mat-icon>
+                          <span class="font-bold text-[10px]">
+                            {{ langService.lang() === 'ar' ? 'شهادتك جاهزة' : 'Certificate Ready' }}
+                          </span>
+                          <span class="font-mono text-[9px] text-emerald-600/70">{{ cert.certificateNumber }}</span>
+                        </div>
+                        <button (click)="downloadCert(cert)"
+                                class="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
+                          <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">download</mat-icon>
+                          <span>{{ langService.lang() === 'ar' ? 'تحميل PDF' : 'Download PDF' }}</span>
+                        </button>
+                      </div>
+                    } @else {
+                      <!-- No certificate yet → request button -->
+                      <button (click)="issueCert(en)"
+                              [disabled]="certLoadingIds().has(en.id)"
+                              class="flex items-center justify-center gap-1.5 w-full py-1.5 border border-champagne-gold/40 text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal text-[10px] font-bold rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (certLoadingIds().has(en.id)) {
+                          <mat-icon class="animate-spin text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">sync</mat-icon>
+                          <span>{{ langService.lang() === 'ar' ? 'جاري الإصدار...' : 'Issuing...' }}</span>
+                        } @else {
+                          <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">workspace_premium</mat-icon>
+                          <span>{{ langService.lang() === 'ar' ? 'طلب الشهادة' : 'Request Certificate' }}</span>
+                        }
+                      </button>
+                    }
+                  }
+
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- 2. Payments -->
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">receipt_long</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'إيصالات السداد والتدقيق المالي' : 'Interac Payments Audit' }}</span>
+          </h3>
+
+          @if (payments().length === 0) {
+            <p class="text-xs text-deep-teal/50 font-sans italic text-center py-6">No banking records matched this profile node.</p>
+          } @else {
+            <div class="flex flex-col gap-3">
+              @for (pay of payments(); track pay.id) {
+                <div class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex justify-between items-center text-xs font-sans">
+                  <div class="text-start">
+                    <h4 class="font-bold text-royal-teal">{{ pay.amount }} CAD</h4>
+                    <p class="text-[10px] text-deep-teal/60">REF: {{ pay.referenceNumber }}</p>
+                  </div>
+                  <span class="px-2 py-1 rounded text-[10px] font-mono font-bold" [class]="getEnrollmentStatusClass(pay.status)">
+                    {{ getEnrollmentStatusText(pay.status) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- 3. Certificates -->
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">workspace_premium</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'شهاداتي الصادرة بنظام التشفير' : 'Verified Certificates' }}</span>
+          </h3>
+
+          @if (certificates().length === 0) {
+            <p class="text-xs text-deep-teal/50 font-sans italic text-center py-6">No active credentials have been compiled into certificates yet.</p>
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              @for (cert of certificates(); track cert.id) {
+                <div class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex flex-col gap-2 text-xs relative">
+                  <h4 class="font-extrabold text-royal-teal">Certificate Docket</h4>
+                  <p class="text-[10px] text-deep-teal/60 font-sans">Serial: <span class="font-mono font-bold">{{ cert.certificateNumber }}</span></p>
+                  <p class="text-[10px] text-deep-teal/60 font-sans">Issued: {{ cert.issuedAt | date }}</p>
+                  <button (click)="downloadCert(cert)"
+                          class="mt-2 text-[10px] font-bold text-champagne-gold hover:text-royal-teal cursor-pointer flex items-center gap-1">
+                    <mat-icon class="text-sm">download</mat-icon>
+                    <span>Download Signed PDF</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+
+<!-- ── Payment Modal ─────────────────────────────────────────────── -->
+@if (showPayModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="closePayModal()">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in"
+         (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-champagne-gold">payments</mat-icon>
+          <h2 class="text-sm font-bold text-white uppercase tracking-widest">
+            {{ langService.lang() === 'ar' ? 'إتمام التسجيل والدفع' : 'Enrollment & Payment' }}
+          </h2>
+        </div>
+        <button (click)="closePayModal()" class="text-white/70 hover:text-white cursor-pointer transition-colors">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Course Summary -->
+      @if (payTargetCourse()) {
+        <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">
+              {{ langService.lang() === 'ar' ? 'الدورة المختارة' : 'Selected Course' }}
+            </p>
+            <p class="text-xs font-bold text-royal-teal mt-0.5">
+              {{ langService.lang() === 'ar' ? payTargetCourse()!.titleAr : payTargetCourse()!.titleEn }}
+            </p>
+            <p class="text-[10px] text-deep-teal/50 font-sans">
+              {{ payTargetCourse()!.startDate | date:'mediumDate' }} → {{ payTargetCourse()!.endDate | date:'mediumDate' }}
+            </p>
+          </div>
+          <span class="text-lg font-extrabold text-royal-teal font-mono">{{ payTargetCourse()!.feeAmount }} CAD</span>
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="payForm" (ngSubmit)="onSubmitPayment()" class="px-6 py-5 flex flex-col gap-4">
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-deep-teal">
+            {{ langService.lang() === 'ar' ? 'اسم المُرسِل (كما في الحساب البنكي) *' : 'Sender Name (as on bank account) *' }}
+          </label>
+          <input type="text" formControlName="senderName"
+                 class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"
+                 placeholder="e.g., John Doe" />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-deep-teal">
+            {{ langService.lang() === 'ar' ? 'رقم مرجع التحويل (Interac Reference) *' : 'Interac Transfer Reference Number *' }}
+          </label>
+          <input type="text" formControlName="referenceNumber"
+                 class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-mono uppercase"
+                 placeholder="e.g., INTERAC-2026-XXXXX" />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-deep-teal">
+            {{ langService.lang() === 'ar' ? 'المبلغ المدفوع (CAD) *' : 'Amount Paid (CAD) *' }}
+          </label>
+          <input type="number" formControlName="amount"
+                 class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-mono" />
+        </div>
+
+        <!-- Receipt Upload -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-deep-teal">
+            {{ langService.lang() === 'ar' ? 'إيصال الدفع (PDF/صورة) — اختياري' : 'Payment Receipt (PDF/Image) — Optional' }}
+          </label>
+
+          <div (dragover)="onReceiptDragOver($event)"
+               (dragleave)="onReceiptDragLeave($event)"
+               (drop)="onReceiptDrop($event)"
+               (click)="receiptInput.click()"
+               tabindex="0" (keydown.enter)="receiptInput.click()"
+               class="h-24 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all bg-light-ivory hover:bg-champagne-gold/5"
+               [class.border-royal-teal]="receiptDragOver()"
+               [class.border-champagne-gold]="!receiptDragOver()">
+            <input type="file" #receiptInput (change)="onReceiptSelected($event)"
+                   class="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+            <mat-icon class="text-royal-teal mb-1">upload_file</mat-icon>
+            @if (receiptFileName()) {
+              <span class="text-[10px] font-bold text-royal-teal truncate max-w-[90%] px-2">{{ receiptFileName() }}</span>
+            } @else {
+              <span class="text-[10px] text-deep-teal/50 font-sans">
+                {{ langService.lang() === 'ar' ? 'اسحب الإيصال أو انقر للتصفح' : 'Drag receipt here or click to browse' }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
+          <button type="button" (click)="closePayModal()"
+                  class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer">
+            {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+          </button>
+          <button type="submit"
+                  [disabled]="payForm.invalid || payLoading()"
+                  class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (payLoading()) {
+              <mat-icon class="text-sm animate-spin">sync</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'جارٍ الإرسال...' : 'Submitting...' }}</span>
+            } @else {
+              <mat-icon class="text-sm">send</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'إرسال طلب الدفع' : 'Submit Payment' }}</span>
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

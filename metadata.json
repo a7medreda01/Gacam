@@ -1,0 +1,6 @@
+{
+  "name": "GACAM Media Portal",
+  "description": "The Gulf & Arab General Commission for Audiovisual Media in Canada - Official Accreditation & Training Member Portal",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

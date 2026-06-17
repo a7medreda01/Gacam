@@ -1,0 +1,31 @@
+<div class="flex flex-col gap-6 animate-fade-in text-start">
+  <div>
+    <h2 id="audit-logs-title" class="text-xl font-bold uppercase text-royal-teal tracking-wide">
+      Compliance Security and Audit Trails
+    </h2>
+    <p class="text-xs text-deep-teal/60">Immutable logs detailing administrator actions, user transactions, and IP geo-indicators</p>
+  </div>
+
+  @if (loading()) {
+    <div id="loading-spinner" class="h-64 flex items-center justify-center animate-pulse font-semibold">
+      Loading security logs...
+    </div>
+  } @else {
+    <div id="audit-logs-container" class="overflow-x-auto bg-white rounded-2xl border border-champagne-gold/15 shadow-sm p-4 font-mono text-[10px]">
+      <div class="flex flex-col gap-2 divide-y divide-light-ivory">
+        @for (log of auditLogs(); track log.id) {
+          <div class="py-2.5 text-start flex flex-col sm:flex-row justify-between gap-1">
+            <div>
+              <span class="text-champagne-gold font-bold">[{{ log.timestamp | date:'HH:mm:ss' }}]</span> &nbsp;
+              <span class="text-white bg-royal-teal px-1 rounded">{{ log.email }}</span> &nbsp;
+              <span class="font-sans font-semibold text-deep-teal">{{ log.action }}</span>
+            </div>
+            <span class="text-deep-teal/40 text-[9px] font-bold">IP: {{ log.ipAddress }}</span>
+          </div>
+        } @empty {
+          <p class="text-deep-teal/50 p-4 text-center">No audit log records detected in this interval.</p>
+        }
+      </div>
+    </div>
+  }
+</div>

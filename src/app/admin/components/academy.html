@@ -1,0 +1,205 @@
+<div class="flex flex-col gap-6 animate-fade-in text-start">
+
+  <div>
+    <h2 class="text-xl font-bold uppercase text-royal-teal tracking-wide">
+      {{ langService.lang() === 'ar' ? 'إدارة الدورات التدريبية' : 'Training Courses Management' }}
+    </h2>
+    <p class="text-xs text-deep-teal/60">
+      {{ langService.lang() === 'ar' ? 'إضافة الدورات وتعديلها وحذفها من الكتالوج' : 'Add, edit, and remove courses from the catalog' }}
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="h-64 flex items-center justify-center animate-pulse font-semibold text-deep-teal/50">
+      {{ langService.lang() === 'ar' ? 'جاري تحميل الدورات...' : 'Loading courses...' }}
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left: Course Form (Add / Edit) -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-4">
+        <h3 class="text-sm font-bold uppercase tracking-widest text-royal-teal border-b border-light-ivory pb-2">
+          {{ editingCourse() ? (langService.lang() === 'ar' ? 'تعديل الدورة' : 'Edit Course') : (langService.lang() === 'ar' ? 'إضافة دورة جديدة' : 'Add New Course') }}
+        </h3>
+
+        <form [formGroup]="courseForm" (ngSubmit)="onSubmitCourse()" class="flex flex-col gap-4">
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-deep-teal">Course Title (English) *</label>
+            <input type="text" formControlName="titleEn"
+                   class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"
+                   placeholder="e.g., Media Law" />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-deep-teal">Course Title (Arabic) *</label>
+            <input type="text" formControlName="titleAr"
+                   class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"
+                   placeholder="e.g., قوانين النشر والإعلام" />
+          </div>
+
+          <div class="flex flex-col gap-1 font-sans">
+            <label class="text-xs font-bold text-deep-teal">Description (English) *</label>
+            <textarea formControlName="descriptionEn" rows="2"
+                      class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1 font-sans">
+            <label class="text-xs font-bold text-deep-teal">Description (Arabic) *</label>
+            <textarea formControlName="descriptionAr" rows="2"
+                      class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-deep-teal">Fee Amount (CAD) *</label>
+            <input type="number" formControlName="feeAmount"
+                   class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-mono" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-bold text-deep-teal">Start Date *</label>
+              <input type="date" formControlName="startDate"
+                     class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" />
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-bold text-deep-teal">End Date *</label>
+              <input type="date" formControlName="endDate"
+                     class="px-3 py-1.5 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" formControlName="isActive"
+                   class="accent-royal-teal w-3.5 h-3.5 cursor-pointer" />
+            <label class="text-xs font-bold text-deep-teal cursor-pointer">Active Course</label>
+          </div>
+
+          <div class="flex gap-2">
+            @if (editingCourse()) {
+              <button type="button" (click)="cancelEdit()"
+                      class="flex-1 px-4 py-2 border border-deep-teal/20 text-deep-teal/60 font-bold text-xs rounded-lg hover:bg-light-ivory transition-colors cursor-pointer">
+                Cancel
+              </button>
+            }
+            <button type="submit" [disabled]="courseForm.invalid"
+                    class="flex-1 px-4 py-2 font-bold text-xs rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    [class]="editingCourse()
+                      ? 'bg-champagne-gold text-royal-teal hover:bg-royal-teal hover:text-white'
+                      : 'bg-royal-teal text-white hover:bg-champagne-gold hover:text-royal-teal'">
+              {{ editingCourse() ? '✓ Save Changes' : '+ Add Course' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Right: Courses Catalog -->
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-4">
+        <h3 class="text-sm font-bold uppercase tracking-widest text-royal-teal border-b border-light-ivory pb-2">
+          {{ langService.lang() === 'ar' ? 'الدورات الحالية' : 'Current Courses' }}
+          ({{ courses().length }})
+        </h3>
+
+        <div class="flex flex-col gap-3">
+          @for (c of courses(); track c.id) {
+            <div class="p-4 rounded-xl border transition-colors duration-150"
+                 [class]="editingCourse()?.id === c.id
+                   ? 'border-champagne-gold bg-champagne-gold/5'
+                   : 'border-light-ivory bg-light-ivory/50'">
+              <div class="flex justify-between items-start gap-3">
+
+                <div class="flex flex-col gap-0.5 text-start flex-1 min-w-0">
+                  <h4 class="font-bold text-royal-teal text-xs truncate">{{ c.titleEn }}</h4>
+                  <p class="text-[10px] text-deep-teal/60 truncate">{{ c.titleAr }}</p>
+                  <div class="flex items-center gap-3 mt-1">
+                    <span class="font-mono text-[10px] text-deep-teal/70 font-bold">{{ c.feeAmount }} CAD</span>
+                    <span class="text-[10px] text-deep-teal/40">
+                      {{ c.startDate | date:'mediumDate' }} → {{ c.endDate | date:'mediumDate' }}
+                    </span>
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                          [class]="c.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'">
+                      {{ c.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1 shrink-0">
+                  <button (click)="startEdit(c)"
+                          class="p-1.5 text-royal-teal hover:bg-royal-teal/10 rounded-lg transition-colors cursor-pointer"
+                          title="Edit course">
+                    <mat-icon class="text-sm">edit</mat-icon>
+                  </button>
+                  <button (click)="requestDelete(c)"
+                          class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          title="Delete course">
+                    <mat-icon class="text-sm">delete</mat-icon>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          } @empty {
+            <p class="text-deep-teal/50 text-xs py-8 text-center">No courses in catalog yet.</p>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
+
+<!-- ── Delete Confirmation Modal ──────────────────────────────────── -->
+@if (courseToDelete()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background: rgba(0,0,0,0.45);"
+       (click)="cancelDelete()">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden animate-fade-in"
+         (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="bg-red-50 border-b border-red-100 px-6 py-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+          <mat-icon class="text-red-600">warning</mat-icon>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-red-700">
+            {{ langService.lang() === 'ar' ? 'تأكيد الحذف' : 'Confirm Deletion' }}
+          </h3>
+          <p class="text-[10px] text-red-500/70">
+            {{ langService.lang() === 'ar' ? 'هذا الإجراء لا يمكن التراجع عنه' : 'This action cannot be undone' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="px-6 py-5 flex flex-col gap-3">
+        <p class="text-xs text-deep-teal/80 font-sans leading-relaxed">
+          {{ langService.lang() === 'ar'
+            ? 'هل أنت متأكد من حذف هذه الدورة؟ سيتم إزالتها من الكتالوج نهائياً.'
+            : 'Are you sure you want to delete this course? It will be permanently removed from the catalog.' }}
+        </p>
+
+        <div class="p-3 bg-light-ivory rounded-xl border border-champagne-gold/20">
+          <p class="text-xs font-bold text-royal-teal">{{ courseToDelete()!.titleEn }}</p>
+          <p class="text-[10px] text-deep-teal/60 mt-0.5">{{ courseToDelete()!.titleAr }}</p>
+          <p class="text-[10px] font-mono text-deep-teal/50 mt-1">{{ courseToDelete()!.feeAmount }} CAD</p>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="px-6 pb-5 flex gap-2 justify-end">
+        <button (click)="cancelDelete()"
+                class="px-4 py-2 text-xs font-bold text-deep-teal/60 border border-deep-teal/15 rounded-lg hover:bg-light-ivory transition-colors cursor-pointer">
+          {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+        </button>
+        <button (click)="confirmDelete()"
+                class="px-4 py-2 text-xs font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors cursor-pointer">
+          {{ langService.lang() === 'ar' ? 'حذف نهائياً' : 'Delete Course' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

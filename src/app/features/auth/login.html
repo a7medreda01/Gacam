@@ -1,0 +1,64 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-light-ivory py-16 flex items-center justify-center">
+  <div class="w-full max-w-md bg-white p-8 rounded-2xl border border-champagne-gold/15 shadow-xl text-start">
+    
+    <!-- Headers -->
+    <div class="text-center mb-8 flex flex-col gap-2">
+      <div class="h-12 w-12 rounded-full border border-champagne-gold bg-royal-teal flex items-center justify-center mx-auto shadow-sm">
+        <span class="text-champagne-gold font-bold font-sans">GA</span>
+      </div>
+      <h2 class="text-xl font-extrabold text-royal-teal uppercase tracking-wide">
+        {{ 'AUTH.LOGIN_TITLE' | translate }}
+      </h2>
+      <p class="text-xs text-deep-teal/50 font-sans">
+        {{ langService.lang() === 'ar' ? 'سجل دخولك لتسيير طلباتك واختباراتك الإعلامية' : 'Enter your GACAM terminal credentials' }}
+      </p>
+    </div>
+
+    <!-- Form fields -->
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label for="login-email" class="text-xs font-bold text-deep-teal">{{ 'COMMON.EMAIL' | translate }}</label>
+        <input id="login-email" type="email" formControlName="email" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="e.g., reporter&#64;gacam.media" />
+      </div>
+
+      <div class="flex flex-col gap-1.5 relative">
+        <label for="login-password" class="text-xs font-bold text-deep-teal">{{ 'COMMON.PASSWORD' | translate }}</label>
+        <input id="login-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="••••••••" />
+        <button type="button" (click)="showPassword.set(!showPassword())" class="absolute bottom-2.5 right-3 text-deep-teal/40 hover:text-royal-teal flex items-center justify-center">
+          <mat-icon class="text-sm h-4 w-4">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </div>
+
+
+      <!-- Quick access login tips box -->
+      <div class="p-3 bg-champagne-gold/5 border border-champagne-gold/20 rounded-lg text-[10px] text-deep-teal/85 font-sans leading-normal">
+        <strong>🚀 Demo Node Access:</strong><br/>
+        - Administrator: <span class="select-all font-mono font-bold font-semibold">admin&#64;gacam.media</span> (Password: <span class="select-all font-mono font-semibold">Admin&#64;Gacam2026</span>)<br/>
+        - Staff: <span class="select-all font-mono font-bold font-semibold">staff&#64;gacam.media</span> (Password: <span class="select-all font-mono font-semibold">Staff&#64;Gacam2026</span>)
+      </div>
+
+      <!-- CTA Buttons -->
+      <button type="submit" [disabled]="loginForm.invalid || loading()" class="mt-2 px-6 py-3 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5">
+        @if (loading()) {
+          <span class="animate-spin text-xs">...</span>
+        } @else {
+          <mat-icon class="text-sm">login</mat-icon>
+        }
+        <span>{{ 'NAV.LOGIN' | translate }}</span>
+      </button>
+    </form>
+
+    <!-- Redirect options -->
+    <div class="mt-6 pt-4 border-t border-light-ivory text-center text-xs font-medium text-deep-teal/75">
+      <span>{{ 'AUTH.NO_ACCOUNT' | translate }}</span> &nbsp;
+      <a routerLink="/register" class="text-champagne-gold font-bold hover:text-royal-teal transition-colors">
+        {{ 'AUTH.REGISTER_LINK' | translate }}
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<app-footer></app-footer>

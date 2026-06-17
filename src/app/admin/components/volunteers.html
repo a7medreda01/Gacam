@@ -1,0 +1,195 @@
+<!-- ══════════════════════════════════════════════════════════════
+     CV Preview Modal
+══════════════════════════════════════════════════════════════ -->
+@if (previewOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+       (click)="closeCvPreview()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden"
+         (click)="$event.stopPropagation()">
+
+      <!-- Modal header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-light-ivory bg-royal-teal rounded-t-2xl">
+        <div class="flex items-center gap-2 text-white">
+          <mat-icon class="text-champagne-gold">description</mat-icon>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wide">
+              {{ langService.lang() === 'ar' ? 'السيرة الذاتية' : 'Curriculum Vitae' }}
+            </p>
+            <p class="text-[10px] text-white/70">{{ previewName() }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Open in new tab -->
+          <a [href]="previewUrl()" target="_blank" rel="noopener"
+             class="flex items-center gap-1 px-3 py-1.5 bg-white/15 hover:bg-champagne-gold text-white hover:text-royal-teal text-[10px] font-bold rounded-lg transition-colors">
+            <mat-icon class="text-xs h-3.5 w-3.5">open_in_new</mat-icon>
+            {{ langService.lang() === 'ar' ? 'فتح' : 'Open' }}
+          </a>
+          <!-- Close -->
+          <button (click)="closeCvPreview()"
+                  class="p-1.5 bg-white/15 hover:bg-white/30 text-white rounded-lg transition-colors">
+            <mat-icon class="text-sm h-4 w-4">close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- PDF iframe embed — safePreviewUrl bypasses Angular sanitizer -->
+      <div class="flex-1 overflow-hidden bg-gray-100 min-h-[500px]">
+        <iframe [src]="safePreviewUrl()"
+                class="w-full h-full min-h-[500px] border-0"
+                title="CV Preview"
+                loading="lazy">
+        </iframe>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="px-5 py-3 border-t border-light-ivory flex items-center justify-between bg-light-ivory/50 rounded-b-2xl">
+        <span class="text-[10px] text-deep-teal/50">
+          {{ langService.lang() === 'ar' ? 'إذا لم يظهر الملف، اضغط "فتح" لعرضه في تبويب جديد.' : 'If the file does not render, click "Open" to view in a new tab.' }}
+        </span>
+        <button (click)="closeCvPreview()"
+                class="px-4 py-1.5 bg-royal-teal text-white text-[10px] font-bold rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors">
+          {{ langService.lang() === 'ar' ? 'إغلاق' : 'Close' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ══════════════════════════════════════════════════════════════
+     Page
+══════════════════════════════════════════════════════════════ -->
+<div class="flex flex-col gap-6 animate-fade-in text-start">
+
+  <!-- Header -->
+  <div>
+    <h2 class="text-xl font-bold uppercase text-royal-teal tracking-wide">
+      {{ langService.lang() === 'ar' ? 'طلبات الانضمام لفرق التطوع والمساندة' : 'Community Volunteer Applications' }}
+    </h2>
+    <p class="text-xs text-deep-teal/60 mt-0.5">
+      {{ langService.lang() === 'ar'
+        ? 'مراجعة السيرة الذاتية والمؤهلات التقنية للمساندة في فعاليات الهيئة الإقليمية والوطنية'
+        : 'Review skill dossiers and approve or reject applicants for regional GACAM events'
+      }}
+    </p>
+  </div>
+
+  @if (loading()) {
+    <div class="h-64 flex items-center justify-center animate-pulse font-semibold text-deep-teal/50">
+      {{ langService.lang() === 'ar' ? 'جارٍ تحميل سجل طلبات التطوع...' : 'Loading volunteer register...' }}
+    </div>
+
+  } @else {
+    <div class="overflow-x-auto bg-white rounded-2xl border border-champagne-gold/15 shadow-sm">
+      <table class="w-full text-xs font-semibold text-center divide-y divide-light-ivory">
+        <thead class="bg-royal-teal text-white">
+          <tr>
+            <th class="p-3 text-start">{{ langService.lang() === 'ar' ? 'المتطوع' : 'VOLUNTEER' }}</th>
+            <th class="p-3 text-start">{{ langService.lang() === 'ar' ? 'التواصل' : 'CONTACT' }}</th>
+            <th class="p-3 text-start">{{ langService.lang() === 'ar' ? 'المجال والمهارات' : 'AREA & SKILLS' }}</th>
+            <th class="p-3">{{ langService.lang() === 'ar' ? 'السيرة الذاتية' : 'CV' }}</th>
+            <th class="p-3">{{ langService.lang() === 'ar' ? 'تاريخ التقديم' : 'DATE' }}</th>
+            <th class="p-3">{{ langService.lang() === 'ar' ? 'الحالة' : 'STATUS' }}</th>
+            <th class="p-3">{{ langService.lang() === 'ar' ? 'الإجراءات' : 'ACTIONS' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-light-ivory text-deep-teal/85 font-sans">
+
+          @for (v of vols(); track v.id) {
+            <tr class="hover:bg-light-ivory/30 transition-colors duration-100">
+
+              <!-- Name -->
+              <td class="p-3 text-start font-bold">{{ v.fullName }}</td>
+
+              <!-- Contact -->
+              <td class="p-3 text-start">
+                <span class="block text-[10px] text-deep-teal/70">{{ v.email }}</span>
+                <span class="block text-[10px] text-deep-teal/50">{{ v.phone }}</span>
+              </td>
+
+              <!-- Area + Skills -->
+              <td class="p-3 text-start max-w-[200px]">
+                <span class="block text-[10px] font-extrabold text-royal-teal uppercase font-mono tracking-wide bg-champagne-gold/15 px-2 py-0.5 rounded mb-1 inline-block">
+                  {{ getVolunteeringAreaText(v.area ?? 0) }}
+                </span>
+                <span class="block text-deep-teal/70 text-[11px] truncate leading-normal">{{ v.skills }}</span>
+              </td>
+
+              <!-- CV column -->
+              <td class="p-3">
+                @if (v.cvUrl) {
+                  <div class="flex items-center justify-center gap-1.5">
+                    <!-- Preview button (opens modal) -->
+                    <button (click)="openCvPreview(v)"
+                            title="{{ langService.lang() === 'ar' ? 'معاينة السيرة الذاتية' : 'Preview CV' }}"
+                            class="flex items-center gap-1 px-2.5 py-1 bg-royal-teal/10 hover:bg-royal-teal text-royal-teal hover:text-white text-[10px] font-bold rounded-lg transition-colors">
+                      <mat-icon class="text-xs h-3.5 w-3.5">visibility</mat-icon>
+                      {{ langService.lang() === 'ar' ? 'معاينة' : 'Preview' }}
+                    </button>
+                    <!-- Download button -->
+                    <button (click)="downloadCv(v)"
+                            title="{{ langService.lang() === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV' }}"
+                            class="flex items-center justify-center p-1.5 bg-champagne-gold/15 hover:bg-champagne-gold text-deep-teal hover:text-royal-teal rounded-lg transition-colors">
+                      <mat-icon class="text-xs h-3.5 w-3.5">download</mat-icon>
+                    </button>
+                  </div>
+                } @else {
+                  <span class="text-[10px] text-deep-teal/30 italic">
+                    {{ langService.lang() === 'ar' ? 'لا يوجد ملف' : 'No file' }}
+                  </span>
+                }
+              </td>
+
+              <!-- Date -->
+              <td class="p-3 whitespace-nowrap text-[11px]">{{ v.appliedAt | date:'dd MMM yyyy' }}</td>
+
+              <!-- Status badge -->
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px]"
+                      [class]="getVolunteerStatusClass(v.status)">
+                  {{ getVolunteerStatusText(v.status) }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="p-3">
+                @if (isPending(v.status)) {
+                  <div class="flex justify-center gap-1.5">
+                    @if (processingId() === v.id) {
+                      <span class="text-[10px] text-deep-teal/50 animate-pulse">
+                        {{ langService.lang() === 'ar' ? 'جارٍ...' : 'Processing...' }}
+                      </span>
+                    } @else {
+                      <button (click)="reviewVolunteer(v.id, true)"
+                              class="px-3 py-1 bg-emerald-600 text-white rounded text-[10px] hover:bg-emerald-700 cursor-pointer transition-colors font-bold">
+                        {{ langService.lang() === 'ar' ? 'قبول' : 'Approve' }}
+                      </button>
+                      <button (click)="reviewVolunteer(v.id, false)"
+                              class="px-3 py-1 bg-red-600 text-white rounded text-[10px] hover:bg-red-700 cursor-pointer transition-colors font-bold">
+                        {{ langService.lang() === 'ar' ? 'رفض' : 'Reject' }}
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-deep-teal/35 font-bold text-[10px]">
+                    {{ langService.lang() === 'ar' ? 'تم البت' : 'Decided' }}
+                  </span>
+                }
+              </td>
+
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="p-10 text-center text-deep-teal/40">
+                {{ langService.lang() === 'ar' ? 'لا توجد طلبات تطوع حالياً.' : 'No active volunteer files in database.' }}
+              </td>
+            </tr>
+          }
+
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
