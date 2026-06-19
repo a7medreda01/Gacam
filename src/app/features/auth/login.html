@@ -24,7 +24,12 @@
       </div>
 
       <div class="flex flex-col gap-1.5 relative">
-        <label for="login-password" class="text-xs font-bold text-deep-teal">{{ 'COMMON.PASSWORD' | translate }}</label>
+        <div class="flex justify-between items-center">
+          <label for="login-password" class="text-xs font-bold text-deep-teal">{{ 'COMMON.PASSWORD' | translate }}</label>
+          <a routerLink="/forgot-password" class="text-[10px] text-royal-teal hover:text-champagne-gold transition-colors font-bold font-sans">
+            {{ langService.lang() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot Password?' }}
+          </a>
+        </div>
         <input id="login-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="••••••••" />
         <button type="button" (click)="showPassword.set(!showPassword())" class="absolute bottom-2.5 right-3 text-deep-teal/40 hover:text-royal-teal flex items-center justify-center">
           <mat-icon class="text-sm h-4 w-4">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>

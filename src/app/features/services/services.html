@@ -1,0 +1,571 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-light-ivory py-16">
+  <div class="container-gacam">
+
+    <!-- ── Page Header ── -->
+    <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+      <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-champagne-gold">
+        GACAM Official Registry
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-royal-teal tracking-tight">
+        {{ 'NAV.SERVICES' | translate }} &amp; {{ 'NAV.ACCREDITATION' | translate }}
+      </h1>
+      <p class="text-xs sm:text-sm text-deep-teal/70 leading-relaxed font-sans mt-1">
+        {{ langService.lang() === 'ar'
+          ? 'بوابة إصدار الاعتمادات الإعلامية الرسمية للصحفيين والمراسلين والنشطاء بدولة كندا.'
+          : 'The central system for issuing accredited media press passes and credential verification.'
+        }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+      <!-- ── Left: Info Panel ── -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+
+        <!-- Fee Card -->
+        <div class="bg-royal-teal text-white border border-champagne-gold/25 p-8 rounded-2xl shadow-xl relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-champagne-gold/10 blur-2xl pointer-events-none"></div>
+
+          <!-- Logo -->
+          <div class="flex justify-center mb-5">
+            <img src="logo.png" alt="GACAM Logo" class="h-14 w-auto object-contain" />
+          </div>
+
+          <h2 class="text-xs font-bold text-champagne-gold uppercase tracking-[0.18em] border-b border-white/10 pb-4 mb-6">
+            {{ langService.lang() === 'ar' ? 'الرسوم المعتمدة' : 'Fee Schedule' }}
+          </h2>
+
+          <div class="flex flex-col gap-5">
+<div class="flex justify-between items-center">
+  <div>
+    <p class="text-sm font-bold">{{ cardFee()?.unitPrice ?? '—' }} CAD</p>
+    <p class="text-xs text-white/60 mt-0.5">
+      {{ langService.lang() === 'ar' ? 'رسوم المعالجة والطباعة' : 'Card Processing & Printing' }}
+    </p>
+  </div>
+  <mat-icon class="text-champagne-gold/80">credit_card</mat-icon>
+</div>
+
+<div class="flex justify-between items-center border-t border-white/5 pt-5">
+  <div>
+    <p class="text-sm font-bold">{{ cardFee()?.shippingFee ?? '—' }} CAD</p>
+    <p class="text-xs text-white/60 mt-0.5">
+      {{ langService.lang() === 'ar' ? 'رسوم الشحن السريع' : 'Tracked Courier Shipping' }}
+    </p>
+  </div>
+  <mat-icon class="text-champagne-gold/80">local_shipping</mat-icon>
+</div>
+
+<div class="bg-deep-teal/40 border border-white/10 rounded-xl p-4 flex justify-between items-center mt-1">
+  <div>
+    <p class="text-base font-extrabold text-champagne-gold">{{ totalFee() }} CAD</p>
+    <p class="text-[10px] uppercase tracking-widest text-white/50 mt-0.5">
+      {{ langService.lang() === 'ar' ? 'المجموع الكلي' : 'Total Due' }}
+    </p>
+  </div>
+  <span class="text-xs bg-champagne-gold text-royal-teal font-extrabold px-3 py-1 rounded-full font-mono">CAD</span>
+</div>
+          </div>
+
+          <p class="mt-6 text-[10px] text-white/50 leading-relaxed font-sans italic border-t border-white/5 pt-4 flex gap-2 items-start">
+            <mat-icon class="text-[14px] h-4 w-4 flex-shrink-0 mt-0.5">info</mat-icon>
+            <span>
+              {{ langService.lang() === 'ar'
+                ? 'رسوم المعالجة غير قابلة للاسترداد عند بدء المراجعة.'
+                : 'All processing fees are non-refundable upon review outset.'
+              }}
+            </span>
+          </p>
+
+<div>
+  <a href="service.jfif" target="_blank">
+    <img src="service.jfif" alt="" class="mt-2 rounded-2" />
+  </a>
+</div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="bg-white border border-champagne-gold/15 p-6 rounded-2xl flex flex-col gap-4">
+          <h3 class="text-[11px] font-bold text-royal-teal uppercase tracking-[0.16em]">
+            {{ langService.lang() === 'ar' ? 'مزايا الاعتماد' : 'Accreditation Benefits' }}
+          </h3>
+          <ul class="text-xs text-deep-teal/75 flex flex-col gap-3 font-sans">
+            <li class="flex gap-2.5 items-start">
+              <mat-icon class="text-champagne-gold text-sm h-4 w-4 flex-shrink-0 mt-0.5">verified</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'انتساب مؤسسي رسمي يعكس المكانة المهنية.' : 'Official institutional affiliation and professional recognition.' }}</span>
+            </li>
+            <li class="flex gap-2.5 items-start">
+              <mat-icon class="text-champagne-gold text-sm h-4 w-4 flex-shrink-0 mt-0.5">qr_code_scanner</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'تحقق فوري عبر مسح QR مرتبط بالسجلات الحية.' : 'Instant QR verification linked to live registry records.' }}</span>
+            </li>
+            <li class="flex gap-2.5 items-start">
+              <mat-icon class="text-champagne-gold text-sm h-4 w-4 flex-shrink-0 mt-0.5">badge</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'دورة حياة كاملة للبطاقة: فعال، منتهي، ملغى.' : 'Full card lifecycle — Active, Expired, Revoked statuses.' }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Right: Workspace ── -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-champagne-gold/15 shadow-sm overflow-hidden">
+
+        <!-- Guest -->
+        @if (!authService.isAuthenticated()) {
+          <div class="p-10 text-center flex flex-col items-center gap-6">
+            <div class="h-16 w-16 bg-royal-teal/5 rounded-full flex items-center justify-center border border-champagne-gold/20">
+              <mat-icon class="text-royal-teal" style="font-size:32px;width:32px;height:32px;">lock</mat-icon>
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-base font-bold text-royal-teal">
+                {{ langService.lang() === 'ar' ? 'تسجيل الدخول مطلوب' : 'Authentication Required' }}
+              </h3>
+              <p class="text-xs text-deep-teal/60 font-sans max-w-sm mx-auto leading-relaxed">
+                {{ langService.lang() === 'ar'
+                  ? 'يرجى تسجيل الدخول لتقديم طلب الاعتماد الإعلامي.'
+                  : 'Sign in to your GACAM account to submit your media accreditation request.'
+                }}
+              </p>
+            </div>
+            <div class="flex gap-3">
+              <a routerLink="/login"
+                 class="px-6 py-2.5 text-xs font-bold bg-royal-teal text-white hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-colors shadow-sm">
+                {{ 'NAV.LOGIN' | translate }}
+              </a>
+              <a routerLink="/register"
+                 class="px-6 py-2.5 text-xs font-bold border border-royal-teal/20 text-royal-teal hover:bg-light-ivory rounded-lg transition-colors">
+                {{ 'NAV.REGISTER' | translate }}
+              </a>
+            </div>
+          </div>
+
+        } @else if (loading()) {
+          <!-- Loading -->
+          <div class="p-10 flex flex-col items-center justify-center gap-3">
+            <div class="w-8 h-8 border-2 border-royal-teal border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs text-deep-teal/50 font-sans">
+              {{ langService.lang() === 'ar' ? 'جاري التحقق من السجلات...' : 'Checking records…' }}
+            </p>
+          </div>
+
+        } @else if (!myApplication()) {
+          <!-- ── Apply Form ── -->
+          <div class="p-8">
+            <div class="mb-6 border-b border-light-ivory pb-5">
+              <h3 class="text-base font-bold text-royal-teal">
+                {{ 'ACCREDITATION.APPLY' | translate }}
+              </h3>
+              <p class="text-xs text-deep-teal/50 mt-1 font-sans">
+                {{ langService.lang() === 'ar'
+                  ? 'أكمل النموذج أدناه لتقديم طلب الاعتماد الإعلامي.'
+                  : 'Complete the form below to submit your media accreditation application.'
+                }}
+              </p>
+            </div>
+
+            <form [formGroup]="applyForm" (ngSubmit)="onApply()" class="flex flex-col gap-5">
+
+              <!-- Category -->
+              <div class="flex flex-col gap-1.5 text-start">
+                <label for="acc-category" class="text-[11px] font-bold text-deep-teal uppercase tracking-wider">
+                  {{ langService.lang() === 'ar' ? 'فئة الاعتماد' : 'Accreditation Category' }}
+                  <span class="text-champagne-gold ml-0.5">*</span>
+                </label>
+                <select id="acc-category" formControlName="category"
+                        class="px-4 py-2.5 text-xs border border-champagne-gold/25 rounded-lg bg-light-ivory/60
+                               focus:outline-none focus:ring-2 focus:ring-royal-teal/30 focus:border-royal-teal font-sans text-deep-teal transition">
+                  @for (cat of categories(); track cat.id) {
+                    <option [value]="cat.id">
+                      {{ langService.lang() === 'ar' ? cat.nameAr : cat.nameEn }}
+                    </option>
+                  }
+                </select>
+              </div>
+
+              <!-- Document Upload -->
+              <div class="flex flex-col gap-1.5 text-start">
+                <label for="acc-doc" class="text-[11px] font-bold text-deep-teal uppercase tracking-wider">
+                  {{ langService.lang() === 'ar' ? 'المستند الداعم (CV، هوية، إلخ)' : 'Supporting Document' }}
+                  <span class="text-deep-teal/30 font-normal normal-case ml-1 tracking-normal">
+                    {{ langService.lang() === 'ar' ? '(اختياري)' : '(optional)' }}
+                  </span>
+                </label>
+                <input id="acc-doc" type="file" accept=".pdf,.jpg,.jpeg,.png"
+                       (change)="onFileChange($event)"
+                       class="px-4 py-2 text-xs border border-champagne-gold/25 rounded-lg bg-light-ivory/60
+                              file:mr-3 file:text-[10px] file:font-bold file:border-0 file:bg-royal-teal
+                              file:text-white file:px-3 file:py-1.5 file:rounded file:cursor-pointer
+                              focus:outline-none focus:ring-2 focus:ring-royal-teal/30" />
+                <p class="text-[10px] text-deep-teal/40 font-sans">
+                  {{ langService.lang() === 'ar' ? 'PDF أو صورة بحد أقصى 5MB' : 'PDF or image, max 5 MB' }}
+                </p>
+              </div>
+
+              <button type="submit" [disabled]="applyForm.invalid || submitting()"
+                      class="mt-1 px-6 py-3 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal
+                             rounded-lg transition-colors cursor-pointer text-xs flex items-center justify-center gap-2
+                             disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                @if (submitting()) {
+                  <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>{{ langService.lang() === 'ar' ? 'جاري الإرسال...' : 'Submitting…' }}</span>
+                } @else {
+                  <mat-icon class="text-sm">send</mat-icon>
+                  <span>{{ 'COMMON.SUBMIT' | translate }}</span>
+                }
+              </button>
+            </form>
+          </div>
+
+        } @else {
+          <!-- ── Application Status View ── -->
+
+          <!-- Status Header Bar -->
+          <div class="px-8 py-5 border-b border-light-ivory flex justify-between items-center gap-4">
+            <div>
+              <h3 class="text-sm font-bold text-royal-teal">
+                {{ langService.lang() === 'ar' ? 'طلب الاعتماد' : 'Accreditation Application' }}
+              </h3>
+              <p class="text-[10px] text-deep-teal/40 mt-0.5 font-mono">
+                #{{ myApplication()?.id }} &nbsp;·&nbsp;
+                {{ langService.lang() === 'ar' ? 'تقدمت بتاريخ' : 'Submitted' }}
+                {{ myApplication()?.createdAt | date:'mediumDate' }}
+              </p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase"
+                  [class]="statusBadgeClass(myApplication()?.status)">
+              {{ statusLabel(myApplication()?.status) }}
+            </span>
+          </div>
+
+          <!-- Application Info -->
+          <div class="px-8 py-6 border-b border-light-ivory">
+            <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-xs">
+              <div>
+                <p class="text-[9px] font-bold uppercase tracking-widest text-deep-teal/40 mb-1">
+                  {{ langService.lang() === 'ar' ? 'الاسم الكامل' : 'Full Name' }}
+                </p>
+                <p class="font-bold text-royal-teal">{{ myApplication()?.userFullName }}</p>
+              </div>
+              <div>
+                <p class="text-[9px] font-bold uppercase tracking-widest text-deep-teal/40 mb-1">
+                  {{ langService.lang() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}
+                </p>
+                <p class="font-semibold text-deep-teal/75">{{ myApplication()?.userEmail }}</p>
+              </div>
+              <div>
+                <p class="text-[9px] font-bold uppercase tracking-widest text-deep-teal/40 mb-1">
+                  {{ langService.lang() === 'ar' ? 'الفئة' : 'Category' }}
+                </p>
+                <p class="font-bold text-royal-teal">{{ categoryLabel(myApplication()) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Pending ── -->
+          @if (isPending(myApplication()?.status)) {
+            <div class="px-8 py-6">
+              <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <mat-icon class="text-amber-500 flex-shrink-0 mt-0.5">hourglass_empty</mat-icon>
+                <div>
+                  <p class="text-xs font-bold text-amber-800 mb-1">
+                    {{ langService.lang() === 'ar' ? 'طلبك قيد المراجعة' : 'Application Under Review' }}
+                  </p>
+                  <p class="text-[11px] text-amber-700 font-sans leading-relaxed">
+                    {{ langService.lang() === 'ar'
+                      ? 'يراجع فريق GACAM طلبك حالياً. سيتم إشعارك فور اتخاذ القرار.'
+                      : 'The GACAM team is reviewing your application. You will be notified once a decision is made.'
+                    }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ── Approved ── -->
+          @if (isApproved(myApplication()?.status)) {
+            <div class="px-8 py-6 flex flex-col gap-6">
+
+              <!-- Approved notice -->
+              <div class="flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-3 rounded-xl">
+                <mat-icon class="text-emerald-600 flex-shrink-0">verified</mat-icon>
+                <p class="text-xs font-bold">
+                  {{ langService.lang() === 'ar'
+                    ? 'تم اعتمادك رسمياً كعضو في هيئة GACAM الإعلامية.'
+                    : 'Your GACAM media accreditation has been officially approved.'
+                  }}
+                </p>
+              </div>
+
+              <!-- ── Media Card Component ── -->
+              <app-media-card
+                [application]="myApplication()!"
+                [userProfileImageUrl]="authService.currentUser()?.profileImageUrl">
+              </app-media-card>
+
+              <!-- QR / Card Meta -->
+              @if (myApplication()?.mediaCard) {
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div class="bg-light-ivory/70 border border-champagne-gold/10 rounded-xl p-3 text-start">
+                    <p class="text-[9px] text-deep-teal/40 uppercase tracking-wider mb-1">
+                      {{ langService.lang() === 'ar' ? 'تاريخ الإصدار' : 'Issued At' }}
+                    </p>
+                    <p class="font-semibold text-royal-teal text-[11px]">
+                      {{ myApplication()?.mediaCard?.issuedAt | date:'mediumDate' }}
+                    </p>
+                  </div>
+                  <div class="bg-light-ivory/70 border border-champagne-gold/10 rounded-xl p-3 text-start">
+                    <p class="text-[9px] text-deep-teal/40 uppercase tracking-wider mb-1">
+                      {{ langService.lang() === 'ar' ? 'تاريخ الانتهاء' : 'Expires At' }}
+                    </p>
+                    <p class="font-semibold text-royal-teal text-[11px]">
+                      {{ myApplication()?.mediaCard?.expiresAt | date:'mediumDate' }}
+                    </p>
+                  </div>
+                  <div class="col-span-2 bg-light-ivory/70 border border-champagne-gold/10 rounded-xl p-3 text-start">
+                    <p class="text-[9px] text-deep-teal/40 uppercase tracking-wider mb-1">QR Verify URL</p>
+                    <p class="font-mono text-[10px] text-deep-teal/70 break-all">
+                      {{ myApplication()?.mediaCard?.qrCodeData }}
+                    </p>
+                  </div>
+                </div>
+              }
+
+<!-- بدّل زر Certificate CTA بالكامل بده -->
+<button (click)="openOrderModal()"
+        class="w-full py-3.5 bg-royal-teal text-white hover:bg-champagne-gold hover:text-royal-teal
+               rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center justify-center
+               gap-2 transition-all">
+  <mat-icon class="text-sm">print</mat-icon>
+  <span>
+    {{ langService.lang() === 'ar'
+      ? 'طلب طباعة وشحن البطاقة الإعلامية'
+      : 'Order Accreditation Card Print & Delivery'
+    }}
+  </span>
+</button>
+            </div>
+          }
+
+          <!-- ── Rejected ── -->
+          @if (isRejected(myApplication()?.status)) {
+            <div class="px-8 py-6">
+              <div class="p-5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <mat-icon class="text-red-400 flex-shrink-0 mt-0.5">cancel</mat-icon>
+                <div>
+                  <h4 class="text-xs font-bold text-red-800 mb-1">
+                    {{ langService.lang() === 'ar' ? 'لم تتم الموافقة على الطلب' : 'Application Not Approved' }}
+                  </h4>
+                  <p class="text-[11px] text-red-700 font-sans leading-relaxed">
+                    {{ langService.lang() === 'ar'
+                      ? 'يرجى التواصل مع فريق GACAM للاستفسار عن أسباب الرفض.'
+                      : 'Please contact GACAM support to inquire about the reason and reapplication options.'
+                    }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ── Refunded ── -->
+          @if (isRefunded(myApplication()?.status)) {
+            <div class="px-8 py-6">
+              <div class="p-5 bg-gray-50 border border-gray-200 rounded-xl flex items-start gap-3">
+                <mat-icon class="text-gray-400 flex-shrink-0 mt-0.5">undo</mat-icon>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-700 mb-1">
+                    {{ langService.lang() === 'ar' ? 'تمت إعادة المبلغ' : 'Application Refunded' }}
+                  </h4>
+                  <p class="text-[11px] text-gray-500 font-sans leading-relaxed">
+                    {{ langService.lang() === 'ar'
+                      ? 'تمت إعادة رسوم طلبك. يمكنك التقديم من جديد في أي وقت.'
+                      : 'Your application fee has been refunded. You may reapply at any time.'
+                    }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+        }
+      </div>
+    </div>
+  </div>
+</main>
+<!-- ── Card Print Order Modal ── -->
+@if (showOrderModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background:rgba(0,0,0,0.5);" (click)="closeOrderModal()">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden text-start"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-champagne-gold">print</mat-icon>
+          <h2 class="text-sm font-bold text-white uppercase tracking-widest">
+            {{ langService.lang() === 'ar' ? 'طلب طباعة البطاقة الإعلامية' : 'Media Card Print Order' }}
+          </h2>
+        </div>
+        <button (click)="closeOrderModal()" class="text-white/70 hover:text-white cursor-pointer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Pricing Summary -->
+      <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">
+            {{ langService.lang() === 'ar' ? 'بطاقة الاعتماد الإعلامي' : 'Media Accreditation Card' }}
+          </p>
+          <p class="text-[10px] text-deep-teal/50 font-sans mt-0.5">
+            {{ langService.lang() === 'ar' ? 'مع شحن سريع برقم تعقب' : 'Tracked express delivery across Canada' }}
+          </p>
+        </div>
+        <div class="text-end">
+          <span class="text-lg font-extrabold text-royal-teal font-mono">{{ getCardOrderTotal() }} CAD</span>
+          @if (cardFee()) {
+            <p class="text-[9px] text-deep-teal/50 font-mono">
+              {{ cardFee()!.unitPrice }} + {{ cardFee()!.shippingFee }}
+              ({{ langService.lang() === 'ar' ? 'شحن' : 'shipping' }})
+            </p>
+          }
+        </div>
+      </div>
+
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmitCardOrder()" class="px-6 py-5 flex flex-col gap-5">
+
+        <!-- Step Indicator -->
+        <div class="flex items-center gap-2 px-1">
+          <div class="flex-1 flex items-center gap-2">
+            <div class="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-extrabold transition-colors"
+                 [class]="orderStep() >= 1 ? 'bg-royal-teal text-white' : 'bg-light-ivory text-deep-teal/30 border border-champagne-gold/30'">1</div>
+            <span class="text-[10px] font-bold uppercase tracking-wider"
+                  [class]="orderStep() === 1 ? 'text-royal-teal' : 'text-deep-teal/40'">
+              {{ langService.lang() === 'ar' ? 'الشحن' : 'Shipping' }}
+            </span>
+          </div>
+          <div class="flex-1 h-0.5 mx-1" [class]="orderStep() >= 2 ? 'bg-royal-teal' : 'bg-champagne-gold/20'"></div>
+          <div class="flex-1 flex items-center gap-2 justify-end">
+            <span class="text-[10px] font-bold uppercase tracking-wider"
+                  [class]="orderStep() === 2 ? 'text-royal-teal' : 'text-deep-teal/40'">
+              {{ langService.lang() === 'ar' ? 'الدفع' : 'Payment' }}
+            </span>
+            <div class="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-extrabold transition-colors"
+                 [class]="orderStep() >= 2 ? 'bg-royal-teal text-white' : 'bg-light-ivory text-deep-teal/30 border border-champagne-gold/30'">2</div>
+          </div>
+        </div>
+
+        <!-- Step 1: Shipping -->
+        @if (orderStep() === 1) {
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'عنوان الشحن' : 'Shipping Address' }}
+              </label>
+              <input type="text" formControlName="address"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal font-sans"
+                     placeholder="e.g., 123 Main St, Toronto, ON" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+              </label>
+              <input type="tel" formControlName="phone"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal font-mono"
+                     placeholder="e.g., +1 416 555 0123" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'ملاحظات إضافية' : 'Delivery Notes' }}
+              </label>
+              <textarea formControlName="notes" rows="2"
+                        class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal resize-none font-sans"
+                        placeholder="e.g., Leave with reception..."></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
+            <button type="button" (click)="closeOrderModal()"
+                    class="px-4 py-2 text-xs font-bold text-deep-teal/60 border border-champagne-gold/30 rounded-lg cursor-pointer">
+              {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button type="button" (click)="goToOrderStep2()"
+                    class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5">
+              <span>{{ langService.lang() === 'ar' ? 'التالي' : 'Next' }}</span>
+              <mat-icon class="text-sm">arrow_forward</mat-icon>
+            </button>
+          </div>
+        }
+
+        <!-- Step 2: Payment -->
+        @if (orderStep() === 2) {
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'اسم المُرسِل *' : 'Sender Name *' }}
+              </label>
+              <input type="text" formControlName="senderName"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal font-sans"
+                     placeholder="e.g., John Doe" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'رقم مرجع Interac *' : 'Interac Reference Number *' }}
+              </label>
+              <input type="text" formControlName="referenceNumber"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal font-mono uppercase"
+                     placeholder="e.g., INTERAC-2026-XXXXX" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'المبلغ (CAD)' : 'Amount (CAD)' }}
+              </label>
+              <input type="number" formControlName="amount" readonly
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg opacity-65 cursor-not-allowed font-mono" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'إيصال الدفع *' : 'Payment Receipt *' }}
+              </label>
+              <div (dragover)="onOrderDragOver($event)" (dragleave)="onOrderDragLeave($event)"
+                   (drop)="onOrderDrop($event)" (click)="cardReceiptInput.click()"
+                   class="h-24 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer bg-light-ivory hover:bg-champagne-gold/5 transition-all"
+                   [class.border-royal-teal]="orderDragOver()" [class.border-champagne-gold]="!orderDragOver()">
+                <input type="file" #cardReceiptInput (change)="onOrderFileSelected($event)" class="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                <mat-icon class="text-royal-teal mb-1">upload_file</mat-icon>
+                @if (orderReceiptFileName()) {
+                  <span class="text-[10px] font-bold text-royal-teal truncate max-w-[90%] px-2">{{ orderReceiptFileName() }}</span>
+                } @else {
+                  <span class="text-[10px] text-deep-teal/50 font-sans">
+                    {{ langService.lang() === 'ar' ? 'اسحب الإيصال أو انقر للتصفح' : 'Drag receipt or click to browse' }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
+            <button type="button" (click)="goToOrderStep1()"
+                    class="px-4 py-2 text-xs font-bold text-deep-teal/60 border border-champagne-gold/30 rounded-lg cursor-pointer flex items-center gap-1.5">
+              <mat-icon class="text-sm">arrow_back</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'رجوع' : 'Back' }}</span>
+            </button>
+            <button type="submit"
+                    [disabled]="orderForm.invalid || orderLoading() || !orderReceiptFile()"
+                    class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (orderLoading()) {
+                <mat-icon class="text-sm animate-spin">sync</mat-icon>
+                <span>{{ langService.lang() === 'ar' ? 'قيد المعالجة...' : 'Processing...' }}</span>
+              } @else {
+                <mat-icon class="text-sm">shopping_cart</mat-icon>
+                <span>{{ langService.lang() === 'ar' ? 'تأكيد الطلب' : 'Confirm Order' }}</span>
+              }
+            </button>
+          </div>
+        }
+
+      </form>
+    </div>
+  </div>
+}
+<app-footer></app-footer>

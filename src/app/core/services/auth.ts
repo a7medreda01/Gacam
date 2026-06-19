@@ -133,7 +133,7 @@ export class AuthService {
 
   fetchProfile(): Observable<User> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${environment.apiUrl}/Auth/profile`, { headers }).pipe(
+    return this.http.get<any>(`${environment.apiUrl}/profile`, { headers }).pipe(
       tap(res => {
         const user: User = {
           id: res.id ?? res.Id ?? 0,
@@ -142,7 +142,8 @@ export class AuthService {
           isActive: res.isActive ?? res.IsActive ?? true,
           roles: res.roles || res.Roles || [],
           country: res.country || res.Country || '',
-          organization: res.organization || res.Organization || ''
+          organization: res.organization || res.Organization || '',
+          profileImageUrl: res.profileImageUrl ?? res.ProfileImageUrl ?? ''
         };
         
         const rawRoles = res.roles || res.Roles || [];
@@ -164,6 +165,34 @@ export class AuthService {
     );
   }
 
+  updateProfile(fullName: string, phoneNumber: string): Observable<User> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<any>(`${environment.apiUrl}/profile`, { fullName, phoneNumber }, { headers }).pipe(
+      tap(res => {
+        this.fetchProfile().subscribe();
+      })
+    );
+  }
+
+  uploadProfileImage(file: File): Observable<any> {
+    const headers = this.getAuthHeaders();
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<any>(`${environment.apiUrl}/profile/upload-image`, fd, { headers }).pipe(
+      tap(() => {
+        this.fetchProfile().subscribe();
+      })
+    );
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/Auth/forgot-password`, { email });
+  }
+
+  resetPassword(payload: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/Auth/reset-password`, payload);
+  }
+
   getAuthHeaders(): HttpHeaders {
     let headers = new HttpHeaders();
     const tokenVal = this.token();
@@ -172,6 +201,7 @@ export class AuthService {
     }
     return headers;
   }
+
 
   logout() {
     this.token.set(null);

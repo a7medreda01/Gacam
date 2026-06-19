@@ -1,0 +1,251 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-light-ivory py-16 text-start">
+  <div class="container-gacam max-w-4xl">
+
+    <a routerLink="/profile"
+       class="inline-flex items-center gap-1.5 text-xs font-bold text-royal-teal hover:text-champagne-gold transition-colors mb-6 font-sans">
+      <mat-icon class="text-sm">arrow_back</mat-icon>
+      <span>{{ langService.lang() === 'ar' ? 'رجوع للملف الشخصي' : 'Back to Profile' }}</span>
+    </a>
+
+    @if (loading()) {
+      <div class="bg-white rounded-2xl border border-champagne-gold/15 p-16 flex flex-col items-center justify-center gap-3">
+        <div class="w-8 h-8 border-2 border-royal-teal border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs text-deep-teal/50 font-sans">
+          {{ langService.lang() === 'ar' ? 'جاري تحميل بيانات الطلب...' : 'Loading order details…' }}
+        </p>
+      </div>
+    } @else if (notFound() || !order()) {
+      <div class="bg-white rounded-2xl border border-champagne-gold/15 p-16 flex flex-col items-center justify-center gap-3 text-center">
+        <mat-icon class="text-deep-teal/20" style="font-size:48px;width:48px;height:48px;">search_off</mat-icon>
+        <h3 class="text-sm font-bold text-royal-teal">
+          {{ langService.lang() === 'ar' ? 'الطلب غير موجود' : 'Order Not Found' }}
+        </h3>
+        <p class="text-xs text-deep-teal/50 font-sans max-w-sm">
+          {{ langService.lang() === 'ar' ? 'تعذر العثور على هذا الطلب أو ليس لديك صلاحية الوصول إليه.' : 'This order could not be found, or you do not have access to it.' }}
+        </p>
+      </div>
+    } @else {
+
+      <div class="bg-royal-teal text-white rounded-2xl border border-champagne-gold/25 shadow-xl p-6 sm:p-8 mb-8 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-champagne-gold/10 blur-2xl pointer-events-none"></div>
+
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-champagne-gold mb-1">
+              {{ getOrderTypeLabel(order()!.orderType) }}
+            </p>
+            <h1 class="text-xl sm:text-2xl font-extrabold font-mono tracking-wide">#{{ order()!.orderNumber }}</h1>
+            <p class="text-[11px] text-white/60 mt-1 font-sans">
+              {{ langService.lang() === 'ar' ? 'تاريخ الطلب:' : 'Ordered on:' }} {{ order()!.createdAt | date:'medium' }}
+            </p>
+          </div>
+          <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider"
+                [class]="getStatusBadgeClass(order()!.orderStatus)">
+            {{ getStatusLabel(order()!.orderStatus) }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-white/10 relative">
+          <div>
+            <p class="text-[9px] text-white/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'الكمية' : 'Quantity' }}</p>
+            <p class="text-sm font-bold font-mono">{{ order()!.quantity }}</p>
+          </div>
+          <div>
+            <p class="text-[9px] text-white/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'سعر الوحدة' : 'Unit Price' }}</p>
+            <p class="text-sm font-bold font-mono">{{ order()!.unitPrice }} CAD</p>
+          </div>
+                    <div>
+            <p class="text-[9px] text-white/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'رسوم الشحن' : 'Shipping Fee' }}</p>
+            <p class="text-sm font-bold font-mono">{{ order()!.shippingFee }} CAD</p>
+          </div>
+          <div>
+            <p class="text-[9px] text-white/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'الإجمالي' : 'Total' }}</p>
+            <p class="text-sm font-bold font-mono text-champagne-gold">{{ order()!.totalAmount }} CAD</p>
+          </div>
+          @if (order()!.trackingNumber) {
+            <div>
+              <p class="text-[9px] text-white/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'رقم التتبع' : 'Tracking No.' }}</p>
+              <p class="text-sm font-bold font-mono text-champagne-gold">{{ order()!.trackingNumber }}</p>
+            </div>
+          }
+        </div>
+
+        @if (order()!.notes) {
+          <p class="text-[11px] text-white/50 font-sans italic mt-5 pt-4 border-t border-white/5">
+            {{ order()!.notes }}
+          </p>
+        }
+      </div>
+@if (order()!.phone || order()!.address) {
+        <div class="bg-white rounded-2xl border border-champagne-gold/15 shadow-sm p-6 sm:p-8 mb-8">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">local_shipping</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'بيانات الشحن' : 'Shipping Information' }}</span>
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            @if (order()!.phone) {
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">
+                  {{ langService.lang() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+                </p>
+                <p class="font-bold font-mono text-royal-teal">{{ order()!.phone }}</p>
+              </div>
+            }
+            @if (order()!.address) {
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">
+                  {{ langService.lang() === 'ar' ? 'عنوان الشحن' : 'Shipping Address' }}
+                </p>
+                <p class="font-bold text-royal-teal">{{ order()!.address }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (isTerminalRejectedOrCancelled()) {
+        <div class="mb-8 p-5 rounded-xl border flex items-start gap-3"
+             [class]="order()!.orderStatus === OrderStatus.Rejected ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'">
+          <mat-icon [class]="order()!.orderStatus === OrderStatus.Rejected ? 'text-red-400' : 'text-gray-400'">
+            {{ order()!.orderStatus === OrderStatus.Rejected ? 'cancel' : 'block' }}
+          </mat-icon>
+          <div>
+            <h4 class="text-xs font-bold mb-1"
+                [class]="order()!.orderStatus === OrderStatus.Rejected ? 'text-red-800' : 'text-gray-700'">
+              {{ getStatusLabel(order()!.orderStatus) }}
+            </h4>
+            @if (lastNote()) {
+              <p class="text-[11px] font-sans leading-relaxed"
+                 [class]="order()!.orderStatus === OrderStatus.Rejected ? 'text-red-700' : 'text-gray-500'">
+                {{ lastNote() }}
+              </p>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="bg-white rounded-2xl border border-champagne-gold/15 shadow-sm p-6 sm:p-8 mb-8">
+          <h3 class="text-sm font-bold text-royal-teal mb-6 uppercase tracking-widest">
+            {{ langService.lang() === 'ar' ? 'مراحل تنفيذ الطلب' : 'Order Progress' }}
+          </h3>
+
+          <div class="flex flex-col">
+            @for (step of steps; track step; let isLast = $last) {
+              <div class="flex gap-4">
+                <div class="flex flex-col items-center">
+                  <div class="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-all"
+                       [class]="stepState(step) === 'done' ? 'bg-emerald-500 text-white' : stepState(step) === 'current' ? 'bg-royal-teal text-white ring-4 ring-royal-teal/15' : 'bg-light-ivory border border-champagne-gold/30 text-deep-teal/30'">
+                    <mat-icon style="font-size:18px;width:18px;height:18px;">
+                      {{ stepState(step) === 'done' ? 'check' : stepIcon(step) }}
+                    </mat-icon>
+                  </div>
+                  @if (!isLast) {
+                    <div class="w-0.5 flex-1 my-1"
+                         [class]="stepState(step) === 'done' ? 'bg-emerald-400' : 'bg-champagne-gold/20'"
+                         style="min-height: 28px;"></div>
+                  }
+                </div>
+                <div class="pb-7 pt-1.5">
+                  <p class="text-xs font-bold"
+                     [class]="stepState(step) === 'upcoming' ? 'text-deep-teal/30' : 'text-royal-teal'">
+                    {{ getStatusLabel(step) }}
+                  </p>
+                  @if (stepState(step) === 'current') {
+                    <p class="text-[10px] text-deep-teal/50 font-sans mt-0.5">
+                      {{ langService.lang() === 'ar' ? 'المرحلة الحالية' : 'Current stage' }}
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (order()!.paymentId) {
+        <div class="bg-white rounded-2xl border border-champagne-gold/15 shadow-sm p-6 sm:p-8 mb-8">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+            <mat-icon class="text-champagne-gold">receipt_long</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'تفاصيل الدفع' : 'Payment Details' }}</span>
+          </h3>
+
+          @if (paymentLoading()) {
+            <p class="text-xs text-deep-teal/40 font-sans">{{ langService.lang() === 'ar' ? 'جاري التحميل...' : 'Loading…' }}</p>
+          } @else if (payment()) {
+            <div class="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'اسم المُرسِل' : 'Sender Name' }}</p>
+                <p class="font-bold text-royal-teal">{{ payment()!.senderName }}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'رقم المرجع' : 'Reference No.' }}</p>
+                <p class="font-bold font-mono text-royal-teal">{{ payment()!.referenceNumber }}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'المبلغ' : 'Amount' }}</p>
+                <p class="font-bold font-mono text-royal-teal">{{ payment()!.amount }} CAD</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-deep-teal/40 uppercase tracking-widest mb-1">{{ langService.lang() === 'ar' ? 'حالة المراجعة' : 'Verification' }}</p>
+                <p class="font-bold" [class]="payment()!.verifiedAt ? 'text-emerald-600' : 'text-amber-600'">
+                  {{ payment()!.verifiedAt ? (langService.lang() === 'ar' ? 'تم التحقق' : 'Verified') : (langService.lang() === 'ar' ? 'قيد المراجعة' : 'Pending Review') }}
+                </p>
+              </div>
+              @if (payment()!.receiptUrl) {
+                <div class="col-span-2">
+                  <a [href]="payment()!.receiptUrl" target="_blank" class="text-royal-teal hover:underline font-bold flex items-center gap-1.5">
+                    <mat-icon class="text-sm">attach_file</mat-icon>
+                    {{ langService.lang() === 'ar' ? 'عرض إيصال الدفع' : 'View Payment Receipt' }}
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <div class="bg-white rounded-2xl border border-champagne-gold/15 shadow-sm p-6 sm:p-8">
+        <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+          <mat-icon class="text-champagne-gold">history</mat-icon>
+          <span>{{ langService.lang() === 'ar' ? 'سجل تتبع الحالة' : 'Status History' }}</span>
+        </h3>
+
+        @if (sortedTimelineDesc().length === 0) {
+          <p class="text-xs text-deep-teal/40 font-sans italic">
+            {{ langService.lang() === 'ar' ? 'لا يوجد سجل حتى الآن.' : 'No history entries yet.' }}
+          </p>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @for (h of sortedTimelineDesc(); track h.id) {
+              <div class="flex items-start gap-3 p-3 rounded-xl bg-light-ivory/50 border border-champagne-gold/10 text-xs">
+                <mat-icon class="text-royal-teal/60 mt-0.5 shrink-0" style="font-size:16px;width:16px;height:16px;">fiber_manual_record</mat-icon>
+                <div class="flex-1">
+                  <p class="font-bold text-royal-teal">
+                    @if (h.oldStatus != null) {
+                      {{ getStatusLabel(h.oldStatus) }} → {{ getStatusLabel(h.newStatus) }}
+                    } @else {
+                      {{ langService.lang() === 'ar' ? 'تم إنشاء الطلب' : 'Order Created' }} — {{ getStatusLabel(h.newStatus) }}
+                    }
+                  </p>
+                  @if (h.notes) {
+                    <p class="text-[11px] text-deep-teal/60 font-sans mt-0.5">{{ h.notes }}</p>
+                  }
+                  <p class="text-[10px] text-deep-teal/40 font-mono mt-1">
+                    {{ h.createdAt | date:'medium' }}
+                    @if (h.changedByUserName) {
+                      &nbsp;·&nbsp; {{ h.changedByUserName }}
+                    }
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>

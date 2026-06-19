@@ -22,6 +22,17 @@ export class AdminAcademyComponent implements OnInit {
   loading       = signal(true);
   courses       = signal<Course[]>([]);
  
+  // Pagination and search states
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalCount = signal(0);
+  totalPages = signal(0);
+  hasNext = signal(false);
+  hasPrevious = signal(false);
+  courseSearch = signal('');
+
+  private searchTimeout: any = null;
+
   /** The course currently being edited — null means "add" mode */
   editingCourse = signal<Course | null>(null);
  
@@ -43,10 +54,52 @@ export class AdminAcademyComponent implements OnInit {
  
   fetchCourses() {
     this.loading.set(true);
-    this.apiService.getCourses().subscribe({
-      next:  (cs) => { this.courses.set(cs); this.loading.set(false); },
+    this.apiService.getCourses(
+      this.currentPage(),
+      this.pageSize(),
+      this.courseSearch()
+    ).subscribe({
+      next:  (data) => {
+        this.courses.set(data.items);
+        this.totalCount.set(data.totalCount);
+        this.totalPages.set(data.totalPages);
+        this.hasNext.set(data.hasNext);
+        this.hasPrevious.set(data.hasPrevious);
+        this.loading.set(false);
+      },
       error: ()   => this.loading.set(false)
     });
+  }
+
+  onSearchChange(searchval: string) {
+    this.courseSearch.set(searchval);
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage.set(1);
+      this.fetchCourses();
+    }, 400);
+  }
+
+  nextPage() {
+    if (this.hasNext()) {
+      this.currentPage.update(p => p + 1);
+      this.fetchCourses();
+    }
+  }
+
+  prevPage() {
+    if (this.hasPrevious()) {
+      this.currentPage.update(p => p - 1);
+      this.fetchCourses();
+    }
+  }
+
+  changePageSize(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.fetchCourses();
   }
  
   // ── Form submission (add or update) ─────────────────────────────

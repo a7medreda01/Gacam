@@ -30,10 +30,10 @@ import { TranslatePipe } from '../../pipes/translate';
             }}
           </p>
           <div class="flex items-center gap-3 text-white/50 pt-2">
-            <a href="https://facebook.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">public</mat-icon></a>
-            <a href="https://instagram.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">photo_camera</mat-icon></a>
-            <a href="https://twitter.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">chat</mat-icon></a>
-            <a href="https://linkedin.com" target="_blank" class="hover:text-champagne-gold transition-colors"><mat-icon class="text-md leading-none h-5 w-5">group</mat-icon></a>
+            <a href="https://facebook.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-facebook"></i></a>
+            <a href="https://instagram.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-instagram"></i></a>
+            <a href="https://twitter.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-twitter"></i></a>
+            <a href="https://linkedin.com" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-linkedin"></i></a>
           </div>
         </div>
 

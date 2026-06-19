@@ -1,5 +1,12 @@
 <header class="bg-royal-teal text-white shadow border-b border-champagne-gold/20 flex justify-between items-center py-4 px-6 sm:px-10">
   <div class="flex items-center gap-3">
+    <!-- Hamburger — موبايل فقط -->
+    <button (click)="toggleSidebar()"
+            class="lg:hidden p-1.5 rounded-lg border border-white/10 hover:border-champagne-gold hover:text-champagne-gold transition-all cursor-pointer"
+            aria-label="Toggle sidebar">
+      <mat-icon>{{ sidebarOpen() ? 'close' : 'menu' }}</mat-icon>
+    </button>
+
     <div class="h-9 w-9 rounded-full border border-champagne-gold flex items-center justify-center bg-deep-teal">
       <span class="text-champagne-gold font-bold font-sans text-xs">GA</span>
     </div>
@@ -8,82 +15,126 @@
       <p class="text-[9px] text-champagne-gold font-medium select-none uppercase tracking-widest">Administrative Center</p>
     </div>
   </div>
-  
+
   <div class="flex items-center gap-4">
     <div class="text-end text-xs hidden sm:block font-sans">
       <p class="font-bold text-white">{{ authService.currentUser()?.fullName }}</p>
       <span class="text-[10px] text-champagne-gold uppercase">{{ authService.currentUser()?.roles?.join(', ') }}</span>
     </div>
-    <button (click)="leaveAdmin()" class="px-3.5 py-1.5 border border-white/10 hover:border-champagne-gold hover:text-champagne-gold rounded-lg text-xs font-semibold cursor-pointer transition-all">
+    <button (click)="leaveAdmin()"
+            class="px-3.5 py-1.5 border border-white/10 hover:border-champagne-gold hover:text-champagne-gold rounded-lg text-xs font-semibold cursor-pointer transition-all">
       {{ 'NAV.HOME' | translate }}
     </button>
   </div>
 </header>
 
-<div class="min-h-screen bg-light-ivory text-start flex flex-col lg:flex-row">
-  <!-- STATIC SIDEBAR -->
-  <aside class="w-full lg:w-72 bg-royal-teal text-white border-e border-champagne-gold/20 flex flex-col divide-y divide-white/5 font-semibold">
-    <!-- Tab links -->
-    <a routerLink="/admin/overview" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>dashboard</mat-icon>
-      <span>{{ 'ADMIN.SIDE_OVERVIEW' | translate }}</span>
-    </a>
+<div class="min-h-screen bg-light-ivory text-start flex flex-col lg:flex-row relative">
 
-    <a routerLink="/admin/accreditations" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>badge</mat-icon>
-      <span>{{ 'ADMIN.SIDE_ACCREDITATIONS' | translate }}</span>
-    </a>
+  <!-- Overlay -->
+  @if (sidebarOpen()) {
+    <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" (click)="closeSidebar()"></div>
+  }
 
-    <a routerLink="/admin/volunteers" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>volunteer_activism</mat-icon>
-      <span>{{ 'ADMIN.SIDE_VOLUNTEERS' | translate }}</span>
-    </a>
-
-    <a routerLink="/admin/academy" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>school</mat-icon>
-      <span>{{ 'ADMIN.SIDE_ACADEMY' | translate }}</span>
-    </a>
-
-    <a routerLink="/admin/academy-enrollments" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>school</mat-icon>
-      <span>{{ 'ADMIN.SIDE_ACADEMY_ENROLLMENTS' | translate }}</span>
-    </a>
-    <a routerLink="/admin/payments" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>payments</mat-icon>
-      <span>{{ 'ADMIN.SIDE_PAYMENTS' | translate }}</span>
-    </a>
-
-    <a routerLink="/admin/cms" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>description</mat-icon>
-      <span>{{ 'ADMIN.SIDE_CMS' | translate }}</span>
-    </a>
-<a routerLink="/admin/news" routerLinkActive="bg-white/10 text-champagne-gold" 
-   class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-  <mat-icon>newspaper</mat-icon>
-  <span>{{ 'ADMIN.SIDE_NEWS' | translate }}</span>
-</a>
-    <a routerLink="/admin/audit" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>receipt</mat-icon>
-      <span>{{ 'ADMIN.SIDE_AUDIT' | translate }}</span>
-    </a>
-
-    <a routerLink="/admin/settings" routerLinkActive="bg-white/10 text-champagne-gold" 
-       class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
-      <mat-icon>settings</mat-icon>
-      <span>{{ 'ADMIN.SIDE_SETTINGS' | translate }}</span>
-    </a>
+  <!-- Desktop sidebar — دايمًا ظاهر -->
+  <aside class="hidden lg:flex w-72 bg-royal-teal text-white border-e border-champagne-gold/20 flex-col divide-y divide-white/5 font-semibold">
+    <ng-container *ngTemplateOutlet="sidebarLinks"></ng-container>
   </aside>
 
-  <!-- MAIN WORKSPACE FOR MOUNTING CHILD ROUTE COMPONENTS -->
+  <!-- Mobile sidebar — بس لما sidebarOpen -->
+  @if (sidebarOpen()) {
+    <aside class="fixed inset-y-0 start-0 z-40 w-72 bg-royal-teal text-white border-e border-champagne-gold/20 flex flex-col divide-y divide-white/5 font-semibold overflow-y-auto lg:hidden">
+      <ng-container *ngTemplateOutlet="sidebarLinks"></ng-container>
+    </aside>
+  }
+
   <main class="flex-grow p-6 sm:p-10 text-deep-teal font-sans overflow-x-auto bg-light-ivory">
     <router-outlet></router-outlet>
   </main>
 </div>
+
+<!-- Template مشترك للينكات -->
+<ng-template #sidebarLinks>
+  <a routerLink="/admin/overview" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>dashboard</mat-icon>
+    <span>{{ 'ADMIN.SIDE_OVERVIEW' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/accreditations" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>badge</mat-icon>
+    <span>{{ 'ADMIN.SIDE_ACCREDITATIONS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/accreditation-categories" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>category</mat-icon>
+    <span>{{ langService.lang() === 'ar' ? 'فئات الاعتماد' : 'Accreditation Categories' }}</span>
+  </a>
+
+  <a routerLink="/admin/orders" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>local_shipping</mat-icon>
+    <span>{{ langService.lang() === 'ar' ? 'طلبات التوصيل والشحن' : 'Print & Shipping' }}</span>
+  </a>
+
+  <a routerLink="/admin/volunteers" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>volunteer_activism</mat-icon>
+    <span>{{ 'ADMIN.SIDE_VOLUNTEERS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/academy" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>school</mat-icon>
+    <span>{{ 'ADMIN.SIDE_ACADEMY' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/academy-enrollments" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>school</mat-icon>
+    <span>{{ 'ADMIN.SIDE_ACADEMY_ENROLLMENTS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/payments" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>payments</mat-icon>
+    <span>{{ 'ADMIN.SIDE_PAYMENTS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/cms" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="hidden lg:block w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>description</mat-icon>
+    <span>{{ 'ADMIN.SIDE_CMS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/news" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>newspaper</mat-icon>
+    <span>{{ 'ADMIN.SIDE_NEWS' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/audit" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="hidden lg:block w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>receipt</mat-icon>
+    <span>{{ 'ADMIN.SIDE_AUDIT' | translate }}</span>
+  </a>
+
+  <a routerLink="/admin/settings" routerLinkActive="bg-white/10 text-champagne-gold"
+     (click)="closeSidebar()"
+     class="hidden lg:block w-full text-start p-4 hover:bg-deep-teal/40 transition-colors flex items-center gap-3 text-xs cursor-pointer">
+    <mat-icon>settings</mat-icon>
+    <span>{{ 'ADMIN.SIDE_SETTINGS' | translate }}</span>
+  </a>
+</ng-template>

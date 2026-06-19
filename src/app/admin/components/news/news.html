@@ -13,29 +13,37 @@
     </button>
   </div>
 
-  <!-- Filter Tabs -->
-  <div class="flex items-center gap-2 mb-5">
-    <button (click)="setFilter(undefined)"
-            [class]="filterType() === undefined
-              ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-royal-teal text-white'
-              : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-champagne-gold/10 transition-colors'"
-            class="cursor-pointer">
-      All
-    </button>
-    <button (click)="setFilter(0)"
-            [class]="filterType() === 0
-              ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white'
-              : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-emerald-50 transition-colors'"
-            class="cursor-pointer">
-      News
-    </button>
-    <button (click)="setFilter(1)"
-            [class]="filterType() === 1
-              ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white'
-              : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-blue-50 transition-colors'"
-            class="cursor-pointer">
-      Press Releases
-    </button>
+  <!-- Filter Tabs & Search -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5 animate-fade-in">
+    <div class="flex items-center gap-2">
+      <button (click)="setFilter(undefined)"
+              [class]="filterType() === undefined
+                ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-royal-teal text-white'
+                : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-champagne-gold/10 transition-colors'"
+              class="cursor-pointer">
+        All
+      </button>
+      <button (click)="setFilter(0)"
+              [class]="filterType() === 0
+                ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white'
+                : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-emerald-50 transition-colors'"
+              class="cursor-pointer">
+        News
+      </button>
+      <button (click)="setFilter(1)"
+              [class]="filterType() === 1
+                ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white'
+                : 'px-4 py-1.5 rounded-lg text-xs font-bold bg-light-ivory text-deep-teal/60 hover:bg-blue-50 transition-colors'"
+              class="cursor-pointer">
+        Press Releases
+      </button>
+    </div>
+    <!-- Search Box -->
+    <input type="text"
+           (input)="onSearchChange($any($event.target).value)"
+           [value]="newsSearch()"
+           [placeholder]="langService.lang() === 'ar' ? 'بحث في الأخبار...' : 'Search articles...'"
+           class="w-full md:w-64 px-4 py-2 text-xs bg-white border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-sans" />
   </div>
 
   <!-- Loading -->
@@ -121,6 +129,42 @@
           }
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-white border border-champagne-gold/15 rounded-xl p-4 gap-4 mt-4 animate-fade-in font-sans">
+      <div class="text-xs text-deep-teal/65 flex items-center gap-2">
+        <span>{{ langService.lang() === 'ar' ? 'إجمالي السجلات:' : 'Total records:' }} <strong>{{ totalCount() }}</strong></span>
+        <span class="mx-2 font-light">|</span>
+        <span>{{ langService.lang() === 'ar' ? 'الصفحة:' : 'Page:' }} <strong>{{ currentPage() }}</strong> {{ langService.lang() === 'ar' ? 'من' : 'of' }} <strong>{{ totalPages() || 1 }}</strong></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Page size selector -->
+        <div class="flex items-center gap-1.5 text-xs text-deep-teal/65">
+          <span>{{ langService.lang() === 'ar' ? 'حجم الصفحة:' : 'Page size:' }}</span>
+          <select [value]="pageSize()" (change)="changePageSize(+$any($event.target).value)"
+                  class="px-2 py-1 bg-white border border-champagne-gold/20 rounded focus:outline-none">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+        
+        <!-- Next/Previous buttons -->
+        <div class="flex items-center gap-1.5">
+          <button (click)="prevPage()" [disabled]="!hasPrevious()"
+                  class="p-1 px-2.5 bg-royal-teal/5 text-royal-teal hover:bg-royal-teal hover:text-white rounded disabled:opacity-30 disabled:hover:bg-royal-teal/5 disabled:hover:text-royal-teal cursor-pointer transition-colors text-xs font-bold flex items-center gap-0.5">
+            <mat-icon class="text-sm h-4 w-4">chevron_left</mat-icon>
+            {{ langService.lang() === 'ar' ? 'السابق' : 'Prev' }}
+          </button>
+          <button (click)="nextPage()" [disabled]="!hasNext()"
+                  class="p-1 px-2.5 bg-royal-teal/5 text-royal-teal hover:bg-royal-teal hover:text-white rounded disabled:opacity-30 disabled:hover:bg-royal-teal/5 disabled:hover:text-royal-teal cursor-pointer transition-colors text-xs font-bold flex items-center gap-0.5">
+            {{ langService.lang() === 'ar' ? 'التالي' : 'Next' }}
+            <mat-icon class="text-sm h-4 w-4">chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
     </div>
   }
 </div>
@@ -248,11 +292,14 @@
         <div class="flex gap-4">
           <div class="flex flex-col gap-1 flex-1">
             <label class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">Type</label>
-            <select [(ngModel)]="form.type"
-                    class="border border-champagne-gold/30 rounded-lg px-3 py-2 text-xs text-deep-teal focus:outline-none focus:border-royal-teal bg-light-ivory">
-              <option [value]="0">News</option>
-              <option [value]="1">Press Release</option>
-            </select>
+<select [(ngModel)]="form.type">
+  <option value="News">News</option>
+  <option value="PressRelease">Press Release</option>
+  <option value="Announcement">Announcement</option>
+  <option value="Statement">Statement</option>
+  <option value="EventAndForum">Event & Forum</option>
+  <option value="Initiative">Initiative</option>
+</select>
           </div>
           <div class="flex flex-col gap-1 justify-end pb-1">
             <label class="flex items-center gap-2 cursor-pointer">

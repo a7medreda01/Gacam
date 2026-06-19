@@ -1,0 +1,302 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-light-ivory">
+  <!-- 1. Hero Spotlight Section -->
+  <section class="relative bg-gradient-to-b from-royal-teal to-deep-teal text-white overflow-hidden py-24 sm:py-32 border-b border-champagne-gold/30">
+    <!-- Ambient background graphics -->
+    <div class="absolute inset-0 opacity-10 mix-blend-overlay">
+      <div class="absolute -top-12 -left-12 w-96 h-96 rounded-full bg-champagne-gold blur-3xl"></div>
+      <div class="absolute bottom-12 right-12 w-[600px] h-[600px] rounded-full bg-royal-teal blur-3xl"></div>
+    </div>
+
+    <div class="container-gacam relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <!-- Text column -->
+      <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-start">
+        <span class="inline-flex self-center lg:self-start items-center gap-1.5 px-3.5 py-1 text-xs font-semibold tracking-wider text-champagne-gold bg-white/5 border border-champagne-gold/25 rounded-full uppercase">
+          {{ langService.lang() === 'ar' ? 'الهوية الرسمية للجنة بكندا' : 'Official Portal - Canada Division' }}
+        </span>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight lg:leading-tight">
+          {{ 'HOME.HERO_TITLE' | translate }}
+        </h1>
+        <p class="text-base sm:text-lg text-white/80 leading-relaxed font-sans max-w-2xl mx-auto lg:mx-0">
+          {{ 'HOME.HERO_SUB' | translate }}
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4 pt-4">
+          <a href="#services-grid" class="w-full sm:w-auto px-8 py-3.5 text-sm font-bold text-royal-teal bg-champagne-gold hover:bg-deep-gold hover:text-white rounded-xl text-center shadow-lg transition-all transform hover:-translate-y-0.5">
+            {{ 'HOME.LEARN_MORE' | translate }}
+          </a>
+          <a routerLink="/volunteer" class="w-full sm:w-auto px-8 py-3.5 text-sm font-bold text-white bg-white/10 hover:bg-white/15 border border-white/20 hover:border-white/35 rounded-xl text-center transition-all">
+            {{ 'NAV.VOLUNTEER' | translate }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Press Card Preview Column -->
+      <div class="lg:col-span-5 flex justify-center relative">
+        <div class="relative w-72 sm:w-80 bg-gradient-to-b from-royal-teal to-deep-teal rounded-2xl border-2 border-champagne-gold/40 shadow-2xl p-6 text-center overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-300">
+          <div class="absolute -right-12 -bottom-12 w-32 h-32 rounded-full bg-champagne-gold/15 blur-2xl"></div>
+
+          <!-- Card Header -->
+          <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-full border border-champagne-gold bg-deep-teal flex items-center justify-center">
+                <span class="text-champagne-gold font-bold text-xs">GA</span>
+              </div>
+              <div class="text-start">
+                <h5 class="text-xs font-bold leading-none tracking-wider font-sans">GACAM</h5>
+                <span class="text-[7px] text-champagne-gold leading-none">Audiovisual Commission</span>
+              </div>
+            </div>
+            <div class="text-end">
+              <span class="text-[8px] px-2 py-0.5 rounded-full bg-champagne-gold/20 text-champagne-gold font-bold">PRESS / إعلام</span>
+            </div>
+          </div>
+
+          <!-- Holder Face -->
+          <div class="h-28 w-28 rounded-xl border border-champagne-gold/40 mx-auto overflow-hidden bg-deep-teal flex items-center justify-center relative shadow-inner mb-4">
+            <mat-icon class="text-white/40 text-4xl h-10 w-10">account_circle</mat-icon>
+          </div>
+
+          <!-- Names -->
+          <div class="mb-4">
+            <h4 class="text-sm font-bold text-white">SAID AL-MANSOUR</h4>
+            <p class="text-[10px] text-champagne-gold leading-normal font-sans tracking-wide">Correspondent Photojournalist</p>
+            <p class="text-[10px] text-white/60">GULF REPORT NEWS</p>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex justify-between items-center border-t border-white/10 pt-4 text-start">
+            <div>
+              <p class="text-[8px] text-white/50 leading-none">CARD SERIAL</p>
+              <p class="text-[9px] text-champagne-gold font-mono leading-none font-bold">GACAM-MC-2026-48291</p>
+            </div>
+            <div class="h-8 w-8 bg-white p-1 rounded border border-champagne-gold flex items-center justify-center">
+              <div class="h-full w-full bg-royal-teal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Services Showcase -->
+  <section class="py-20 bg-white">
+    <div class="container-gacam">
+      <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+        <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
+          {{ langService.lang() === 'ar' ? 'باقة التراخيص والخدمات' : 'Accredited Offerings' }}
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-royal-teal tracking-tight">
+          {{ 'HOME.SERVICES_TITLE' | translate }}
+        </h2>
+        <p class="text-sm text-deep-teal/70 leading-relaxed font-sans">
+          {{ 'HOME.SERVICES_SUB' | translate }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="services-grid">
+        <!-- Card 1 -->
+        <a routerLink="/services" class="group bg-light-ivory hover:bg-royal-teal hover:text-white p-6 rounded-2xl border border-champagne-gold/15 hover:border-royal-teal shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="h-12 w-12 rounded-xl bg-royal-teal/10 group-hover:bg-white/10 text-royal-teal group-hover:text-champagne-gold flex items-center justify-center mb-5 transition-all">
+              <mat-icon>badge</mat-icon>
+            </div>
+            <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
+              {{ langService.lang() === 'ar' ? 'الاعتماد الإعلامي' : 'Media Accreditation' }}
+            </h3>
+            <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
+              {{ langService.lang() === 'ar' ? 'برامج متكاملة لإصدار الاعتمادات والمراجعة والتحقق التلقائي للصحفيين والنشطاء.' : 'Professional accreditation programs based on established press and ethical standards.' }}
+            </p>
+          </div>
+          <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'إبدأ التقديم' : 'Apply Now' }}</span>
+        </a>
+
+        <!-- Card 2 -->
+        <a routerLink="/services" class="group bg-light-ivory hover:bg-royal-teal hover:text-white p-6 rounded-2xl border border-champagne-gold/15 hover:border-royal-teal shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="h-12 w-12 rounded-xl bg-royal-teal/10 group-hover:bg-white/10 text-royal-teal group-hover:text-champagne-gold flex items-center justify-center mb-5 transition-all">
+              <mat-icon>credit_card</mat-icon>
+            </div>
+            <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
+              {{ langService.lang() === 'ar' ? 'البطاقات الرقمية والمطبوعة' : 'Media Cards' }}
+            </h3>
+            <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
+              {{ langService.lang() === 'ar' ? 'إصدار بطاقات ذات موثوقية عالية مع كود QR مشفر للتحقق الميداني الفوري.' : 'Issuing secure verified and authenticated professional hard-printed cards.' }}
+            </p>
+          </div>
+          <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'التفاصيل' : 'Details' }}</span>
+        </a>
+
+        <!-- Card 3 -->
+        <a routerLink="/verify-certificate" class="group bg-light-ivory hover:bg-royal-teal hover:text-white p-6 rounded-2xl border border-champagne-gold/15 hover:border-royal-teal shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="h-12 w-12 rounded-xl bg-royal-teal/10 group-hover:bg-white/10 text-royal-teal group-hover:text-champagne-gold flex items-center justify-center mb-5 transition-all">
+              <mat-icon>school</mat-icon>
+            </div>
+            <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
+              {{ langService.lang() === 'ar' ? 'التطوير المهني والتدريب' : 'Training & Academy' }}
+            </h3>
+            <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
+              {{ langService.lang() === 'ar' ? 'دورات منهجية متطورة لتأهيل الصحفيين والمساهمة في صقل المعارف المهنية.' : 'Intensive educational classes to enhance digital broadcast integrity and journalism knowledge.' }}
+            </p>
+          </div>
+          <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'البرامج المتاحة' : 'Courses' }}</span>
+        </a>
+
+        <!-- Card 4 -->
+        <a routerLink="/services" class="group bg-light-ivory hover:bg-royal-teal hover:text-white p-6 rounded-2xl border border-champagne-gold/15 hover:border-royal-teal shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <div class="h-12 w-12 rounded-xl bg-royal-teal/10 group-hover:bg-white/10 text-royal-teal group-hover:text-champagne-gold flex items-center justify-center mb-5 transition-all">
+              <mat-icon>workspace_premium</mat-icon>
+            </div>
+            <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
+              {{ langService.lang() === 'ar' ? 'الشهادات الموثقة' : 'Professional Certificates' }}
+            </h3>
+            <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
+              {{ langService.lang() === 'ar' ? 'منح شهادات إلكترونية للمميزين والخريجين قابلة للتنزيل بصيغة PDF.' : 'Certified dynamic PDF certificates with dynamic signatures and logo style configuration.' }}
+            </p>
+          </div>
+          <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'الاستعلام' : 'Enquire' }}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. About GACAM Summary -->
+  <section class="py-20 bg-light-ivory border-y border-champagne-gold/10">
+    <div class="container-gacam grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+      <!-- Image -->
+      <div class="lg:col-span-6 relative">
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-champagne-gold/20">
+          <img src="https://picsum.photos/seed/summit/1000/600" alt="GACAM Board Summit" referrerpolicy="no-referrer" class="w-full h-auto object-cover max-h-96" />
+          <div class="absolute bottom-0 inset-x-0 bg-royal-teal/85 p-4 text-white text-xs flex justify-between items-center backdrop-blur-sm">
+            <span>GACAM GULF & ARAB MULTICULTURAL SUMMIT 2026</span>
+            <span class="text-champagne-gold font-bold">TORONTO</span>
+          </div>
+        </div>
+        <div class="absolute -top-5 -right-5 h-20 w-20 rounded-full border border-champagne-gold bg-royal-teal hidden sm:flex items-center justify-center shadow-lg transform translate-y-2">
+          <mat-icon class="text-champagne-gold text-3xl h-8 w-8">stars</mat-icon>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div class="lg:col-span-6 flex flex-col gap-6">
+        <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
+          {{ 'NAV.ABOUT' | translate }}
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-royal-teal tracking-tight">
+          {{ 'HOME.ABOUT_TITLE' | translate }}
+        </h2>
+        <p class="text-sm text-deep-teal/80 leading-relaxed font-sans">
+          {{ langService.lang() === 'ar'
+            ? 'الهيئة العامة للإعلام المرئي والمسموع الخليجي والعربي في كندا هي مؤسسة مرخصة تهدف لرسم أطر التعاون الإيجابي للإعلامي الخليجي والعربي وإظهار المساهمة الفكرية والثقافية للمتطوعين بكندا. نهتم بصياغة مذكرات السياسة الصحفية وأخلاقيات التغطية الرصينة.'
+            : 'The Gulf & Arab General Commission for Audiovisual Media in Canada is a professional licensing organization advocating for multicultural journalism inclusion, regulatory standards, ethical compliance, and safe journalistic development across the Canadian landscape.'
+          }}
+        </p>
+        <div class="flex flex-col gap-3 font-medium text-xs">
+          <span class="flex items-center gap-2 text-deep-teal">
+            <mat-icon class="text-champagne-gold">verified</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'النزاهة الأكاديمية والمصداقية المهنية' : 'Academic Rigor & Press Credibility' }}</span>
+          </span>
+          <span class="flex items-center gap-2 text-deep-teal">
+            <mat-icon class="text-champagne-gold">verified</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'حماية الصحفي وحرية البث المسؤول' : 'Journalistic Safety & Objective Broadcasting' }}</span>
+          </span>
+          <span class="flex items-center gap-2 text-deep-teal">
+            <mat-icon class="text-champagne-gold">verified</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'إثباتات الدفع بالبريد والشفافية التامة' : 'Audit Trails & Complete Payment Transparencies' }}</span>
+          </span>
+        </div>
+        <a routerLink="/about" class="inline-flex self-start items-center gap-2 px-6 py-3 text-xs font-bold bg-royal-teal text-white hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-all shadow-md">
+          <span>{{ langService.lang() === 'ar' ? 'تصفح ميثاق الشرف والسياسات' : 'View Full Strategic Policies' }}</span>
+          <mat-icon class="text-sm">arrow_forward</mat-icon>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Statistics Banner -->
+  <section class="bg-royal-teal text-white py-12 border-y border-champagne-gold/25 relative">
+    <div class="container-gacam grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x lg:divide-white/10 divide-white/10">
+      <div class="flex flex-col justify-center items-center gap-1 p-2">
+        <mat-icon class="text-champagne-gold text-3xl h-8 w-8 mb-1">people_alt</mat-icon>
+        <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-champagne-gold">500+</span>
+        <span class="text-xs sm:text-sm text-white/80 font-medium">{{ 'HOME.STATS_ACC' | translate }}</span>
+      </div>
+      <div class="flex flex-col justify-center items-center gap-1 p-2 pt-6 lg:pt-2">
+        <mat-icon class="text-champagne-gold text-3xl h-8 w-8 mb-1">school</mat-icon>
+        <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-champagne-gold">120+</span>
+        <span class="text-xs sm:text-sm text-white/80 font-medium">{{ 'HOME.STATS_COURSES' | translate }}</span>
+      </div>
+      <div class="flex flex-col justify-center items-center gap-1 p-2 pt-6 lg:pt-2">
+        <mat-icon class="text-champagne-gold text-3xl h-8 w-8 mb-1">handshake</mat-icon>
+        <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-champagne-gold">25+</span>
+        <span class="text-xs sm:text-sm text-white/80 font-medium">{{ 'HOME.STATS_PARTNERS' | translate }}</span>
+      </div>
+      <div class="flex flex-col justify-center items-center gap-1 p-2 pt-6 lg:pt-2">
+        <mat-icon class="text-champagne-gold text-3xl h-8 w-8 mb-1">event_available</mat-icon>
+        <span class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-champagne-gold">50+</span>
+        <span class="text-xs sm:text-sm text-white/80 font-medium">{{ 'HOME.STATS_EVENTS' | translate }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. News Grid -->
+  <section class="py-20 bg-white">
+    <div class="container-gacam">
+      <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+        <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
+          {{ langService.lang() === 'ar' ? 'المركز الصحفي والنشاط الإخباري' : 'Central Press Desk' }}
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-royal-teal tracking-tight">
+          {{ 'HOME.LATEST_NEWS' | translate }}
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        @for (article of newsList(); track article.id) {
+          <div class="bg-light-ivory rounded-2xl border border-champagne-gold/15 overflow-hidden flex flex-col justify-between hover:shadow-lg transition-shadow">
+            <div class="relative">
+              <img [src]="article.imageUrl" alt="News Image" referrerpolicy="no-referrer" class="w-full h-40 object-cover" />
+              <div class="absolute top-3 left-3 bg-royal-teal text-white text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded">
+                {{ article.type === 'PressRelease' ? (('COMMON.REF_NUMBER' | translate) === 'Reference ID (Interac / Swift)' ? 'PR' : 'بيان رسمي') : (('COMMON.REF_NUMBER' | translate) === 'Reference ID (Interac / Swift)' ? 'News' : 'خبر عام') }}
+              </div>
+            </div>
+
+            <div class="p-5 flex-grow flex flex-col gap-3">
+              <span class="text-[10px] text-deep-teal/50 font-medium flex items-center gap-1">
+                <mat-icon class="text-xs h-3.5 w-3.5 leading-none">calendar_today</mat-icon>
+                <span>2026-05-15</span>
+                <span>•</span>
+                <mat-icon class="text-xs h-3.5 w-3.5 leading-none">visibility</mat-icon>
+                <span>{{ article.viewCount }}</span>
+              </span>
+              <h3 class="text-sm font-bold text-royal-teal line-clamp-2 hover:text-champagne-gold duration-155">
+                {{ langService.lang() === 'ar' ? article.titleAr : article.titleEn }}
+              </h3>
+              <p class="text-xs text-deep-teal/70 leading-relaxed font-sans line-clamp-3">
+                {{ langService.lang() === 'ar' ? article.contentAr : article.contentEn }}
+              </p>
+            </div>
+
+            <div class="p-5 pt-0">
+              <a [routerLink]="['/news']" class="text-xs font-bold text-champagne-gold hover:text-royal-teal transition-colors flex items-center gap-1">
+                <span>{{ langService.lang() === 'ar' ? 'اقرأ المزيد' : 'Read More' }}</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="text-center">
+        <a routerLink="/news" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 text-xs font-bold text-white bg-royal-teal hover:bg-champagne-gold hover:text-royal-teal rounded-xl shadow-md transition-all">
+          {{ 'HOME.VIEW_ALL_NEWS' | translate }}
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

@@ -17,29 +17,6 @@
       </p>
     </div>
 
-    <!-- ── Course Enrollment CTA Banner ─────────────────────────── -->
-    <div class="mb-10 bg-white border border-champagne-gold/20 rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-      <div class="flex items-start gap-3 text-start">
-        <mat-icon class="text-champagne-gold mt-0.5">school</mat-icon>
-        <div>
-          <p class="text-sm font-bold text-royal-teal">
-            {{ langService.lang() === 'ar' ? 'التسجيل في البرامج التدريبية' : 'Enroll in a Training Program' }}
-          </p>
-          <p class="text-xs text-deep-teal/60 font-sans mt-0.5 max-w-md">
-            {{ langService.lang() === 'ar'
-              ? 'سجّل في أحد البرامج التدريبية المعتمدة من الجمعية واحصل على شهادة رسمية معترف بها.'
-              : 'Register for an officially accredited GACAM training course and receive a recognized professional certificate.'
-            }}
-          </p>
-        </div>
-      </div>
-      <button (click)="openEnrollModal()"
-              class="shrink-0 px-5 py-2.5 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5">
-        <mat-icon class="text-sm">add_circle_outline</mat-icon>
-        <span>{{ langService.lang() === 'ar' ? 'تقدّم للتسجيل' : 'Apply for Enrollment' }}</span>
-      </button>
-    </div>
-
     <!-- ── Verification Panels ───────────────────────────────────── -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
 
@@ -75,33 +52,42 @@
         </form>
 
         @if (serialResult()) {
+          @let isExp = serialResult()?.valid && isExpired(getExpiry(serialResult()?.data));
           <div class="mt-4 p-4 rounded-xl border animate-fade-in text-xs font-medium flex flex-col gap-2.5 font-sans"
-               [class.bg-emerald-50]="serialResult()?.valid"   [class.border-emerald-200]="serialResult()?.valid"   [class.text-emerald-800]="serialResult()?.valid"
-               [class.bg-red-50]="!serialResult()?.valid"      [class.border-red-200]="!serialResult()?.valid"      [class.text-red-800]="!serialResult()?.valid">
+               [class.bg-emerald-50]="serialResult()?.valid && !isExp" [class.border-emerald-200]="serialResult()?.valid && !isExp" [class.text-emerald-800]="serialResult()?.valid && !isExp"
+               [class.bg-red-50]="!serialResult()?.valid" [class.border-red-200]="!serialResult()?.valid" [class.text-red-800]="!serialResult()?.valid"
+               [class.bg-amber-50]="serialResult()?.valid && isExp" [class.border-amber-200]="serialResult()?.valid && isExp" [class.text-amber-800]="serialResult()?.valid && isExp">
             <div class="flex items-center gap-1.5">
-              <mat-icon class="text-sm">{{ serialResult()?.valid ? 'check_circle' : 'cancel' }}</mat-icon>
+              <mat-icon class="text-sm">
+                {{ !serialResult()?.valid ? 'cancel' : (isExp ? 'warning_amber' : 'check_circle') }}
+              </mat-icon>
               <span class="font-bold uppercase tracking-wide">
                 {{ langService.lang() === 'ar'
-                  ? (serialResult()?.valid ? 'حالة القيد: موثق ومعتمد رسميًا' : 'لم يتم العثور على أي سجل مطابق')
-                  : (serialResult()?.valid ? 'STATUS: Authentic & Verified'    : 'STATUS: Record Not Enlisted')
+                  ? (!serialResult()?.valid ? 'لم يتم العثور على سجل مطابق' : (isExp ? 'الحالة: منتهي الصلاحية' : 'الحالة: موثق ونشط'))
+                  : (!serialResult()?.valid ? 'STATUS: Record Not Found' : (isExp ? 'STATUS: Expired / Not Active' : 'STATUS: Authentic & Verified'))
                 }}
               </span>
             </div>
 
             @if (serialResult()?.valid) {
-              <div class="grid grid-cols-1 gap-2 text-[11px] pt-1 border-t border-emerald-200">
-                <div><strong>HOLDER:</strong> {{ serialResult()?.data?.fullName || serialResult()?.data?.fullNameOnCertificate }}</div>
-                <div><strong>TYPE:</strong> {{ serialResult()?.type === 'card' ? 'Press Card (بطاقة صحفية ملزمة)' : 'Training Certificate (شهادة معتمدة)' }}</div>
-                @if (serialResult()?.type === 'card') {
-                  <div><strong>ORGANIZATION:</strong> {{ serialResult()?.data?.organization }}</div>
-                  <div><strong>JOB TITLE:</strong>    {{ serialResult()?.data?.jobTitle }}</div>
-                  <div><strong>EXPIRY DATE:</strong>  {{ serialResult()?.data?.expiryDate | date }}</div>
+              <div class="grid grid-cols-1 gap-2 text-[11px] pt-1 border-t"
+                   [class.border-emerald-200]="!isExp" [class.border-amber-200]="isExp">
+                <div><strong>HOLDER:</strong> {{ serialResult()?.data?.fullNameOnCertificate }}</div>
+                <div><strong>TYPE:</strong> {{ isCardType(serialResult()?.type) ? 'Press Card (بطاقة صحفية ملزمة)' : 'Training Certificate (شهادة معتمدة)' }}</div>
+                @if (isCardType(serialResult()?.type)) {
+                  <div><strong>CARD NUMBER:</strong> {{ serialResult()?.data?.certificateNumber }}</div>
+                  <div><strong>CATEGORY:</strong>    {{ serialResult()?.data?.relatedItemTitle }}</div>
+                  <div><strong>STATUS:</strong>
+                    {{ isExp
+                      ? (langService.lang() === 'ar' ? 'منتهية' : 'Expired')
+                      : (langService.lang() === 'ar' ? 'نشطة' : 'Active') }}
+                  </div>
+                  <div><strong>EXPIRY DATE:</strong> {{ getExpiry(serialResult()?.data) | date }}</div>
                 } @else {
-                  <div><strong>CERT SERIAL:</strong>  {{ serialResult()?.data?.certificateNumber }}</div>
+                  <div><strong>CERT SERIAL:</strong> {{ serialResult()?.data?.certificateNumber }}</div>
                   @if (serialResult()?.data?.relatedItemTitle) {
-                    <div><strong>PROGRAM:</strong>    {{ serialResult()?.data?.relatedItemTitle }}</div>
+                    <div><strong>PROGRAM:</strong>   {{ serialResult()?.data?.relatedItemTitle }}</div>
                   }
-                  <div><strong>PROGRAM TYPE:</strong> {{ serialResult()?.data?.type }}</div>
                   <div><strong>ISSUED AT:</strong>    {{ serialResult()?.data?.issuedAt | date }}</div>
                 }
               </div>
@@ -148,142 +134,52 @@
         </button>
 
         @if (fileResult()) {
+          @let isExp = fileResult()?.valid && isExpired(getExpiry(fileResult()?.data));
           <div class="mt-4 p-4 rounded-xl border animate-fade-in text-xs font-medium flex flex-col gap-2.5 font-sans"
-               [class.bg-emerald-50]="fileResult()?.valid"  [class.border-emerald-200]="fileResult()?.valid"  [class.text-emerald-800]="fileResult()?.valid"
-               [class.bg-red-50]="!fileResult()?.valid"     [class.border-red-200]="!fileResult()?.valid"     [class.text-red-800]="!fileResult()?.valid">
+               [class.bg-emerald-50]="fileResult()?.valid && !isExp" [class.border-emerald-200]="fileResult()?.valid && !isExp" [class.text-emerald-800]="fileResult()?.valid && !isExp"
+               [class.bg-red-50]="!fileResult()?.valid" [class.border-red-200]="!fileResult()?.valid" [class.text-red-800]="!fileResult()?.valid"
+               [class.bg-amber-50]="fileResult()?.valid && isExp" [class.border-amber-200]="fileResult()?.valid && isExp" [class.text-amber-800]="fileResult()?.valid && isExp">
             <div class="flex items-center gap-1.5">
-              <mat-icon class="text-sm">{{ fileResult()?.valid ? 'verified' : 'cancel' }}</mat-icon>
+              <mat-icon class="text-sm">
+                {{ !fileResult()?.valid ? 'cancel' : (isExp ? 'warning_amber' : 'verified') }}
+              </mat-icon>
               <span class="font-bold uppercase tracking-wide">
                 {{ langService.lang() === 'ar'
-                  ? (fileResult()?.valid ? 'ملف الشهادة: موثق ومعتمد رسميًا' : 'لم يتم العثور على أي معلومات لهذه الشهادة')
-                  : (fileResult()?.valid ? 'FILE STATUS: Authentic & Verified' : 'FILE STATUS: Invalid or Unregistered File')
+                  ? (!fileResult()?.valid ? 'لم يتم العثور على أي معلومات لهذه الشهادة' : (isExp ? 'الملف: منتهي الصلاحية' : 'الملف: موثق ومعتمد رسميًا'))
+                  : (!fileResult()?.valid ? 'FILE STATUS: Invalid or Unregistered File' : (isExp ? 'FILE STATUS: Certificate Expired' : 'FILE STATUS: Authentic & Verified'))
                 }}
               </span>
             </div>
 
             @if (fileResult()?.valid) {
-              <div class="grid grid-cols-1 gap-2 text-[11px] pt-1 border-t border-emerald-200">
-                <div><strong>HOLDER:</strong>      {{ fileResult()?.fullNameOnCertificate }}</div>
-                <div><strong>CERT SERIAL:</strong> {{ fileResult()?.certificateNumber }}</div>
-                @if (fileResult()?.relatedItemTitle) {
-                  <div><strong>PROGRAM:</strong>   {{ fileResult()?.relatedItemTitle }}</div>
+              <div class="grid grid-cols-1 gap-2 text-[11px] pt-1 border-t"
+                   [class.border-emerald-200]="!isExp" [class.border-amber-200]="isExp">
+                <div><strong>HOLDER:</strong> {{ fileResult()?.data?.fullNameOnCertificate }}</div>
+                <div><strong>TYPE:</strong> {{ isCardType(fileResult()?.type) ? 'Press Card (بطاقة صحفية ملزمة)' : 'Training Certificate (شهادة معتمدة)' }}</div>
+                @if (isCardType(fileResult()?.type)) {
+                  <div><strong>CARD NUMBER:</strong> {{ fileResult()?.data?.certificateNumber }}</div>
+                  <div><strong>CATEGORY:</strong>    {{ fileResult()?.data?.relatedItemTitle }}</div>
+                  <div><strong>STATUS:</strong>
+                    {{ isExp
+                      ? (langService.lang() === 'ar' ? 'منتهية' : 'Expired')
+                      : (langService.lang() === 'ar' ? 'نشطة' : 'Active') }}
+                  </div>
+                  <div><strong>EXPIRY DATE:</strong> {{ getExpiry(fileResult()?.data) | date }}</div>
+                } @else {
+                  <div><strong>CERT SERIAL:</strong> {{ fileResult()?.data?.certificateNumber }}</div>
+                  @if (fileResult()?.data?.relatedItemTitle) {
+                    <div><strong>PROGRAM:</strong>   {{ fileResult()?.data?.relatedItemTitle }}</div>
+                  }
+                  <div><strong>ISSUED AT:</strong>    {{ fileResult()?.data?.issuedAt | date }}</div>
                 }
-                <div><strong>TYPE:</strong>        {{ fileResult()?.type }}</div>
-                <div><strong>ISSUED AT:</strong>   {{ fileResult()?.issuedAt | date }}</div>
               </div>
             }
           </div>
         }
       </div>
+
     </div>
   </div>
 </main>
-
-<!-- ── Enrollment Modal ──────────────────────────────────────────── -->
-@if (showEnrollModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-       style="background: rgba(0,0,0,0.45);"
-       (click)="closeEnrollModal()">
-
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col gap-0 overflow-hidden animate-fade-in"
-         (click)="$event.stopPropagation()">
-
-      <!-- Modal header -->
-      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <mat-icon class="text-champagne-gold">school</mat-icon>
-          <h2 class="text-sm font-bold text-white uppercase tracking-widest">
-            {{ langService.lang() === 'ar' ? 'التسجيل في دورة تدريبية' : 'Course Enrollment Application' }}
-          </h2>
-        </div>
-        <button (click)="closeEnrollModal()" class="text-white/70 hover:text-white cursor-pointer transition-colors">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="px-6 py-6 flex flex-col gap-5">
-        <p class="text-xs text-deep-teal/65 font-sans leading-relaxed">
-          {{ langService.lang() === 'ar'
-            ? 'اختر البرنامج التدريبي الذي تودّ الانتساب إليه. سيتم مراجعة طلبك من قِبل الإدارة والتواصل معك لاحقاً.'
-            : 'Select the training program you wish to enroll in. Your application will be reviewed by our administrative team.'
-          }}
-        </p>
-
-        <form [formGroup]="enrollForm" (ngSubmit)="onSubmitEnrollment()" class="flex flex-col gap-5">
-
-          <!-- Course selector -->
-<!-- استبدل الـ course selector section كلها بالكود ده -->
-
-<div class="flex flex-col gap-1.5">
-  <label class="text-xs font-bold text-deep-teal">
-    {{ langService.lang() === 'ar' ? 'اختر الدورة التدريبية *' : 'Select Training Course *' }}
-  </label>
-
-  @if (coursesLoading()) {
-    <div class="px-4 py-3 bg-light-ivory border border-champagne-gold/20 rounded-lg text-xs text-deep-teal/50 animate-pulse">
-      {{ langService.lang() === 'ar' ? 'جاري تحميل الدورات...' : 'Loading available courses...' }}
-    </div>
-  } @else if (courses().length === 0) {
-    <div class="px-4 py-3 bg-light-ivory border border-champagne-gold/20 rounded-lg text-xs text-deep-teal/50">
-      {{ langService.lang() === 'ar' ? 'لا توجد دورات متاحة حالياً.' : 'No active courses available at this time.' }}
-    </div>
-  } @else {
-    <select formControlName="courseId"
-            class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal text-deep-teal font-semibold cursor-pointer">
-      <option [ngValue]="null" disabled>
-        {{ langService.lang() === 'ar' ? '— اختر دورة —' : '— Select a course —' }}
-      </option>
-      @for (c of courses(); track c.id) {
-        @if (c.isActive) {
-          <option [ngValue]="c.id">
-            {{ langService.lang() === 'ar' ? c.titleAr : c.titleEn }} · {{ c.feeAmount }} CAD
-          </option>
-        }
-      }
-    </select>
-
-    <!-- Course preview card — يظهر بس لما يختار كورس -->
-    @if (selectedCourse()) {
-      <div class="mt-2 p-3 rounded-xl bg-light-ivory border border-champagne-gold/20 flex flex-col gap-1 animate-fade-in">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-royal-teal">
-            {{ langService.lang() === 'ar' ? selectedCourse()!.titleAr : selectedCourse()!.titleEn }}
-          </span>
-          <span class="text-[10px] font-bold text-champagne-gold">{{ selectedCourse()!.feeAmount }} CAD</span>
-        </div>
-        <p class="text-[11px] text-deep-teal/60 font-sans leading-relaxed line-clamp-1">
-          {{ langService.lang() === 'ar' ? selectedCourse()!.descriptionAr : selectedCourse()!.descriptionEn }}
-        </p>
-        <span class="text-[10px] text-deep-teal/40">{{ getCourseDateRange(selectedCourse()!) }}</span>
-      </div>
-    }
-  }
-</div>
-
-          <!-- Modal footer actions -->
-          <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
-            <button type="button" (click)="closeEnrollModal()"
-                    class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer">
-              {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
-            </button>
-            <button type="submit"
-                    [disabled]="enrollForm.invalid || enrollLoading() || coursesLoading()"
-                    class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
-              @if (enrollLoading()) {
-                <mat-icon class="text-sm animate-spin">sync</mat-icon>
-                <span>{{ langService.lang() === 'ar' ? 'جارٍ الإرسال...' : 'Submitting...' }}</span>
-              } @else {
-                <mat-icon class="text-sm">send</mat-icon>
-                <span>{{ langService.lang() === 'ar' ? 'تقديم الطلب' : 'Submit Application' }}</span>
-              }
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </div>
-}
 
 <app-footer></app-footer>

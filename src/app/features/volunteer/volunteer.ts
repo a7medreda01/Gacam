@@ -42,7 +42,7 @@ export class VolunteerComponent implements OnInit {
   volForm = new FormGroup({
     fullName: new FormControl('', [Validators.required, Validators.minLength(4)]),
     email:    new FormControl('', [Validators.required, Validators.email]),
-    phone:    new FormControl('', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{7,20}$/)]),
+    phone:    new FormControl('', [Validators.required, Validators.pattern(/^\+?[0-9\s-]{7,20}$/)]),
     area:     new FormControl<number>(0, [Validators.required]),
     skills:   new FormControl('', [Validators.required, Validators.minLength(10)]),
     notes:    new FormControl('')
@@ -123,13 +123,15 @@ export class VolunteerComponent implements OnInit {
 
     // ── Final response handler ─────────────────────────────────
     req$.pipe(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       filter((ev): ev is HttpResponse<any> =>
         ev.type === HttpEventType.Response
       )
     ).subscribe({
-      next: (res) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      next: (res: any) => {
         // Support both PascalCase and camelCase from backend
-        const body = res.body as any;
+        const body = res.body;
         const path: string = body?.RelativePath ?? body?.relativePath ?? body?.relativeUrl ?? '';
 
         console.log('[CV Upload] body:', body, '| resolved path:', path);

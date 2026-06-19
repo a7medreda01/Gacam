@@ -1,0 +1,173 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-sm font-bold text-royal-teal uppercase tracking-widest flex items-center gap-2">
+      <mat-icon class="text-champagne-gold">category</mat-icon>
+      {{ langService.lang() === 'ar' ? 'إدارة فئات الاعتماد' : 'Accreditation Categories' }}
+    </h2>
+    <button (click)="openCreateModal()"
+            class="flex items-center gap-1.5 px-4 py-2 bg-royal-teal hover:bg-deep-teal text-white text-xs font-bold rounded-lg transition-colors cursor-pointer">
+      <mat-icon class="text-sm">add</mat-icon>
+      {{ langService.lang() === 'ar' ? 'فئة جديدة' : 'New Category' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <mat-icon class="animate-spin text-royal-teal text-4xl">sync</mat-icon>
+    </div>
+  } @else if (categories().length === 0) {
+    <p class="text-center text-deep-teal/50 text-xs italic py-12">
+      {{ langService.lang() === 'ar' ? 'لا توجد فئات حالياً.' : 'No categories found.' }}
+    </p>
+  } @else {
+
+    <!-- Table -->
+    <div class="overflow-x-auto rounded-xl border border-champagne-gold/15">
+      <table class="w-full text-xs text-start">
+        <thead class="bg-royal-teal text-white uppercase tracking-widest text-[10px]">
+          <tr>
+            <th class="px-4 py-3 text-start">ID</th>
+            <th class="px-4 py-3 text-start">{{ langService.lang() === 'ar' ? 'الاسم بالإنجليزية' : 'NAME (EN)' }}</th>
+            <th class="px-4 py-3 text-start{{ langService.lang() === 'ar' ? ' text-end' : '' }}">{{ langService.lang() === 'ar' ? 'الاسم بالعربية' : 'NAME (AR)' }}</th>
+            <th class="px-4 py-3 text-center">{{ langService.lang() === 'ar' ? 'الإجراءات' : 'ACTIONS' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-champagne-gold/10">
+          @for (cat of categories(); track cat.id) {
+            <tr class="hover:bg-light-ivory/60 transition-colors">
+              <td class="px-4 py-3 font-mono text-deep-teal/50">{{ cat.id }}</td>
+              <td class="px-4 py-3 font-sans text-deep-teal/80">{{ cat.nameEn }}</td>
+              <td class="px-4 py-3 font-sans text-deep-teal/80" dir="rtl">{{ cat.nameAr }}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="openEditModal(cat)"
+                          class="flex items-center gap-1 px-3 py-1.5 bg-royal-teal hover:bg-deep-teal text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
+                    <mat-icon class="text-xs">edit</mat-icon>
+                    {{ langService.lang() === 'ar' ? 'تعديل' : 'Edit' }}
+                  </button>
+                  <button (click)="confirmDelete(cat.id)"
+                          class="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
+                    <mat-icon class="text-xs">delete</mat-icon>
+                    {{ langService.lang() === 'ar' ? 'حذف' : 'Delete' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+
+<!-- ── Create / Edit Modal ─────────────────────────────────────────── -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="closeModal()">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl flex flex-col animate-fade-in"
+         (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="bg-royal-teal px-6 py-4 rounded-t-2xl flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-champagne-gold">{{ editingId() ? 'edit' : 'add_circle' }}</mat-icon>
+          <h3 class="text-sm font-bold text-white uppercase tracking-widest">
+            {{ editingId() ? (langService.lang() === 'ar' ? 'تعديل فئة الاعتماد' : 'Edit Category') : (langService.lang() === 'ar' ? 'فئة اعتماد جديدة' : 'New Category') }}
+          </h3>
+        </div>
+        <button (click)="closeModal()" class="text-white/70 hover:text-white cursor-pointer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 flex flex-col gap-4 text-xs text-start">
+
+        <!-- Name EN -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">
+            {{ langService.lang() === 'ar' ? 'الاسم بالإنجليزية*' : 'Name (English)*' }}
+          </label>
+          <input [(ngModel)]="form.nameEn" type="text" placeholder="e.g. Media Representative"
+                 class="border border-champagne-gold/30 rounded-lg px-3 py-2 text-xs text-deep-teal focus:outline-none focus:border-royal-teal bg-light-ivory" />
+        </div>
+
+        <!-- Name AR -->
+        <div class="flex flex-col gap-1" dir="rtl">
+          <label class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold text-start">
+            {{ langService.lang() === 'ar' ? 'الاسم بالعربية*' : 'Name (Arabic)*' }}
+          </label>
+          <input [(ngModel)]="form.nameAr" type="text" placeholder="مثال: ممثل إعلامي"
+                 class="border border-champagne-gold/30 rounded-lg px-3 py-2 text-xs text-deep-teal focus:outline-none focus:border-royal-teal bg-light-ivory text-start" />
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-champagne-gold/15 flex justify-end gap-3">
+        <button (click)="closeModal()"
+                class="px-5 py-2 rounded-lg text-xs font-bold text-deep-teal/60 hover:bg-light-ivory transition-colors cursor-pointer">
+          {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+        </button>
+        <button (click)="saveCategory()" [disabled]="saving()"
+                class="flex items-center gap-1.5 px-6 py-2 bg-royal-teal hover:bg-deep-teal disabled:opacity-50 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer font-sans">
+          @if (saving()) {
+            <mat-icon class="animate-spin text-sm">sync</mat-icon>
+          } @else {
+            <mat-icon class="text-sm">save</mat-icon>
+          }
+          {{ saving() ? (langService.lang() === 'ar' ? 'حفظ...' : 'Saving…') : (langService.lang() === 'ar' ? 'حفظ' : 'Save') }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+
+<!-- ── Delete Confirmation ─────────────────────────────────────────── -->
+@if (deleteTargetId() !== null) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="cancelDelete()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-5 animate-fade-in"
+         (click)="$event.stopPropagation()">
+
+      <div class="flex items-center gap-3 text-start">
+        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+          <mat-icon class="text-red-500">delete_forever</mat-icon>
+        </div>
+        <div>
+          <p class="font-bold text-deep-teal text-sm">
+            {{ langService.lang() === 'ar' ? 'حذف هذه الفئة؟' : 'Delete Category?' }}
+          </p>
+          <p class="text-[11px] text-deep-teal/50 mt-0.5">
+            {{ langService.lang() === 'ar' ? 'لا يمكن التراجع عن هذا الإجراء.' : 'This action cannot be undone.' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 font-sans">
+        <button (click)="cancelDelete()"
+                class="flex-1 py-2.5 rounded-xl text-xs font-bold text-deep-teal/60 bg-light-ivory hover:bg-champagne-gold/10 transition-colors cursor-pointer">
+          {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+        </button>
+        <button (click)="executeDelete()" [disabled]="deleting()"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer">
+          @if (deleting()) {
+            <mat-icon class="animate-spin text-sm">sync</mat-icon>
+          } @else {
+            <mat-icon class="text-sm">delete</mat-icon>
+          }
+          {{ deleting() ? (langService.lang() === 'ar' ? 'جاري الحذف...' : 'Deleting…') : (langService.lang() === 'ar' ? 'حذف' : 'Delete') }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

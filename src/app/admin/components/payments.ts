@@ -23,6 +23,18 @@ export class AdminPaymentsComponent implements OnInit {
   enrollments     = signal<Enrollment[]>([]);
   previewImageUrl = signal<string | null>(null);
 
+  // Pagination and search states
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalCount = signal(0);
+  totalPages = signal(0);
+  hasNext = signal(false);
+  hasPrevious = signal(false);
+  paymentSearch = signal('');
+  paymentStatusFilter = signal<number | undefined>(undefined);
+
+  private searchTimeout: any = null;
+
   // للـ drawer الجانبي
   drawerEnrollment = signal<Enrollment | null>(null);
   drawerPayment    = signal<Payment | null>(null);
@@ -31,13 +43,62 @@ export class AdminPaymentsComponent implements OnInit {
 
   fetchAll() {
     this.loading.set(true);
-    this.apiService.getAllPayments().subscribe({
-      next: (data) => { this.payments.set(data); this.loading.set(false); },
+    this.apiService.getAllPayments(
+      this.currentPage(),
+      this.pageSize(),
+      this.paymentSearch(),
+      this.paymentStatusFilter()
+    ).subscribe({
+      next: (data) => {
+        this.payments.set(data.items);
+        this.totalCount.set(data.totalCount);
+        this.totalPages.set(data.totalPages);
+        this.hasNext.set(data.hasNext);
+        this.hasPrevious.set(data.hasPrevious);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false)
     });
     this.apiService.getAllEnrollments().subscribe({
-      next: (data) => this.enrollments.set(data)
-    });
+next: (data) => this.enrollments.set(data.items),     });
+  }
+
+  onSearchChange(searchval: string) {
+    this.paymentSearch.set(searchval);
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage.set(1);
+      this.fetchAll();
+    }, 400);
+  }
+
+  onStatusChange(statusval: string) {
+    const s = statusval === '' ? undefined : Number(statusval);
+    this.paymentStatusFilter.set(s);
+    this.currentPage.set(1);
+    this.fetchAll();
+  }
+
+  nextPage() {
+    if (this.hasNext()) {
+      this.currentPage.update(p => p + 1);
+      this.fetchAll();
+    }
+  }
+
+  prevPage() {
+    if (this.hasPrevious()) {
+      this.currentPage.update(p => p - 1);
+      this.fetchAll();
+    }
+  }
+
+  changePageSize(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.fetchAll();
   }
 
   // ── Related Enrollment/Payment lookup ───────────────────────────

@@ -1,6 +1,6 @@
 <app-navbar></app-navbar>
 
-<main class="min-h-screen bg-light-ivory py-16 text-start">
+<main class="min-h-screen bg-light-ivory py-16 pb-28 lg:pb-16 text-start">
   <div class="container-gacam max-w-6xl">
 
     <!-- Header Profile Banner -->
@@ -10,16 +10,32 @@
       <div class="flex flex-col sm:flex-row items-center gap-4 relative">
 
         <!-- Avatar + Role Badge -->
-        <div class="relative shrink-0">
-          <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-deep-teal border-[3px] flex items-center justify-center shadow-lg font-bold font-sans text-xl sm:text-2xl uppercase transition-all"
+        <div class="relative shrink-0 group">
+          <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-deep-teal border-[3px] overflow-hidden flex items-center justify-center shadow-lg font-bold font-sans text-xl sm:text-2xl uppercase transition-all relative"
                [class]="getRoleStyles().ring + ' border-[3px]'">
-            <span [class]="getRoleStyles().badge.includes('text-white') ? 'text-white' : 'text-royal-teal'">
-              {{ authService.currentUser()?.fullName?.charAt(0) }}
-            </span>
+            
+            @if (authService.currentUser()?.profileImageUrl) {
+              <img [src]="authService.currentUser()?.profileImageUrl" alt="Profile" class="h-full w-full object-cover" referrerpolicy="no-referrer" />
+            } @else {
+              <span [class]="getRoleStyles().badge.includes('text-white') ? 'text-white' : 'text-royal-teal'">
+                {{ authService.currentUser()?.fullName?.charAt(0) }}
+              </span>
+            }
+
+            @if (avatarUploading()) {
+              <div class="absolute inset-0 bg-royal-teal/80 flex items-center justify-center rounded-full">
+                <mat-icon class="animate-spin text-champagne-gold text-sm sm:text-base">sync</mat-icon>
+              </div>
+            } @else {
+              <label class="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer rounded-full select-none">
+                <mat-icon class="text-white text-base">photo_camera</mat-icon>
+                <input type="file" accept="image/*" class="hidden" (change)="onAvatarSelected($event)" />
+              </label>
+            }
           </div>
 
           <!-- Role pill under avatar -->
-          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold whitespace-nowrap shadow-md"
+          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold whitespace-nowrap shadow-md z-10"
                [class]="getRoleStyles().badge">
             <mat-icon class="text-[10px]" style="font-size:10px; width:10px; height:10px; line-height:10px;">
               {{ getRoleStyles().icon }}
@@ -50,7 +66,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
       <!-- LEFT RAIL: Course Catalog -->
-      <div class="lg:col-span-4 flex flex-col gap-6">
+      <div class="lg:col-span-4 flex flex-col gap-6 lg:flex" [class.hidden]="activeMobileTab() !== 'catalog'">
         <div class="bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm">
           <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
             <mat-icon class="text-champagne-gold">school</mat-icon>
@@ -100,7 +116,7 @@
       <div class="lg:col-span-8 flex flex-col gap-8">
 
         <!-- 1. My Enrollments -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm lg:block" [class.hidden]="activeMobileTab() !== 'courses'">
           <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
             <mat-icon class="text-champagne-gold">history_edu</mat-icon>
             <span>{{ langService.lang() === 'ar' ? 'مسيرتي التعليمية والدورات' : 'My Courses' }}</span>
@@ -171,7 +187,7 @@
         </div>
 
         <!-- 2. Payments -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm lg:block" [class.hidden]="activeMobileTab() !== 'payments'">
           <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
             <mat-icon class="text-champagne-gold">receipt_long</mat-icon>
             <span>{{ langService.lang() === 'ar' ? 'إيصالات السداد والتدقيق المالي' : 'Interac Payments Audit' }}</span>
@@ -197,8 +213,8 @@
         </div>
 
         <!-- 3. Certificates -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm">
-          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm lg:block" [class.hidden]="activeMobileTab() !== 'certificates'">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5 font-sans">
             <mat-icon class="text-champagne-gold">workspace_premium</mat-icon>
             <span>{{ langService.lang() === 'ar' ? 'شهاداتي الصادرة بنظام التشفير' : 'Verified Certificates' }}</span>
           </h3>
@@ -208,15 +224,86 @@
           } @else {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               @for (cert of certificates(); track cert.id) {
-                <div class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex flex-col gap-2 text-xs relative">
-                  <h4 class="font-extrabold text-royal-teal">Certificate Docket</h4>
-                  <p class="text-[10px] text-deep-teal/60 font-sans">Serial: <span class="font-mono font-bold">{{ cert.certificateNumber }}</span></p>
-                  <p class="text-[10px] text-deep-teal/60 font-sans">Issued: {{ cert.issuedAt | date }}</p>
-                  <button (click)="downloadCert(cert)"
-                          class="mt-2 text-[10px] font-bold text-champagne-gold hover:text-royal-teal cursor-pointer flex items-center gap-1">
-                    <mat-icon class="text-sm">download</mat-icon>
-                    <span>Download Signed PDF</span>
-                  </button>
+                <div class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex flex-col gap-3 text-xs relative text-start">
+                  
+                  <!-- Print order indicator above certificate -->
+                  @let order = getPrintOrderForCertificate(cert.id);
+                  @if (order) {
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-royal-teal/5 border border-royal-teal/15 mb-1 cursor-pointer hover:bg-royal-teal/10 transition-colors"
+                         [routerLink]="['/orders', order.id]">
+                      <span class="text-[9px] font-bold tracking-wider text-royal-teal flex items-center gap-1 leading-none">
+                        <mat-icon class="text-xs shrink-0" style="font-size:12px;width:12px;height:12px;line-height:12px;">print</mat-icon>
+                        {{ langService.lang() === 'ar' ? 'طلب طباعة وبطاقة:' : 'PRINT ORDER' }} #{{ order.orderNumber }}
+                      </span>
+                      <span class="px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase leading-none" [class]="getOrderStatusClass(order.orderStatus)">
+                        {{ getOrderStatusLabel(order.orderStatus) }}
+                      </span>
+                    </div>
+                  }
+
+                  <div>
+                    <h4 class="font-extrabold text-royal-teal">Certificate Docket</h4>
+                    <p class="text-[10px] text-deep-teal/60 font-sans">Serial: <span class="font-mono font-bold">{{ cert.certificateNumber }}</span></p>
+                    <p class="text-[10px] text-deep-teal/60 font-sans">Issued: {{ cert.issuedAt | date }}</p>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2 mt-1">
+                    <button (click)="downloadCert(cert)"
+                            class="text-[10px] bg-royal-teal text-white hover:bg-deep-teal px-3 py-1.5 rounded-lg font-bold cursor-pointer flex items-center gap-1 transition-colors border-0">
+                      <mat-icon class="text-xs" style="font-size:14px; width:14px; height:14px; line-height:14px;">download</mat-icon>
+                      <span>{{ langService.lang() === 'ar' ? 'تحميل PDF' : 'Download PDF' }}</span>
+                    </button>
+
+                    @if (!order) {
+                      <button (click)="openOrderModel(cert.id, 0)"
+                              class="text-[10px] border border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal px-3 py-1.5 rounded-lg font-bold cursor-pointer flex items-center gap-1 transition-all">
+                        <mat-icon class="text-xs" style="font-size:14px; width:14px; height:14px; line-height:14px;">print</mat-icon>
+                        <span>{{ langService.lang() === 'ar' ? 'طلب نسخة مطبوعة' : 'Order Print' }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- 4. My Orders Tracking -->
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm lg:block" [class.hidden]="activeMobileTab() !== 'orders'">
+          <h3 class="text-sm font-bold text-royal-teal mb-4 uppercase tracking-widest border-b border-light-ivory pb-2 flex items-center gap-1.5 font-sans">
+            <mat-icon class="text-champagne-gold">local_shipping</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'طلبات الطباعة والشحن' : 'Print & Shipping Orders' }}</span>
+          </h3>
+
+          @if (orders().length === 0) {
+            <p class="text-xs text-deep-teal/50 font-sans italic text-center py-6">
+              {{ langService.lang() === 'ar' ? 'لا توجد طلبات طباعة أو شحن فني حالياً.' : 'No printed passports or certificates ordered yet.' }}
+            </p>
+          } @else {
+            <div class="flex flex-col gap-3">
+              @for (ord of orders(); track ord.id) {
+                <div [routerLink]="['/orders', ord.id]"
+                     class="p-4 rounded-xl border border-champagne-gold/10 bg-light-ivory/50 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-3 cursor-pointer hover:border-royal-teal hover:bg-light-ivory transition-all">
+                  <div class="text-start">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono font-bold text-royal-teal text-sm">#{{ ord.orderNumber }}</span>
+                      <span class="text-[10px] bg-champagne-gold/15 border border-champagne-gold/20 text-champagne-gold px-2 py-0.5 rounded font-medium">
+                        {{ getOrderTypeLabel(ord.orderType) }}
+                      </span>
+                    </div>
+                    <p class="text-[10px] text-deep-teal/50 font-sans mt-1">
+                      {{ langService.lang() === 'ar' ? 'تاريخ الطلب:' : 'Ordered on:' }} {{ ord.createdAt | date:'mediumDate' }}
+                      @if (ord.trackingNumber) {
+                        &nbsp;•&nbsp; <span class="font-bold text-royal-teal">{{ langService.lang() === 'ar' ? 'الشحن:' : 'Tracking:' }} {{ ord.trackingNumber }}</span>
+                      }
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="px-2.5 py-1 rounded text-[10px] uppercase font-bold" [class]="getOrderStatusClass(ord.orderStatus)">
+                      {{ getOrderStatusLabel(ord.orderStatus) }}
+                    </span>
+                    <mat-icon class="text-deep-teal/40">chevron_right</mat-icon>
+                  </div>
                 </div>
               }
             </div>
@@ -229,20 +316,79 @@
 </main>
 
 
+<!-- ── Mobile Bottom Tab Navigation ──────────────────────────────── -->
+<nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-champagne-gold/20 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]"
+     style="padding-bottom: env(safe-area-inset-bottom);">
+  <div class="grid grid-cols-5">
+
+    <button (click)="activeMobileTab.set('catalog')"
+            class="relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer"
+            [class]="activeMobileTab() === 'catalog' ? 'text-royal-teal' : 'text-deep-teal/35'">
+      @if (activeMobileTab() === 'catalog') {
+        <span class="absolute top-0 h-0.5 w-7 bg-champagne-gold rounded-full"></span>
+      }
+      <mat-icon style="font-size:19px;width:19px;height:19px;line-height:19px;">school</mat-icon>
+      <span class="text-[9px] font-bold">{{ langService.lang() === 'ar' ? 'الدورات' : 'Catalog' }}</span>
+    </button>
+
+    <button (click)="activeMobileTab.set('courses')"
+            class="relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer"
+            [class]="activeMobileTab() === 'courses' ? 'text-royal-teal' : 'text-deep-teal/35'">
+      @if (activeMobileTab() === 'courses') {
+        <span class="absolute top-0 h-0.5 w-7 bg-champagne-gold rounded-full"></span>
+      }
+      <mat-icon style="font-size:19px;width:19px;height:19px;line-height:19px;">history_edu</mat-icon>
+      <span class="text-[9px] font-bold">{{ langService.lang() === 'ar' ? 'دوراتي' : 'My Courses' }}</span>
+    </button>
+
+    <button (click)="activeMobileTab.set('payments')"
+            class="relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer"
+            [class]="activeMobileTab() === 'payments' ? 'text-royal-teal' : 'text-deep-teal/35'">
+      @if (activeMobileTab() === 'payments') {
+        <span class="absolute top-0 h-0.5 w-7 bg-champagne-gold rounded-full"></span>
+      }
+      <mat-icon style="font-size:19px;width:19px;height:19px;line-height:19px;">receipt_long</mat-icon>
+      <span class="text-[9px] font-bold">{{ langService.lang() === 'ar' ? 'المدفوعات' : 'Payments' }}</span>
+    </button>
+
+    <button (click)="activeMobileTab.set('certificates')"
+            class="relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer"
+            [class]="activeMobileTab() === 'certificates' ? 'text-royal-teal' : 'text-deep-teal/35'">
+      @if (activeMobileTab() === 'certificates') {
+        <span class="absolute top-0 h-0.5 w-7 bg-champagne-gold rounded-full"></span>
+      }
+      <mat-icon style="font-size:19px;width:19px;height:19px;line-height:19px;">workspace_premium</mat-icon>
+      <span class="text-[9px] font-bold">{{ langService.lang() === 'ar' ? 'الشهادات' : 'Certificates' }}</span>
+    </button>
+
+    <button (click)="activeMobileTab.set('orders')"
+            class="relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer"
+            [class]="activeMobileTab() === 'orders' ? 'text-royal-teal' : 'text-deep-teal/35'">
+      @if (activeMobileTab() === 'orders') {
+        <span class="absolute top-0 h-0.5 w-7 bg-champagne-gold rounded-full"></span>
+      }
+      <mat-icon style="font-size:19px;width:19px;height:19px;line-height:19px;">local_shipping</mat-icon>
+      <span class="text-[9px] font-bold">{{ langService.lang() === 'ar' ? 'الطلبات' : 'Orders' }}</span>
+    </button>
+
+  </div>
+</nav>
+
+
 <!-- ── Payment Modal ─────────────────────────────────────────────── -->
 @if (showPayModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 shadow-2xl animate-fade-in"
        style="background: rgba(0,0,0,0.5);"
        (click)="closePayModal()">
 
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in"
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in text-start"
          (click)="$event.stopPropagation()">
 
       <!-- Modal Header -->
       <div class="bg-royal-teal px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <mat-icon class="text-champagne-gold">payments</mat-icon>
-          <h2 class="text-sm font-bold text-white uppercase tracking-widest">
+          <h2 class="text-sm font-bold text-white uppercase tracking-widest font-sans">
             {{ langService.lang() === 'ar' ? 'إتمام التسجيل والدفع' : 'Enrollment & Payment' }}
           </h2>
         </div>
@@ -253,7 +399,7 @@
 
       <!-- Course Summary -->
       @if (payTargetCourse()) {
-        <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between">
+        <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between text-start">
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">
               {{ langService.lang() === 'ar' ? 'الدورة المختارة' : 'Selected Course' }}
@@ -328,12 +474,12 @@
         <!-- Actions -->
         <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
           <button type="button" (click)="closePayModal()"
-                  class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer">
+                  class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer font-sans">
             {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
           </button>
           <button type="submit"
                   [disabled]="payForm.invalid || payLoading()"
-                  class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed font-sans">
             @if (payLoading()) {
               <mat-icon class="text-sm animate-spin">sync</mat-icon>
               <span>{{ langService.lang() === 'ar' ? 'جارٍ الإرسال...' : 'Submitting...' }}</span>
@@ -343,6 +489,202 @@
             }
           </button>
         </div>
+
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ── Print Order Modal ─────────────────────────────────────────── -->
+@if (showOrderModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 shadow-2xl animate-fade-in"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="closeOrderModel()">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in text-start"
+         (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-champagne-gold">print</mat-icon>
+          <h2 class="text-sm font-bold text-white uppercase tracking-widest font-sans">
+            {{ langService.lang() === 'ar' ? 'طلب نسخة مطبوعة وشحن سريع' : 'Order Print Layout Copy' }}
+          </h2>
+        </div>
+        <button (click)="closeOrderModel()" class="text-white/70 hover:text-white cursor-pointer transition-colors">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Pricing info -->
+      <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between text-start">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-champagne-gold">
+            {{ langService.lang() === 'ar' ? 'نوع الطباعة والخدمة' : 'Print Service & Layout' }}
+          </p>
+          <p class="text-xs font-bold text-royal-teal mt-0.5">
+            {{ getOrderTypeLabel(orderTargetType()) }}
+          </p>
+          <p class="text-[10px] text-deep-teal/50 font-sans">
+            {{ langService.lang() === 'ar' ? 'مع شحن سريع برقم تعقب كندا' : 'Tracked express delivery across Canada' }}
+          </p>
+        </div>
+        <div class="text-end">
+          <span class="text-lg font-extrabold text-royal-teal font-mono">{{ getOrderTotalPrice(orderTargetType()) }} CAD</span>
+          @let fee = getServiceFeeForType(orderTargetType());
+          @if (fee) {
+            <p class="text-[9px] text-deep-teal/50 font-mono">
+              {{ fee.unitPrice }} + {{ fee.shippingFee }} ({{ langService.lang() === 'ar' ? 'شحن' : 'shipping' }})
+            </p>
+          }
+        </div>
+      </div>
+
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmitPrintOrder()" class="px-6 py-5 flex flex-col gap-5 text-start">
+
+        <!-- Step Indicator -->
+        <div class="flex items-center gap-2 px-1">
+          <div class="flex-1 flex items-center gap-2">
+            <div class="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-extrabold transition-colors"
+                 [class]="orderStep() >= 1 ? 'bg-royal-teal text-white' : 'bg-light-ivory text-deep-teal/30 border border-champagne-gold/30'">
+              1
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider" [class]="orderStep() === 1 ? 'text-royal-teal' : 'text-deep-teal/40'">
+              {{ langService.lang() === 'ar' ? 'الشحن' : 'Shipping' }}
+            </span>
+          </div>
+          <div class="flex-1 h-0.5 mx-1" [class]="orderStep() >= 2 ? 'bg-royal-teal' : 'bg-champagne-gold/20'"></div>
+          <div class="flex-1 flex items-center gap-2 justify-end">
+            <span class="text-[10px] font-bold uppercase tracking-wider" [class]="orderStep() === 2 ? 'text-royal-teal' : 'text-deep-teal/40'">
+              {{ langService.lang() === 'ar' ? 'الدفع' : 'Payment' }}
+            </span>
+            <div class="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-extrabold transition-colors"
+                 [class]="orderStep() >= 2 ? 'bg-royal-teal text-white' : 'bg-light-ivory text-deep-teal/30 border border-champagne-gold/30'">
+              2
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 1: بيانات الشحن -->
+        @if (orderStep() === 1) {
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'عنوان الشحن' : 'Shipping Address' }}
+              </label>
+              <input type="text" formControlName="address"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-sans"
+                     placeholder="e.g., 123 Main St, Toronto, ON" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }}
+              </label>
+              <input type="tel" formControlName="phone"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-mono"
+                     placeholder="e.g., +1 416 555 0123" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'تعليمات شحن أو ملاحظات إضافية' : 'Order Notes / Delivery Instructions' }}
+              </label>
+              <textarea formControlName="notes" rows="2"
+                        class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal resize-none font-sans"
+                        placeholder="e.g., Leave package with reception..."></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
+            <button type="button" (click)="closeOrderModel()"
+                    class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer font-sans">
+              {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button type="button" (click)="goToOrderStep2()"
+                    class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 font-sans">
+              <span>{{ langService.lang() === 'ar' ? 'التالي' : 'Next' }}</span>
+              <mat-icon class="text-sm">arrow_forward</mat-icon>
+            </button>
+          </div>
+        }
+
+        <!-- STEP 2: بيانات الدفع -->
+        @if (orderStep() === 2) {
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'اسم المُرسِل (كما في الحساب البنكي) *' : 'Sender Name (as on bank account) *' }}
+              </label>
+              <input type="text" formControlName="senderName"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-sans"
+                     placeholder="e.g., John Doe" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'رقم مراجعة التحويل (Interac Reference) *' : 'Interac Transfer Reference Number *' }}
+              </label>
+              <input type="text" formControlName="referenceNumber"
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-mono uppercase"
+                     placeholder="e.g., INTERAC-ORDER-XXXX" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'المبلغ المدفوع (CAD) *' : 'Amount Paid (CAD) *' }}
+              </label>
+              <input type="number" formControlName="amount" readonly
+                     class="px-3 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal opacity-65 cursor-not-allowed font-mono" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-deep-teal">
+                {{ langService.lang() === 'ar' ? 'إيصال الدفع (PDF/صورة) *' : 'Payment Receipt (PDF/Image) *' }}
+              </label>
+
+              <div (dragover)="onOrderDragOver($event)"
+                   (dragleave)="onOrderDragLeave($event)"
+                   (drop)="onOrderDrop($event)"
+                   (click)="orderReceiptInput.click()"
+                   tabindex="0" (keydown.enter)="orderReceiptInput.click()"
+                   class="h-24 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all bg-light-ivory hover:bg-champagne-gold/5"
+                   [class.border-royal-teal]="orderDragOver()"
+                   [class.border-champagne-gold]="!orderDragOver()">
+                <input type="file" #orderReceiptInput (change)="onOrderFileSelected($event)"
+                       class="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                <mat-icon class="text-royal-teal mb-1">upload_file</mat-icon>
+                @if (orderReceiptFileName()) {
+                  <span class="text-[10px] font-bold text-royal-teal truncate max-w-[90%] px-2">{{ orderReceiptFileName() }}</span>
+                } @else {
+                  <span class="text-[10px] text-deep-teal/50 font-sans">
+                    {{ langService.lang() === 'ar' ? 'اسحب الإيصال أو انقر للتصفح' : 'Drag receipt here or click to browse' }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-light-ivory">
+            <button type="button" (click)="goToOrderStep1()"
+                    class="px-4 py-2 text-xs font-bold text-deep-teal/60 hover:text-deep-teal border border-champagne-gold/30 rounded-lg transition-colors cursor-pointer font-sans flex items-center gap-1.5">
+              <mat-icon class="text-sm">arrow_back</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'رجوع' : 'Back' }}</span>
+            </button>
+            <button type="submit"
+                    [disabled]="orderForm.invalid || orderLoading() || !orderReceiptFile()"
+                    class="px-5 py-2 bg-royal-teal text-white font-bold text-xs rounded-lg hover:bg-champagne-gold hover:text-royal-teal transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed font-sans">
+              @if (orderLoading()) {
+                <mat-icon class="text-sm animate-spin">sync</mat-icon>
+                <span>{{ langService.lang() === 'ar' ? 'قيد الطلب...' : 'Processing...' }}</span>
+              } @else {
+                <mat-icon class="text-sm">shopping_cart</mat-icon>
+                <span>{{ langService.lang() === 'ar' ? 'شراء وتأكيد الطلب' : 'Buy & Confirm' }}</span>
+              }
+            </button>
+          </div>
+        }
 
       </form>
     </div>

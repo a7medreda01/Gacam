@@ -7,6 +7,7 @@ import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Accreditation } from '../../models/types';
 import { TranslatePipe } from '../../shared/pipes/translate';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-accreditations',
@@ -26,36 +27,34 @@ export class AdminAccreditationsComponent implements OnInit {
   selectedAcc     = signal<Accreditation | null>(null);
   reviewLoading   = signal(false);
 
-  // status: 1 = Approved, 2 = Rejected, 3 = Refunded
+  currentPage  = signal(1);
+  pageSize     = signal(10);
+  totalCount   = signal(0);
+  totalPages   = signal(0);
+  hasNext      = signal(false);
+  hasPrevious  = signal(false);
+
   reviewForm = new FormGroup({
     status: new FormControl<string>('1', [Validators.required]),
   });
 
-  filteredAccs = computed(() => {
-    const query  = this.accSearch().trim().toLowerCase();
-    const status = this.accStatusFilter();
-    const data   = this.accs();
+  private statusLabels: Record<number, string> = {
+    0: 'Pending', 1: 'Approved', 2: 'Rejected', 3: 'Refunded'
+  };
 
-    return data.filter(a => {
-      const matchesStatus = !status || a.status === status;
-      const matchesSearch = !query
-        || (a.userFullName          ?? '').toLowerCase().includes(query)
-        || (a.userEmail             ?? '').toLowerCase().includes(query)
-        || (a.category              ?? '').toLowerCase().includes(query)
-        || (a.mediaCard?.cardNumber ?? '').toLowerCase().includes(query);
-      return matchesStatus && matchesSearch;
-    });
-  });
+  filteredAccs = computed(() => this.accs());
 
   accStats = computed(() => {
     const all = this.accs();
     return [
-      { label: 'Total',    count: all.length,                                                                          color: 'text-royal-teal'  },
-      { label: 'Pending',  count: all.filter(a => a.status === 'Pending').length,                                      color: 'text-yellow-600'  },
-      { label: 'Approved', count: all.filter(a => a.status === 'Approved').length,                                     color: 'text-emerald-600' },
-      { label: 'Rejected', count: all.filter(a => a.status === 'Rejected' || a.status === 'Refunded').length,          color: 'text-red-500'     },
+      { label: 'Total loaded', count: all.length,                                                  color: 'text-royal-teal'  },
+      { label: 'Pending',      count: all.filter(a => a.status === 0).length,                      color: 'text-yellow-600'  },
+      { label: 'Approved',     count: all.filter(a => a.status === 1).length,                      color: 'text-emerald-600' },
+      { label: 'Rejected',     count: all.filter(a => a.status === 2 || a.status === 3).length,     color: 'text-red-500'     },
     ];
   });
+
+  private searchTimeout: any = null;
 
   ngOnInit() {
     this.fetchAccreditations();
@@ -63,10 +62,57 @@ export class AdminAccreditationsComponent implements OnInit {
 
   fetchAccreditations() {
     this.loading.set(true);
-    this.apiService.getAllAccreditations().subscribe({
-      next:  (data) => { this.accs.set(data); this.loading.set(false); },
-      error: ()     => { this.loading.set(false); }
+    this.apiService.getAllAccreditations(
+      this.accStatusFilter() || undefined,
+      this.currentPage(),
+      this.pageSize(),
+      this.accSearch()
+    ).subscribe({
+      next:  (data) => {
+        this.accs.set(data.items);
+        this.totalCount.set(data.totalCount);
+        this.totalPages.set(data.totalPages);
+        this.hasNext.set(data.hasNext);
+        this.hasPrevious.set(data.hasPrevious);
+        this.loading.set(false);
+      },
+      error: () => { this.loading.set(false); }
     });
+  }
+
+  onSearchChange(searchval: string) {
+    this.accSearch.set(searchval);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage.set(1);
+      this.fetchAccreditations();
+    }, 400);
+  }
+
+  onStatusChange(statusval: string) {
+    this.accStatusFilter.set(statusval);
+    this.currentPage.set(1);
+    this.fetchAccreditations();
+  }
+
+  nextPage() {
+    if (this.hasNext()) {
+      this.currentPage.update(p => p + 1);
+      this.fetchAccreditations();
+    }
+  }
+
+  prevPage() {
+    if (this.hasPrevious()) {
+      this.currentPage.update(p => p - 1);
+      this.fetchAccreditations();
+    }
+  }
+
+  changePageSize(size: number) {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+    this.fetchAccreditations();
   }
 
   openReviewModal(a: Accreditation) {
@@ -109,34 +155,56 @@ export class AdminAccreditationsComponent implements OnInit {
     });
   }
 
-  getAccreditationStatusText(status: string): string {
-    if (this.langService.lang() !== 'ar') return status;
-    const map: Record<string, string> = {
-      'Pending':  'قيد المراجعة',
-      'Approved': 'معتمد',
-      'Rejected': 'مرفوض',
-      'Refunded': 'مسترد',
-    };
-    return map[status] ?? status;
+  isPending(status: number): boolean {
+    return status === 0;
   }
 
-  getAccreditationStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      'Pending':  'bg-yellow-100 text-yellow-700 font-bold',
-      'Approved': 'bg-emerald-100 text-emerald-700 font-bold',
-      'Rejected': 'bg-red-100 text-red-700 font-bold',
-      'Refunded': 'bg-gray-100 text-gray-500 font-bold',
-    };
-    return map[status] ?? 'bg-gray-100 text-gray-500';
+  getCategoryName(a: Accreditation): string {
+    return this.langService.lang() === 'ar'
+      ? (a as any).categoryNameAr
+      : (a as any).categoryNameEn;
   }
 
-  getCardStatusClass(status: string): string {
-    const map: Record<string, string> = {
-      'Active':    'bg-emerald-100 text-emerald-700',
-      'Expired':   'bg-orange-100 text-orange-600',
-      'Suspended': 'bg-yellow-100 text-yellow-700',
-      'Revoked':   'bg-red-100 text-red-600',
-    };
-    return map[status] ?? 'bg-gray-100 text-gray-500';
+  getDocumentUrl(relativeUrl?: string): string {
+    if (!relativeUrl) return '';
+    const apiBase = environment.apiUrl.replace(/\/api\/?$/, '');
+    return relativeUrl.startsWith('http') ? relativeUrl : `${apiBase}${relativeUrl}`;
   }
+
+  getAccreditationStatusText(status: number): string {
+    const label = this.statusLabels[status] ?? 'Unknown';
+    if (this.langService.lang() !== 'ar') return label;
+    const map: Record<string, string> = {
+      Pending: 'قيد المراجعة', Approved: 'معتمد', Rejected: 'مرفوض', Refunded: 'مسترد'
+    };
+    return map[label] ?? label;
+  }
+
+  getAccreditationStatusClass(status: number): string {
+    const label = this.statusLabels[status] ?? '';
+    const map: Record<string, string> = {
+      Pending:  'bg-yellow-100 text-yellow-700 font-bold',
+      Approved: 'bg-emerald-100 text-emerald-700 font-bold',
+      Rejected: 'bg-red-100 text-red-700 font-bold',
+      Refunded: 'bg-gray-100 text-gray-500 font-bold',
+    };
+    return map[label] ?? 'bg-gray-100 text-gray-500';
+  }
+
+private cardStatusLabels: Record<number, string> = {
+  0: 'Active', 1: 'Expired', 2: 'Suspended', 3: 'Revoked'
+};
+getCardStatusText(status: number): string {
+  return this.cardStatusLabels[status] ?? 'Unknown';
+}
+
+getCardStatusClass(status: number): string {
+  const map: Record<number, string> = {
+    0: 'bg-emerald-100 text-emerald-700', // Active
+    1: 'bg-orange-100 text-orange-600',   // Expired
+    2: 'bg-yellow-100 text-yellow-700',   // Suspended
+    3: 'bg-red-100 text-red-600',         // Revoked
+  };
+  return map[status] ?? 'bg-gray-100 text-gray-500';
+}
 }

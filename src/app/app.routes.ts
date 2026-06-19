@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { OrderDetailComponent } from './features/orders/order-details';
+import { CoursesComponent } from './features/courses/courses';
+import { noAuthGuard } from './core/guards/noAuthGuard';
 
 export const routes: Routes = [
   {
@@ -22,6 +25,7 @@ export const routes: Routes = [
     path: 'news',
     loadComponent: () => import('./features/news/news').then(m => m.NewsComponent)
   },
+  { path: 'courses', component: CoursesComponent },
   {
   path: 'verify-certificate',
   loadComponent: () =>
@@ -34,15 +38,30 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./features/auth/login').then(m => m.LoginComponent)
+    loadComponent: () => import('./features/auth/login').then(m => m.LoginComponent),
+      canActivate: [noAuthGuard]
+    
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password').then(m => m.ResetPasswordComponent)
   },
   {
     path: 'register',
-    loadComponent: () => import('./features/auth/register').then(m => m.RegisterComponent)
+    loadComponent: () => import('./features/auth/register').then(m => m.RegisterComponent),
+      canActivate: [noAuthGuard]
+
   },
   {
     path: 'profile',
     loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent)
+  },
+  {
+     path: 'orders/:id', component: OrderDetailComponent 
   },
   {
     path: 'page/:slug',
@@ -65,6 +84,14 @@ export const routes: Routes = [
       {
         path: 'accreditations',
         loadComponent: () => import('./admin/components/accreditations').then(m => m.AdminAccreditationsComponent)
+      },
+      {
+        path: 'accreditation-categories',
+        loadComponent: () => import('./admin/components/accreditation-categories').then(m => m.AdminAccreditationCategoriesComponent)
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./admin/components/orders').then(m => m.AdminOrdersComponent)
       },
       {
         path: 'volunteers',

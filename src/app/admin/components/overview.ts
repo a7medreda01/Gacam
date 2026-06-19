@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { TranslatePipe } from '../../shared/pipes/translate';
+import { Payment } from '../../models/types';
 
 @Component({
   selector: 'app-admin-overview',
@@ -17,11 +18,14 @@ export class AdminOverviewComponent implements OnInit {
   accsCount = signal(0);
   enrollmentsCount = signal(0);
   volsCount = signal(0);
-  payments = signal<any[]>([]);
+  payments = signal<Payment[]>([]);
 
   totalRevenue = computed(() => {
     return this.payments()
-      .filter(p => p.status === 'Approved' || p.status === 'Paid' || p.status === '1')
+      .filter(p => {
+        const val = String(p.status || '');
+        return val === 'Approved' || val === 'Paid' || val === '1';
+      })
       .reduce((s, p) => s + (Number(p.amount) || 0), 0);
   });
 
@@ -32,23 +36,20 @@ export class AdminOverviewComponent implements OnInit {
   fetchOverviewData() {
     this.loading.set(true);
     this.apiService.getAllAccreditations().subscribe({
-      next: (ac) => this.accsCount.set(ac.length),
-      error: () => {}
+      next: (ac) => this.accsCount.set(ac.totalCount)
     });
 
     this.apiService.getAllEnrollments().subscribe({
-      next: (en) => this.enrollmentsCount.set(en.length),
-      error: () => {}
+      next: (en) => this.enrollmentsCount.set(en.items?.length || 0)
     });
 
     this.apiService.getVolunteers().subscribe({
-      next: (vl) => this.volsCount.set(vl.length),
-      error: () => {}
+      next: (vl) => this.volsCount.set(vl.length)
     });
 
     this.apiService.getAllPayments().subscribe({
       next: (py) => {
-        this.payments.set(py);
+        this.payments.set(py.items);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

@@ -52,19 +52,19 @@ export class AdminAcademyEnrollmentsComponent implements OnInit {
 
   ngOnInit() { this.fetchData(); }
 
-  fetchData() {
-    this.loading.set(true);
-    this.apiService.getCourses().subscribe({
-      next: (cs) => {
-        this.courses.set(cs);
-        this.apiService.getAllEnrollments().subscribe({
-          next:  (en) => { this.enrollments.set(en); this.loading.set(false); },
-          error: ()   => this.loading.set(false)
-        });
-      },
-      error: () => this.loading.set(false)
-    });
-  }
+fetchData() {
+  this.loading.set(true);
+  this.apiService.getCourses(1, 100).subscribe({
+    next: (cs) => {
+      this.courses.set(cs?.items || cs);
+      this.apiService.getAllEnrollments(1, 100).subscribe({
+        next:  (en) => { this.enrollments.set(en.items ?? []); this.loading.set(false); },
+        error: ()   => this.loading.set(false)
+      });
+    },
+    error: () => this.loading.set(false)
+  });
+}
 
   // ── Enrollment actions ───────────────────────────────────────────
 

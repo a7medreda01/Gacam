@@ -12,6 +12,7 @@ export interface User {
   roles: string[];
   organization?: string;
   country?: string;
+  profileImageUrl?: string;
 }
 
 
@@ -60,29 +61,13 @@ export interface ServiceFee {
   currency: string;
 }
 
-export interface Accreditation {
-  id: number;
-  userId: number;
-  userFullName: string;         // اسم المستخدم من الـ User entity
-  userEmail: string;
-  category: string;             // AccreditationCategory enum string
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Refunded';
-  documentUrl?: string;
-  createdAt: string;
-  checkedAt?: string;
-  checkedByUserFullName?: string;
-  mediaCard?: MediaCard;        // nested card object
-  notes: string;                   // populated after admin review
-  nationalIdOrPassport?: string; // optional — not in backend DTO yet; add after backend update
-  organization?: string;         // optional — not in backend DTO yet; add after backend update
-  jobTitle?: string;             // optional — not in backend DTO yet; add after backend update
-}
+
 
 export interface MediaCard {
   id: number;
   cardNumber: string;
   qrCodeData: string;
-  status: 'Active' | 'Expired' | 'Suspended' | 'Revoked';
+  status: number; // MediaCardStatus enum number
   issuedAt: string;
   expiresAt: string;
 }
@@ -179,6 +164,8 @@ export interface Certificate {
   issuedAt: string;
   pdfUrl: string;
   qrCodeData: string;
+  expiredAt?: string;
+  isExpired?: boolean;
 }
 
 export interface NewsArticle {
@@ -213,4 +200,212 @@ export interface AuditLog {
   timestamp?: string;
   email?: string;
   ipAddress?: string;
+}
+
+export interface PagedResponse<T> {
+  items: T[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export type AccreditationCategory = {
+  id: number;
+  nameEn: string;
+  nameAr: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} | any;
+
+export const AccreditationCategoryLabel: Record<string | number, string> = {
+  0: 'Press',
+  1: 'Media',
+  2: 'Staff',
+  3: 'Organizer',
+  4: 'Speaker',
+  5: 'Guest',
+  6: 'VIP',
+  7: 'Trainee',
+  8: 'Volunteer',
+  9: 'Board Member',
+  10: 'Executive',
+  11: 'Honorary',
+  12: 'Partner',
+  'Press': 'Press',
+  'Media': 'Media',
+  'Staff': 'Staff',
+  'Organizer': 'Organizer',
+  'Speaker': 'Speaker',
+  'Guest': 'Guest',
+  'VIP': 'VIP',
+  'Trainee': 'Trainee',
+  'Volunteer': 'Volunteer',
+  'Board Member': 'Board Member',
+  'Executive': 'Executive',
+  'Honorary': 'Honorary',
+  'Partner': 'Partner'
+};
+
+  
+
+export enum MediaCardStatus {
+  Active = 0,
+  Expired = 1,
+  Suspended = 2 ,
+  Revoked = 3
+}
+
+export const MediaCardStatusLabel: Record<string | number, string> = {
+  'Active': 'ACTIVE',
+  'Expired': 'EXPIRED',
+  'Suspended': 'SUSPENDED',
+  'Revoked': 'REVOKED',
+  0: 'ACTIVE',
+  1: 'EXPIRED',
+  2: 'REVOKED',
+  3: 'SUSPENDED'
+};
+
+export enum OrderType {
+  CertificatePrint = 0,
+  AccreditationCardPrint = 1
+}
+
+export enum OrderStatus {
+  Pending = 0,
+  WaitingPayment = 1,
+  PaymentSubmitted = 2,
+  UnderReview = 3,
+  Approved = 4,
+  InProduction = 5,
+  Printed = 6,
+  ReadyForDelivery = 7,
+  Delivered = 8,
+  Rejected = 9,
+  Cancelled = 10
+}
+
+export interface Order {
+  id: number;
+  userId: number;
+  userFullName: string;
+  userEmail: string;
+  orderNumber: string;
+  orderType: OrderType;
+  relatedRecordId: number;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+    shippingFee: number;
+  paymentId?: number;
+  payment?: Payment;
+  orderStatus: OrderStatus;
+  notes?: string;
+  trackingNumber?: string;
+  createdAt: string;
+  updatedAt: string;
+    phone?: string;
+  address?: string;
+}
+// models/types.ts
+export interface CreateOrderDto {
+  orderType: OrderType;
+  relatedRecordId: number;
+  quantity: number;
+  notes?: string;
+  phone?: string;
+  address?: string;
+}
+export interface ServiceFee {
+  id: number;
+  orderType: OrderType;
+  unitPrice: number;
+  shippingFee: number;
+  isActive: boolean;
+}
+export interface OrderStatusHistory {
+  id: number;
+  oldStatus: OrderStatus;
+  newStatus: OrderStatus;
+  changedByUserName: string;
+  notes?: string;
+  createdAt: string;
+}
+
+
+export interface MediaCardVerificationDataDto {
+  id: number;
+  cardNumber: string;
+  fullName: string;
+  categoryNameEn: string;
+  categoryNameAr: string;
+  status: string;
+  issuedAt: string;
+  expiresAt: string;
+  isExpired: boolean;
+  qrCodeData: string;
+}
+
+
+export enum ApplicationStatus {
+  Pending = 0,
+  Approved = 1,
+  Rejected = 2,
+  Refunded = 3
+}
+
+export interface Accreditation {
+  id: number;
+  userId: number;
+  userFullName: string;
+  userEmail: string;
+  categoryId: number;
+  categoryNameEn: string;
+  categoryNameAr: string;
+  status: ApplicationStatus;     // ⚠️ number مش string
+  documentUrl?: string;
+  createdAt: string;
+  checkedAt?: string;
+  checkedByUserFullName?: string;
+  mediaCard?: MediaCard;
+  notes?: string;
+}
+// types.ts
+export interface CertificateVerificationDataDto {
+  id: number;
+  certificateNumber: string;
+  fullNameOnCertificate: string;
+  type: string;
+  relatedItemTitle: string | null;
+  issuedAt: string;
+  expiredAt: string;
+  isExpired: boolean;
+  qrCodeData: string;
+}
+
+export interface MediaCardVerificationDataDto {
+  id: number;
+  cardNumber: string;
+  fullName: string;
+  categoryNameEn: string;
+  categoryNameAr: string;
+  status: string;
+  issuedAt: string;
+  expiresAt: string;
+  isExpired: boolean;
+  qrCodeData: string;
+}
+
+export interface UnifiedVerificationResponseDto {
+  isValid: boolean;
+  type: 'certificate' | 'card' | null;   // ← string literal بدل string
+  data: CertificateVerificationDataDto | MediaCardVerificationDataDto | null;
+  message: string | null;
 }

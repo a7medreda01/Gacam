@@ -1,0 +1,330 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-sm font-bold text-royal-teal uppercase tracking-widest flex items-center gap-2">
+      <mat-icon class="text-champagne-gold">local_shipping</mat-icon>
+      {{ langService.lang() === 'ar' ? 'إدارة طلبات شحن وتوصيل المطبوعات' : 'Print & Dispatch Ledger' }}
+    </h2>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+    
+    <!-- Search -->
+    <div class="relative w-full md:max-w-xs">
+      <mat-icon class="absolute left-3 top-2.5 text-deep-teal/40 text-sm">search</mat-icon>
+      <input (input)="onSearch($event)"
+             type="text"
+             [placeholder]="langService.lang() === 'ar' ? 'بحث عن طلب...' : 'Search order number or email...'"
+             class="w-full pl-9 pr-4 py-2 text-xs border border-champagne-gold/25 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-royal-teal/20 text-deep-teal placeholder-deep-teal/40 font-sans" />
+    </div>
+
+    <!-- Filter chips -->
+    <div class="flex flex-wrap gap-2 text-xs">
+      <button (click)="onStatusFilter(undefined)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === undefined ? 'bg-royal-teal text-white border-royal-teal' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'الكل' : 'All Orders' }}
+      </button>
+      <button (click)="onStatusFilter(0)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === 0 ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'قيد الانتظار' : 'Pending' }}
+      </button>
+      <button (click)="onStatusFilter(2)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === 2 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'تم الدفع' : 'Paid' }}
+      </button>
+      <button (click)="onStatusFilter(4)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === 4 ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'مقبول' : 'Approved' }}
+      </button>
+      <button (click)="onStatusFilter(5)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === 5 ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'قيد الإنتاج' : 'In Production' }}
+      </button>
+      <button (click)="onStatusFilter(8)"
+              class="px-3.5 py-1.5 rounded-lg border font-bold transition-all cursor-pointer"
+              [class]="statusFilter() === 8 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-deep-teal/60 border-champagne-gold/15 hover:bg-light-ivory'">
+        {{ langService.lang() === 'ar' ? 'تم التسليم' : 'Delivered' }}
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Loading spinner -->
+  @if (loading()) {
+    <div class="flex justify-center py-20 animate-pulse">
+      <mat-icon class="animate-spin text-royal-teal text-4xl">sync</mat-icon>
+    </div>
+  } @else if (orders().length === 0) {
+    <p class="text-center text-deep-teal/50 text-xs italic py-16 bg-white rounded-2xl border border-champagne-gold/15">
+      {{ langService.lang() === 'ar' ? 'لا توجد طلبات طباعة مطابقة حالياً.' : 'No matched print orders records found.' }}
+    </p>
+  } @else {
+
+    <!-- Orders list table -->
+    <div class="bg-white rounded-2xl border border-champagne-gold/15 overflow-x-auto">
+      <table class="w-full text-xs text-start">
+        <thead class="bg-royal-teal text-white font-sans uppercase tracking-wider text-[10px]">
+          <tr>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'الرمز' : 'ORDER NO' }}</th>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'المستلم' : 'CUSTOMER' }}</th>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'الفئة' : 'SERVICE TYPE' }}</th>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'تاريخ الطلب' : 'ORDER DATE' }}</th>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'رقم التبع الكندي' : 'TRACKING' }}</th>
+            <th class="px-5 py-3.5 text-start">{{ langService.lang() === 'ar' ? 'الحالة' : 'STATUS' }}</th>
+            <th class="px-5 py-3.5 text-center">{{ langService.lang() === 'ar' ? 'الإجراءات' : 'ACTIONS' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-champagne-gold/10 font-sans">
+          @for (ord of orders(); track ord.id) {
+            <tr class="hover:bg-light-ivory/40 transition-colors">
+              <td class="px-5 py-3 font-mono font-bold text-royal-teal">#{{ ord.orderNumber }}</td>
+              <td class="px-5 py-3 text-start">
+                <p class="font-bold text-deep-teal">{{ ord.userFullName }}</p>
+                <p class="text-[10px] text-deep-teal/50 font-sans mt-0.5">{{ ord.userEmail }}</p>
+              </td>
+              <td class="px-5 py-3 text-start">
+                <span class="text-[10px] bg-royal-teal/5 border border-royal-teal/10 px-2 py-0.5 rounded font-bold text-royal-teal">
+                  {{ getOrderTypeLabel(ord.orderType) }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-deep-teal/60 font-sans">{{ ord.createdAt | date:'mediumDate' }}</td>
+              <td class="px-5 py-3">
+                @if (ord.trackingNumber) {
+                  <span class="font-mono text-royal-teal select-all bg-royal-teal/5 px-2 py-1 rounded font-bold">{{ ord.trackingNumber }}</span>
+                } @else {
+                  <span class="text-[10px] text-deep-teal/30 italic">Not Shipped</span>
+                }
+              </td>
+              <td class="px-5 py-3">
+                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase border" [class]="getOrderStatusClass(ord.orderStatus)">
+                  {{ getOrderStatusLabel(ord.orderStatus) }}
+                </span>
+              </td>
+<td class="px-5 py-3">
+  <div class="flex items-center justify-center gap-2">
+
+    <!-- Print -->
+    <button
+      (click)="printCredential(ord)"
+      [disabled]="printLoadingIds().has(ord.id)"
+      class="flex items-center gap-1.5 px-3 py-1.5 border border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
+
+      @if (printLoadingIds().has(ord.id)) {
+        <mat-icon class="animate-spin !text-[16px]">sync</mat-icon>
+      } @else {
+        <mat-icon class="!text-[16px]">print</mat-icon>
+      }
+
+      <span class="text-[11px] font-semibold">
+        {{
+          isCertificateOrder(ord)
+            ? (langService.lang() === 'ar' ? 'طباعة الشهادة' : 'Print Certificate')
+            : (langService.lang() === 'ar' ? 'طباعة البطاقة' : 'Print Card')
+        }}
+      </span>
+    </button>
+
+    <!-- Edit -->
+    <button
+      (click)="openEditModal(ord)"
+      [title]="langService.lang() === 'ar' ? 'تعديل' : 'Edit'"
+      class="w-8 h-8 flex items-center justify-center rounded-lg bg-royal-teal text-white hover:bg-deep-teal transition-colors">
+
+      <mat-icon class="!text-[18px]">edit</mat-icon>
+    </button>
+
+    <!-- Track -->
+    <a
+      [routerLink]="['/orders', ord.id]"
+      [title]="langService.lang() === 'ar' ? 'تتبع' : 'Track'"
+      class="w-8 h-8 flex items-center justify-center rounded-lg border border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal transition-all">
+
+      <mat-icon class="!text-[18px]">navigation</mat-icon>
+    </a>
+
+  </div>
+</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 text-xs text-deep-teal/60">
+      
+      <!-- Page Selector -->
+      <div class="flex items-center gap-2 font-sans">
+        <span>{{ langService.lang() === 'ar' ? 'عرض:' : 'Show:' }}</span>
+        <select (change)="onPageSizeChange($event)" [value]="pageSize()"
+                class="px-2 py-1 bg-white border border-champagne-gold/25 rounded-md focus:outline-none">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+        </select>
+        <span>{{ langService.lang() === 'ar' ? 'من أصل ' + totalCount() + ' طلب' : 'of ' + totalCount() + ' orders' }}</span>
+      </div>
+
+      <!-- Arrow actions -->
+      <div class="flex items-center gap-2 font-sans">
+        <button (click)="setPage(currentPage() - 1)"
+                [disabled]="!hasPrevious()"
+                class="w-8 h-8 rounded-lg border border-champagne-gold/25 bg-white hover:bg-light-ivory text-royal-teal flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          <mat-icon class="text-sm">chevron_left</mat-icon>
+        </button>
+        <span class="font-mono text-royal-teal font-extrabold">{{ currentPage() }} / {{ totalPages() }}</span>
+        <button (click)="setPage(currentPage() + 1)"
+                [disabled]="!hasNext()"
+                class="w-8 h-8 rounded-lg border border-champagne-gold/25 bg-white hover:bg-light-ivory text-royal-teal flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          <mat-icon class="text-sm">chevron_right</mat-icon>
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- ── Manager Dispatch & Update Modal ────────────────────────────── -->
+@if (showEditModal()) {
+  @let editing = editingOrder();
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="closeEditModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in text-start"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between text-white">
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-champagne-gold">Dispatch Manager</h3>
+          <p class="text-sm font-bold mt-0.5">Edit Order #{{ editing?.orderNumber }}</p>
+        </div>
+        <button (click)="closeEditModal()" class="text-white/70 hover:text-white cursor-pointer select-none">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Action Tabs -->
+      <div class="flex border-b border-champagne-gold/15 bg-light-ivory/50">
+        <button (click)="activeTab.set('status')"
+                class="flex-1 py-3 text-xs font-bold transition-all cursor-pointer border-b-2"
+                [class.text-royal-teal]="activeTab() === 'status'"
+                [class.border-royal-teal]="activeTab() === 'status'"
+                [class.text-deep-teal/40]="activeTab() !== 'status'"
+                [class.border-transparent]="activeTab() !== 'status'">
+          {{ langService.lang() === 'ar' ? 'تعديل حالة الطلب' : 'Update Status' }}
+        </button>
+        <button (click)="activeTab.set('tracking')"
+                class="flex-1 py-3 text-xs font-bold transition-all cursor-pointer border-b-2"
+                [class.text-royal-teal]="activeTab() === 'tracking'"
+                [class.border-royal-teal]="activeTab() === 'tracking'"
+                [class.text-deep-teal/40]="activeTab() !== 'tracking'"
+                [class.border-transparent]="activeTab() !== 'tracking'">
+          {{ langService.lang() === 'ar' ? 'رمز تتبع الشحن المرفق' : 'Tracking Code / Notes' }}
+        </button>
+      </div>
+
+      <!-- Body: Status Change Form -->
+      @if (activeTab() === 'status') {
+        <form [formGroup]="statusForm" (ngSubmit)="updateOrderStatus()" class="p-6 flex flex-col gap-4 text-xs">
+          
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-champagne-gold">
+              {{ langService.lang() === 'ar' ? 'اختر الحالة الجديدة للطلب*' : 'Select New Status*' }}
+            </label>
+            <select formControlName="status"
+                    class="border border-champagne-gold/30 rounded-lg px-3 py-2 bg-light-ivory text-deep-teal focus:outline-none focus:border-royal-teal font-sans">
+              <option [value]="0">Pending — قيد الانتظار</option>
+              <option [value]="1">Waiting Payment — بانتظار الدفع</option>
+              <option [value]="2">Payment Submitted — تم تقديم الدفع</option>
+              <option [value]="3">Under Review — قيد المراجعة</option>
+              <option [value]="4">Approved — مقبول ومكتمل</option>
+              <option [value]="5">In Production — قيد الطباعة والتحضير</option>
+              <option [value]="6">Printed — تمت طباعته</option>
+              <option [value]="7">Ready for Delivery — جاهز للشحن</option>
+              <option [value]="8">Delivered / Shipped — تم التسليم والارسال</option>
+              <option [value]="9">Rejected — مرفوض</option>
+              <option [value]="10">Cancelled — ملغى</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-champagne-gold">
+              {{ langService.lang() === 'ar' ? 'ملاحظات اللوج التاريخية (ستظهر في خط سير الحالة للتتبع)*' : 'Status Action Notes (Visible on client tracking timeline)*' }}
+            </label>
+            <textarea formControlName="notes" rows="3"
+                      placeholder="e.g. Received Interac payment verified. Shipping out next morning..."
+                      class="border border-champagne-gold/30 rounded-lg px-3 py-2 bg-light-ivory text-deep-teal focus:outline-none focus:border-royal-teal font-sans resize-none"></textarea>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-3 border-t border-light-ivory">
+            <button type="button" (click)="closeEditModal()"
+                    class="px-4 py-2 font-bold text-deep-teal/60 hover:bg-light-ivory text-xs rounded-lg transition-colors cursor-pointer">
+              {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button type="submit" [disabled]="statusForm.invalid || updating()"
+                    class="flex items-center gap-1.5 px-5 py-2 bg-royal-teal hover:bg-deep-teal text-white text-xs font-bold rounded-lg cursor-pointer">
+              @if (updating()) {
+                <mat-icon class="animate-spin text-sm">sync</mat-icon>
+              } @else {
+                <mat-icon class="text-sm">save</mat-icon>
+              }
+              <span>{{ updating() ? 'Saving…' : (langService.lang() === 'ar' ? 'حفظ وتحديث الحالة' : 'Save Status Log') }}</span>
+            </button>
+          </div>
+
+        </form>
+      }
+
+      <!-- Body: Tracking Details Form -->
+      @if (activeTab() === 'tracking') {
+        <form [formGroup]="trackingForm" (ngSubmit)="updateTrackingDetails()" class="p-6 flex flex-col gap-4 text-xs">
+          
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-champagne-gold">
+              {{ langService.lang() === 'ar' ? 'رقم التتبع (Canada Post / DHL / Fedex)' : 'Tracking Code / Carrier Code' }}
+            </label>
+            <input formControlName="trackingNumber" type="text" placeholder="e.g. CA-POST-120301-A"
+                   class="border border-champagne-gold/30 rounded-lg px-3 py-2 bg-light-ivory text-deep-teal focus:outline-none focus:border-royal-teal font-mono uppercase" />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-bold uppercase tracking-wider text-champagne-gold">
+              {{ langService.lang() === 'ar' ? 'ملاحظات إرسال إضافية' : 'Shipping Dispatch Notes' }}
+            </label>
+            <textarea formControlName="notes" rows="3"
+                      placeholder="e.g. Dispatched to regional postal depot in North York..."
+                      class="border border-champagne-gold/30 rounded-lg px-3 py-2 bg-light-ivory text-deep-teal focus:outline-none focus:border-royal-teal font-sans resize-none"></textarea>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-3 border-t border-light-ivory">
+            <button type="button" (click)="closeEditModal()"
+                    class="px-4 py-2 font-bold text-deep-teal/60 hover:bg-light-ivory text-xs rounded-lg transition-colors cursor-pointer">
+              {{ langService.lang() === 'ar' ? 'إلغاء' : 'Cancel' }}
+            </button>
+            <button type="submit" [disabled]="updating()"
+                    class="flex items-center gap-1.5 px-5 py-2 bg-royal-teal hover:bg-deep-teal text-white text-xs font-bold rounded-lg cursor-pointer">
+              @if (updating()) {
+                <mat-icon class="animate-spin text-sm">sync</mat-icon>
+              } @else {
+                <mat-icon class="text-sm">local_shipping</mat-icon>
+              }
+              <span>{{ updating() ? 'Saving…' : (langService.lang() === 'ar' ? 'تحديث الشحن' : 'Update Tracking') }}</span>
+            </button>
+          </div>
+
+        </form>
+      }
+
+    </div>
+  </div>
+}

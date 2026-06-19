@@ -95,11 +95,20 @@
       </div>
 
       <!-- Right: Courses Catalog -->
-      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-4">
+      <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-4 animate-fade-in">
         <h3 class="text-sm font-bold uppercase tracking-widest text-royal-teal border-b border-light-ivory pb-2">
           {{ langService.lang() === 'ar' ? 'الدورات الحالية' : 'Current Courses' }}
-          ({{ courses().length }})
+          ({{ totalCount() }})
         </h3>
+
+        <!-- Search input -->
+        <div class="relative w-full">
+          <input type="text"
+                 (input)="onSearchChange($any($event.target).value)"
+                 [value]="courseSearch()"
+                 [placeholder]="langService.lang() === 'ar' ? 'بحث بالاسم أو الوصف...' : 'Search by name or description...'"
+                 class="w-full px-4 py-2 text-xs bg-light-ivory border border-champagne-gold/30 rounded-lg focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-sans" />
+        </div>
 
         <div class="flex flex-col gap-3">
           @for (c of courses(); track c.id) {
@@ -142,6 +151,33 @@
           } @empty {
             <p class="text-deep-teal/50 text-xs py-8 text-center">No courses in catalog yet.</p>
           }
+        </div>
+
+        <!-- Pagination controls -->
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white border border-champagne-gold/15 rounded-xl p-3 gap-3 mt-4 text-[11px] font-sans">
+          <div class="text-deep-teal/65 flex items-center gap-1">
+            <span>{{ langService.lang() === 'ar' ? 'إجمالي:' : 'Total:' }} <strong>{{ totalCount() }}</strong></span>
+            <span class="mx-1 font-light">|</span>
+            <span>{{ currentPage() }} / {{ totalPages() || 1 }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <select [value]="pageSize()" (change)="changePageSize(+$any($event.target).value)"
+                    class="px-1.5 py-0.5 bg-white border border-champagne-gold/20 rounded focus:outline-none text-[11px]">
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+            </select>
+            <div class="flex items-center gap-1">
+              <button (click)="prevPage()" [disabled]="!hasPrevious()"
+                      class="p-1 px-2 bg-royal-teal/5 text-royal-teal hover:bg-royal-teal hover:text-white rounded disabled:opacity-30 disabled:hover:bg-royal-teal/5 disabled:hover:text-royal-teal cursor-pointer transition-colors font-bold text-[10px] flex items-center">
+                <mat-icon class="text-xs h-3 w-3">chevron_left</mat-icon>
+              </button>
+              <button (click)="nextPage()" [disabled]="!hasNext()"
+                      class="p-1 px-2 bg-royal-teal/5 text-royal-teal hover:bg-royal-teal hover:text-white rounded disabled:opacity-30 disabled:hover:bg-royal-teal/5 disabled:hover:text-royal-teal cursor-pointer transition-colors font-bold text-[10px] flex items-center">
+                <mat-icon class="text-xs h-3 w-3">chevron_right</mat-icon>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
