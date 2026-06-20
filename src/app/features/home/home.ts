@@ -4,14 +4,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
 import { NewsArticle } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
@@ -35,4 +33,10 @@ export class HomeComponent implements OnInit {
       error: () => {}
     });
   }
+  scrollTo(id: string): void {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 }

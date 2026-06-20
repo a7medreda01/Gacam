@@ -147,7 +147,7 @@ export class AdminNewsComponent implements OnInit {
       contentEn: article.contentEn,
       contentAr: article.contentAr,
       imageUrl:  article.imageUrl ?? '',
-      type:      article.type,   // already a string e.g. 'PressRelease'
+      type:      String(article.type ?? ''),
       isActive:  true,
     };
     this.showModal.set(true);

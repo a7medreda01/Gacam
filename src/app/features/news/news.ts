@@ -4,14 +4,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
 import { NewsArticle } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-news',
   standalone: true,
-  imports: [CommonModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, MatIconModule, TranslatePipe],
   templateUrl: './news.component.html',
 })
 export class NewsComponent implements OnInit {
@@ -62,6 +60,9 @@ export class NewsComponent implements OnInit {
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit() {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0 });
+    }
     this.fetchNews();
   }
 
@@ -87,7 +88,9 @@ export class NewsComponent implements OnInit {
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   // ── Detail popup ───────────────────────────────────────────────────────────
@@ -100,5 +103,31 @@ export class NewsComponent implements OnInit {
 
   closeDetail() {
     this.selectedItem.set(null);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  getTypeLabel(type: string | number): string {
+    const isAr = this.langService.lang() === 'ar';
+    const map: Record<number, string> = {
+      0: isAr ? 'خبر' : 'News',
+      1: isAr ? 'بيان صحفي' : 'Press Release',
+      2: isAr ? 'إعلان' : 'Announcement',
+      3: isAr ? 'تصريح' : 'Statement',
+      4: isAr ? 'فعالية ومنتدى' : 'Event & Forum',
+      5: isAr ? 'مبادرة' : 'Initiative',
+    };
+    return map[+type] ?? String(type);
+  }
+
+  getTypeClass(type: string | number): string {
+    const classes: Record<number, string> = {
+      0: 'bg-emerald-50 text-emerald-800 border-emerald-200/50',
+      1: 'bg-blue-50 text-blue-800 border-blue-200/50',
+      2: 'bg-purple-50 text-purple-800 border-purple-200/50',
+      3: 'bg-orange-50 text-orange-800 border-orange-200/50',
+      4: 'bg-pink-50 text-pink-800 border-pink-200/50',
+      5: 'bg-amber-50 text-amber-800 border-amber-200/50',
+    };
+    return (classes[+type] ?? 'bg-slate-50 text-slate-800 border-slate-200/50') + ' border font-sans font-bold';
   }
 }

@@ -15,6 +15,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'NAV.LOGOUT': 'تسجيل الخروج',
     'NAV.LOGIN': 'تسجيل الدخول',
     'NAV.REGISTER': 'إنشاء حساب جديد',
+    'NAV.SUB_BRAND': 'الهيئة العامة للإعلام بكندا',
+    'NAV.TRAINING_PROGS': 'البرامج التدريبية',
+    'NAV.VERIFY': 'التحقق الآمن والتحري',
+    'NAV.MORE': 'المزيد',
+    'NAV.DIRECTORY_POLICIES': 'دليل الصفحات والسياسات',
+    'NAV.LANG_LABEL': 'English (EN)',
+    'NAV.LANG_TOGGLE': 'English',
 
     'COMMON.EMAIL': 'البريد الإلكتروني',
     'COMMON.PASSWORD': 'كلمة المرور',
@@ -26,6 +33,8 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'COMMON.EDIT': 'تعديل الخصائص',
     'COMMON.VIEW': 'عرض التفاصيل',
     'COMMON.BACK': 'رجوع للخلف',
+    'COMMON.PROCESSING': 'قيد المعالجة...',
+    'COMMON.CONFIRM': 'تأكيد الطلب',
     'COMMON.STATUS': 'الحالة الحالية',
     'COMMON.ACTIONS': 'الإجراءات والعمليات',
     'COMMON.DATE': 'التاريخ والموعد',
@@ -64,7 +73,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'AUTH.NO_ACCOUNT': 'ليس لديك حساب معنا؟ سجل الآن',
     'AUTH.ALREADY_ACCOUNT': 'لديك حساب بالفعل؟ سجل دخولك',
     'AUTH.REGISTER_SUB': 'املأ البيانات بشكل دقيق للحصول على صلاحيات التقديم على المنصة',
-
+    'AUTH.REGISTER_LINK': 'إنشاء حساب',
     'VOLUNTEER.TITLE': 'طلب الانضمام لفرق التطوع والمساندة',
     'VOLUNTEER.SKILLS': 'المهارات والخبرات الإعلامية التقنية',
     'VOLUNTEER.NOTES': 'لماذا ترغب في التطوع لدينا؟',
@@ -73,7 +82,10 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'ACCREDITATION.APPLY': 'طلب الحصول على بطاقة الاعتماد الإعلامي الرسمي',
     'ACCREDITATION.SUBMITTED': 'طلب الاعتماد الخاص بك',
     'ACCREDITATION.STATUS_DESC': 'يتم مراجعة طلبك وإثباتات الدفع يدويًا من قبل الإدارة وسيتم تحديث الحالة فور التقييم.',
-    
+    'AUTH.LOGIN_TITLE': 'تسجيل الدخول الآمن لأعضاء الهيئة',
+    'AUTH.REGISTER_TITLE': 'إنشاء حساب جديد في منصة الهيئة',
+    'AUTH.FORGOT_TITLE': 'استعادة كلمة المرور المفقودة',
+    'AUTH.RESET_TITLE': 'تعيين كلمة مرور جديدة',
     'PAYMENT.PROMPT': 'إرسال إثبات وسداد رسوم المعاملات (حوالة بنكية)',
     'PAYMENT.DESC': 'يرجى تحويل رسوم المعاملة لحساب الهيئة الرسمي عبر البريد الإلكتروني المعتمد: Info@gacam.media ومن ثم تدوين رقم العملية ورفع الإيصال في النموذج أدناه.',
     
@@ -112,7 +124,16 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'ADMIN.SIDE_AUDIT': '📜 سجلات الأمان والعمليات',
     'ADMIN.SIDE_ACADEMY_ENROLLMENTS': '🎓 سجلات التسجيل في الأكاديمية',
     'ADMIN.SIDE_NEWS': '📰 إدارة الأخبار والمواد الإعلامية',
-    'ADMIN.SIDE_SETTINGS': '⚙️ المعايير وإعدادات الشهادة'
+    'ADMIN.SIDE_SETTINGS': '⚙️ المعايير وإعدادات الشهادة',
+    'FOOTER.DESC': 'الهيئة العامة للإعلام المرئي والمسموع والخليجي والعربي في كندا هي الرافد الأساسي للصحفي ومحايد لتنظيم البرامج والتكامل المستدام.',
+    'FOOTER.QUICK_ACTIONS': 'روابط سريعة',
+    'FOOTER.POLICIES': 'السياسات والأنظمة',
+    'FOOTER.EDITORIAL': 'سياسة النزاهة والمصداقية',
+    'FOOTER.COMPLAINTS': 'مذكرة السياسة الشكاوى',
+    'FOOTER.CORRECTIONS': 'التصحيحات والشفافية',
+    'FOOTER.ETHICS': 'أخلاقيات البث والنشر',
+    'FOOTER.HEADQUARTERS': 'المقر والتواصل',
+    'FOOTER.COPYRIGHT': 'جميع الحقوق محفوظة للهيئة بكندا'
   },
   en: {
     'NAV.HOME': 'Home',
@@ -128,6 +149,13 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'NAV.LOGOUT': 'Log Out',
     'NAV.LOGIN': 'Log In',
     'NAV.REGISTER': 'Create Account',
+    'NAV.SUB_BRAND': 'Audiovisual Media Canada',
+    'NAV.TRAINING_PROGS': 'Training Programs',
+    'NAV.VERIFY': 'Verify Credentials',
+    'NAV.MORE': 'More',
+    'NAV.DIRECTORY_POLICIES': 'Portal Directory & Policies',
+    'NAV.LANG_LABEL': 'العربية (AR)',
+    'NAV.LANG_TOGGLE': 'العربية',
 
     'COMMON.EMAIL': 'Email Address',
     'COMMON.PASSWORD': 'Password',
@@ -139,6 +167,8 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'COMMON.EDIT': 'Edit Properties',
     'COMMON.VIEW': 'View Details',
     'COMMON.BACK': 'Back',
+    'COMMON.PROCESSING': 'Processing...',
+    'COMMON.CONFIRM': 'Confirm Order',
     'COMMON.STATUS': 'Status',
     'COMMON.ACTIONS': 'Actions',
     'COMMON.DATE': 'Date & Time',
@@ -177,7 +207,11 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'AUTH.NO_ACCOUNT': "Don't have an account? Sign up now",
     'AUTH.ALREADY_ACCOUNT': 'Already have an account? Log in here',
     'AUTH.REGISTER_SUB': 'Fill the details carefully to ensure appropriate clearance on our systems.',
-
+    'AUTH.LOGIN_TITLE': 'Secure Login for GACAM Members',
+    'AUTH.REGISTER_TITLE': 'Create a New Account on GACAM Portal',
+    'AUTH.FORGOT_TITLE': 'Forgot Your Password?',
+    'AUTH.RESET_TITLE': 'Set a New Password',
+    'AUTH.REGISTER_LINK': 'Create Account',
     'VOLUNTEER.TITLE': 'Join GACAM Volunteer & Assistance Teams',
     'VOLUNTEER.SKILLS': 'Technical & Professional Media Skills',
     'VOLUNTEER.NOTES': 'Why do you wish to join GACAM Volunteer Team?',
@@ -225,7 +259,16 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     'ADMIN.SIDE_AUDIT': '📜 Audit Tracking Records',
     'ADMIN.SIDE_ACADEMY_ENROLLMENTS': '🎓 Academy Enrollments',
     'ADMIN.SIDE_NEWS': '📰 Management News & Media',
-    'ADMIN.SIDE_SETTINGS': '⚙️ Global Site Parameters'
+    'ADMIN.SIDE_SETTINGS': '⚙️ Global Site Parameters',
+    'FOOTER.DESC': 'The central Arab-gulf audiovisual regulatory, accreditation, and media training hub established in Canada.',
+    'FOOTER.QUICK_ACTIONS': 'Quick Actions',
+    'FOOTER.POLICIES': 'Our Policies',
+    'FOOTER.EDITORIAL': 'Editorial Compliance',
+    'FOOTER.COMPLAINTS': 'Complaints Policy',
+    'FOOTER.CORRECTIONS': 'Corrections Guidelines',
+    'FOOTER.ETHICS': 'Code of Ethics',
+    'FOOTER.HEADQUARTERS': 'Headquarters',
+    'FOOTER.COPYRIGHT': 'All Institutional Rights Reserved.'
   }
 };
 

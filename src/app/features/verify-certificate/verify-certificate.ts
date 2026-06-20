@@ -6,8 +6,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 import { Course } from '../../models/types';
 import { ActivatedRoute } from '@angular/router';
@@ -15,7 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-verify-certificate',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule, TranslatePipe],
   templateUrl: './verify-certificate.html',
   styleUrl: './verify-certificate.css'
 })

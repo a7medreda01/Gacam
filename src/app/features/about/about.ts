@@ -5,17 +5,13 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, MatIconModule, TranslatePipe],
   template: `
-    <app-navbar></app-navbar>
-
     <main class="min-h-screen bg-light-ivory py-16">
       <div class="container-gacam max-w-5xl">
         <!-- Topic Heading -->
@@ -93,8 +89,6 @@ import { TranslatePipe } from '../../shared/pipes/translate';
 
       </div>
     </main>
-
-    <app-footer></app-footer>
   `
 })
 export class AboutComponent implements OnInit {

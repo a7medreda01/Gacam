@@ -9,14 +9,12 @@ import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Course, Enrollment } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule, TranslatePipe],
   templateUrl: './courses.html',
   styleUrl: './courses.css'
 })
@@ -62,7 +60,7 @@ export class CoursesComponent implements OnInit {
   // ────────────────────────────────────────────────────────────────
   ngOnInit() {
     this.fetchCatalog();
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isLoggedIn()) {
       this.fetchMyEnrollments();
     }
   }
@@ -97,7 +95,7 @@ export class CoursesComponent implements OnInit {
 
   // ── Payment Modal ────────────────────────────────────────────────
   openPayModal(course: Course) {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.authService.isLoggedIn()) {
       this.toastService.showError(
         this.langService.lang() === 'ar' ? 'يجب تسجيل الدخول أولاً للتسجيل في دورة.' : 'Please log in first to enroll in a course.'
       );

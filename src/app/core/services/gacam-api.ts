@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -26,6 +26,24 @@ import {
   UnifiedVerificationResponseDto,
   CreateOrderDto
 } from '../../models/types';
+
+// ── User Management DTOs ──────────────────────────────────────────────────────
+export interface UserListDto {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
+  lockoutEnd: string | null;
+}
+
+export interface CreateUserByAdminDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'Admin' | 'Employee';
+}
 
 @Injectable({
   providedIn: 'root'
@@ -80,6 +98,28 @@ export class GacamApiService {
     return this.http.put<CertificateDesign>(`${this.base}/Settings/certificate`, payload);
   }
 
+  uploadLogo(file: File): Observable<{ relativePath: string, absoluteUrl: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ relativePath: string, absoluteUrl: string }>(`${this.base}/Settings/upload-logo`, fd);
+  }
+
+  uploadSignature(file: File): Observable<{ relativePath: string, absoluteUrl: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ relativePath: string, absoluteUrl: string }>(`${this.base}/Settings/certificate/upload-signature`, fd);
+  }
+
+  uploadBackground(file: File): Observable<{ relativePath: string, absoluteUrl: string }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<{ relativePath: string, absoluteUrl: string }>(`${this.base}/Settings/certificate/upload-background`, fd);
+  }
+
+  removeBackground(): Observable<any> {
+    return this.http.delete<any>(`${this.base}/Settings/certificate/background`);
+  }
+
   // --- Press Cards & Accreditations (Categories & Applications) ---
   getAccreditationCategories(pageNumber?: number, pageSize?: number, search?: string): Observable<PagedResponse<AccreditationCategory>> {
     const params = this.buildParams(pageNumber, pageSize, search);
@@ -98,7 +138,6 @@ export class GacamApiService {
     return this.http.delete<any>(`${this.base}/accreditation-categories/${id}`);
   }
 
-  // applyAccreditation
   applyAccreditation(category: string, document?: File): Observable<Accreditation> {
     const fd = new FormData();
     fd.append('category', category);
@@ -110,13 +149,11 @@ export class GacamApiService {
     return this.http.post<Accreditation>(`${this.base}/Accreditation/apply`, fd);
   }
 
-  // getMyAccreditation — handle 404 as null
   getMyAccreditation(): Observable<Accreditation | null> {
     return this.http.get<Accreditation | null>(`${this.base}/Accreditation/my-application`)
       .pipe(catchError(err => err.status === 404 ? of(null) : throwError(() => err)));
   }
 
-  // reviewAccreditation
   reviewAccreditation(id: number, status: number): Observable<Accreditation> {
     return this.http.put<Accreditation>(`${this.base}/Accreditation/${id}/review`, { status });
   }
@@ -176,10 +213,10 @@ export class GacamApiService {
     return this.http.get<Enrollment[]>(`${this.base}/Training/my-enrollments`);
   }
 
-getAllEnrollments(pageNumber?: number, pageSize?: number, search?: string): Observable<PagedResponse<Enrollment>> {
-  const params = this.buildParams(pageNumber, pageSize, search);
-  return this.http.get<PagedResponse<Enrollment>>(`${this.base}/Training/enrollments`, { params });
-}
+  getAllEnrollments(pageNumber?: number, pageSize?: number, search?: string): Observable<PagedResponse<Enrollment>> {
+    const params = this.buildParams(pageNumber, pageSize, search);
+    return this.http.get<PagedResponse<Enrollment>>(`${this.base}/Training/enrollments`, { params });
+  }
 
   reviewEnrollment(id: number, status: number, adminNotes: string): Observable<Enrollment> {
     return this.http.put<Enrollment>(`${this.base}/Training/enrollments/${id}/status`, { status, adminNotes });
@@ -216,9 +253,11 @@ getAllEnrollments(pageNumber?: number, pageSize?: number, search?: string): Obse
     fd.append('file', file);
     return this.http.post<any>(`${this.base}/Payments/upload-receipt`, fd);
   }
-getServiceFees(): Observable<ServiceFee[]> {
-  return this.http.get<ServiceFee[]>(`${this.base}/ServiceFees`);
-}
+
+  getServiceFees(): Observable<ServiceFee[]> {
+    return this.http.get<ServiceFee[]>(`${this.base}/ServiceFees`);
+  }
+
   // --- E-Certificates Retrieval & Mechanical validation ---
   issueCertificate(payload: any): Observable<Certificate> {
     return this.http.post<Certificate>(`${this.base}/Certificates`, payload);
@@ -234,23 +273,27 @@ getServiceFees(): Observable<ServiceFee[]> {
     return this.http.get<PagedResponse<Certificate>>(`${this.base}/Certificates`, { params });
   }
 
+  getCertificateById(id: number): Observable<Certificate> {
+    return this.http.get<Certificate>(`${this.base}/Certificates/${id}`);
+  }
+
   verifyCertificate(cardNumber: string): Observable<any> {
     return this.http.get<any>(`${this.base}/Certificates/verify/${encodeURIComponent(cardNumber)}`);
   }
 
-verifyCertificateFile(file: File): Observable<any> {
-  const formData = new FormData();
-  formData.append('file', file);
-  return this.http.post<any>(`${this.base}/Verification/verify-files`, formData); // ← verify-files
-}
+  verifyCertificateFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.base}/Verification/verify-files`, formData);
+  }
 
   downloadCertificateUrl(id: number): string {
     return `${this.base}/Certificates/download/${id}`;
   }
 
-verify(code: string): Observable<any> {
-  return this.http.get(`${this.base}/verification/${code}`);
-}
+  verify(code: string): Observable<any> {
+    return this.http.get(`${this.base}/verification/${code}`);
+  }
 
   // --- General News and PR ---
   getNews(type?: number, pageNumber?: number, pageSize?: number, search?: string): Observable<PagedResponse<NewsArticle>> {
@@ -303,6 +346,10 @@ verify(code: string): Observable<any> {
     return this.http.put<ServiceFee>(`${this.base}/ServiceFees/${code}`, { amount });
   }
 
+  updateServiceFee(codeOrOrderType: string | number, payload: { unitPrice: number; shippingFee: number; isActive: boolean }): Observable<ServiceFee> {
+    return this.http.put<ServiceFee>(`${this.base}/ServiceFees/${codeOrOrderType}`, payload);
+  }
+
   // --- System Activity Logs & Dynamic Reports ---
   getAuditLogs(): Observable<AuditLog[]> {
     return this.http.get<AuditLog[]>(`${this.base}/AuditLogs`);
@@ -334,13 +381,11 @@ verify(code: string): Observable<any> {
   getUsersReportUrl(): string {
     return `${this.base}/Reports/users`;
   }
-getCertificateById(id: number): Observable<Certificate> {
-  return this.http.get<Certificate>(`${this.base}/Certificates/${id}`);
-}
+
   // --- Orders ---
-createOrder(payload: CreateOrderDto): Observable<Order> {
-  return this.http.post<Order>(`${this.base}/Orders`, payload);
-}
+  createOrder(payload: CreateOrderDto): Observable<Order> {
+    return this.http.post<Order>(`${this.base}/Orders`, payload);
+  }
 
   getOrders(pageNumber?: number, pageSize?: number, search?: string, status?: number): Observable<PagedResponse<Order>> {
     const extra: any = {};
@@ -379,9 +424,44 @@ createOrder(payload: CreateOrderDto): Observable<Order> {
   linkOrderPayment(id: number, paymentId: number): Observable<any> {
     return this.http.post<any>(`${this.base}/Orders/${id}/link-payment/${paymentId}`, {});
   }
+
   getDocumentUrl(relativeUrl?: string): string {
-  if (!relativeUrl) return '';
-  const base = environment.apiUrl.replace(/\/api\/?$/, ''); // يشيل /api من آخر الرابط
-  return relativeUrl.startsWith('http') ? relativeUrl : `${base}${relativeUrl}`;
-}
+    if (!relativeUrl) return '';
+    const base = environment.apiUrl.replace(/\/api\/?$/, '');
+    return relativeUrl.startsWith('http') ? relativeUrl : `${base}${relativeUrl}`;
+  }
+
+  // ── User Management (Admin) ───────────────────────────────────────────────
+  // GET    /api/UserManagement?role=...   — جلب كل المستخدمين مع فلتر اختياري
+  // GET    /api/UserManagement/{id}       — مستخدم بالـ ID
+  // POST   /api/UserManagement            — إنشاء مستخدم (Admin/Employee) وإرسال إيميل دعوة
+  // PUT    /api/UserManagement/{id}/role        — تغيير الدور
+  // PUT    /api/UserManagement/{id}/toggle-active — تفعيل / تعطيل
+  // DELETE /api/UserManagement/{id}       — حذف المستخدم
+
+  getUserManagementList(role?: string): Observable<UserListDto[]> {
+    let params = new HttpParams();
+    if (role) params = params.set('role', role);
+    return this.http.get<UserListDto[]>(`${this.base}/UserManagement`, { params });
+  }
+
+  getUserManagementById(id: number): Observable<UserListDto> {
+    return this.http.get<UserListDto>(`${this.base}/UserManagement/${id}`);
+  }
+
+  createManagedUser(dto: CreateUserByAdminDto): Observable<UserListDto> {
+    return this.http.post<UserListDto>(`${this.base}/UserManagement`, dto);
+  }
+
+  changeManagedUserRole(id: number, role: string): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.base}/UserManagement/${id}/role`, { role });
+  }
+
+  toggleManagedUserActive(id: number): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.base}/UserManagement/${id}/toggle-active`, {});
+  }
+
+  deleteManagedUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/UserManagement/${id}`);
+  }
 }

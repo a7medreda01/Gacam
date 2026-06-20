@@ -10,15 +10,13 @@ import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Volunteer } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-volunteer',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, TranslatePipe],
   templateUrl: './volunteer.html',
   styleUrl: './volunteer.css'
 })
@@ -51,7 +49,7 @@ export class VolunteerComponent implements OnInit {
   ngOnInit() { this.checkStatus(); }
 
   checkStatus() {
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isLoggedIn()) {
       this.apiService.getMyVolunteer().subscribe({
         next:  (res) => { this.myApplication.set(res); this.loading.set(false); },
         error: ()    =>   this.loading.set(false)

@@ -24,10 +24,7 @@ import { TranslatePipe } from '../../pipes/translate';
             </div>
           </div>
           <p class="text-xs text-white/70 leading-relaxed font-sans">
-            {{ langService.lang() === 'ar' 
-              ? 'الهيئة العامة للإعلام المرئي والمسموع والخليجي والعربي في كندا هي الرافد الأساسي للصحفي ومحايد لتنظيم البرامج والتكامل المستدام.' 
-              : 'The central Arab-gulf audiovisual regulatory, accreditation, and media training hub established in Canada.' 
-            }}
+            {{ 'FOOTER.DESC' | translate }}
           </p>
           <div class="flex items-center gap-3 text-white/50 pt-2">
             <a href="https://facebook.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-facebook"></i></a>
@@ -40,7 +37,7 @@ import { TranslatePipe } from '../../pipes/translate';
         <!-- Column 2: Public Portals Links -->
         <div class="flex flex-col gap-4">
           <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
-            {{ langService.lang() === 'ar' ? 'روابط سريعة' : 'Quick Actions' }}
+            {{ 'FOOTER.QUICK_ACTIONS' | translate }}
           </h4>
           <nav class="flex flex-col gap-2.5 text-xs text-white/85">
             <a routerLink="/" class="hover:text-champagne-gold transition-colors">→ {{ 'NAV.HOME' | translate }}</a>
@@ -54,13 +51,13 @@ import { TranslatePipe } from '../../pipes/translate';
         <!-- Column 3: Institutional Protocols -->
         <div class="flex flex-col gap-4">
           <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
-            {{ langService.lang() === 'ar' ? 'السياسات والأنظمة' : 'Our Policies' }}
+            {{ 'FOOTER.POLICIES' | translate }}
           </h4>
           <nav class="flex flex-col gap-2.5 text-xs text-white/85">
-            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'سياسة النزاهة والمصداقية' : 'Editorial Compliance' }}</a>
-            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'مذكرة السياسة الشكاوى' : 'Complaints Policy' }}</a>
-            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'التصحيحات والشفافية' : 'Corrections Guidelines' }}</a>
-            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ langService.lang() === 'ar' ? 'أخلاقيات البث والنشر' : 'Code of Ethics' }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ 'FOOTER.EDITORIAL' | translate }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ 'FOOTER.COMPLAINTS' | translate }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ 'FOOTER.CORRECTIONS' | translate }}</a>
+            <a routerLink="/about" class="hover:text-champagne-gold transition-colors">→ {{ 'FOOTER.ETHICS' | translate }}</a>
             <a routerLink="/verify-certificate" class="hover:text-champagne-gold transition-colors">→ {{ 'CERT.VERIFY_TITLE' | translate }}</a>
           </nav>
         </div>
@@ -68,7 +65,7 @@ import { TranslatePipe } from '../../pipes/translate';
         <!-- Column 4: Contact & Locations -->
         <div class="flex flex-col gap-4">
           <h4 class="text-sm font-bold uppercase tracking-widest text-champagne-gold border-s-2 border-champagne-gold ps-2">
-            {{ langService.lang() === 'ar' ? 'المقر والتواصل' : 'Headquarters' }}
+            {{ 'FOOTER.HEADQUARTERS' | translate }}
           </h4>
           <div class="flex flex-col gap-3 text-xs text-white/80">
             <span class="flex items-start gap-2">
@@ -89,7 +86,7 @@ import { TranslatePipe } from '../../pipes/translate';
 
       <!-- Trademark Signatures & Slogan -->
       <div class="container-gacam pt-6 flex flex-col md:flex-row justify-between items-center text-xs gap-3 text-white/60">
-        <span>&copy; 2026 GACAM Canada. {{ langService.lang() === 'ar' ? 'جميع الحقوق محفوظة للهيئة بكندا' : 'All Institutional Rights Reserved.' }}</span>
+        <span>&copy; 2026 GACAM Canada. {{ 'FOOTER.COPYRIGHT' | translate }}</span>
         <div class="flex items-center gap-2">
           <span class="text-champagne-gold">One Media • One Future</span>
         </div>

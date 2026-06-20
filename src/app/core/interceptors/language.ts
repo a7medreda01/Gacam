@@ -14,7 +14,7 @@ export const languageInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
 
   const currentLang = langService.lang();
-  const token = authService.token();
+  const token = authService.getAccessToken();
 
   // If we are executing on the server (SSR), do not try to hit the user's localhost:7233
   // as it is unreachable and will crash Node.js with connection refused errors.
@@ -48,17 +48,27 @@ export const languageInterceptor: HttpInterceptorFn = (req, next) => {
         contactInfo: '{}'
       };
     } else if (req.url.includes('/api/Pages')) {
-      body = [];
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
     } else if (req.url.includes('/api/News')) {
-      body = [];
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
+    } else if (req.url.includes('/api/Accreditations')) {
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
+    } else if (req.url.includes('/api/Enrollments')) {
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
+    } else if (req.url.includes('/api/Payments')) {
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
+    } else if (req.url.includes('/api/Orders')) {
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
     } else if (req.url.includes('/api/ServiceFees')) {
       body = [];
     } else if (req.url.includes('/api/Partners')) {
       body = [];
     } else if (req.url.includes('/api/Training/courses')) {
+      body = { items: [], totalCount: 0, currentPage: 1, pageSize: 10, totalPages: 0, hasNext: false, hasPrevious: false };
+    } else if (req.url.includes('/api/Volunteers')) {
       body = [];
     } else {
-      body = null;
+      body = [];
     }
 
     return of(new HttpResponse({ status: 200, body }));
@@ -71,7 +81,15 @@ export const languageInterceptor: HttpInterceptorFn = (req, next) => {
     headers = headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const clonedRequest = req.clone({ headers });
+  let targetUrl = req.url;
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    targetUrl = targetUrl.replace('https://localhost:7233', '');
+  }
+
+  const clonedRequest = req.clone({
+    headers,
+    url: targetUrl
+  });
 
   return next(clonedRequest).pipe(
     catchError((error: HttpErrorResponse) => {

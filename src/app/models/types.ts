@@ -16,11 +16,22 @@ export interface User {
 }
 
 
-export interface LoginResponse {
-  token: string;
+export interface LoginUser {
+  id: number;
   email: string;
   fullName: string;
+  phoneNumber: string;
+  profileImageUrl: string;
+  isActive: boolean;
+  createdAt: string;
   roles: string[];
+}
+
+export interface LoginResponse {
+  token: string;
+  refreshToken: string;
+  expiresAt: string;
+  user: LoginUser;
 }
 
 export interface Setting {
@@ -49,6 +60,7 @@ export interface CertificateDesign {
   signatoryTitleEn: string;
   signatoryTitleAr: string;
   signatureImageUrl: string | null;
+  backgroundImageUrl?: string | null;
   showLogo: boolean;
   logoHeight: number;
 }
@@ -177,7 +189,7 @@ export interface NewsArticle {
   imageUrl?: string;
   publishedAt: string;
   viewCount: number;
-  type: 'News' | 'PressRelease';
+  type: string | number;
 }
 
 export interface Partner {
@@ -408,4 +420,21 @@ export interface UnifiedVerificationResponseDto {
   type: 'certificate' | 'card' | null;   // ← string literal بدل string
   data: CertificateVerificationDataDto | MediaCardVerificationDataDto | null;
   message: string | null;
+}
+
+export interface UserListDto {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  isActive: boolean;
+  lockoutEnd: string | null;
+}
+ 
+export interface CreateUserByAdminDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'Admin' | 'Employee';
 }

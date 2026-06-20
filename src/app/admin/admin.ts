@@ -21,6 +21,19 @@ export class AdminLayoutComponent implements OnInit {
 
   sidebarOpen = signal(false);
 
+  // كل التابات مقفولة بالـ default
+  accreditationsGroupOpen = signal(false);
+  trainingGroupOpen       = signal(false);
+  financeGroupOpen        = signal(false);
+  contentGroupOpen        = signal(false);
+  systemGroupOpen         = signal(false);
+
+  toggleAccreditationsGroup() { this.accreditationsGroupOpen.update(v => !v); }
+  toggleTrainingGroup()       { this.trainingGroupOpen.update(v => !v); }
+  toggleFinanceGroup()        { this.financeGroupOpen.update(v => !v); }
+  toggleContentGroup()        { this.contentGroupOpen.update(v => !v); }
+  toggleSystemGroup()         { this.systemGroupOpen.update(v => !v); }
+
   ngOnInit() {
     if (!this.authService.isStaff()) {
       this.toastService.showError('Access Denied: Terminal restricted to GACAM Administrative Personnel.');
@@ -28,7 +41,7 @@ export class AdminLayoutComponent implements OnInit {
     }
   }
 
-  toggleSidebar()  { this.sidebarOpen.update(v => !v); }
-  closeSidebar()   { this.sidebarOpen.set(false); }
-  leaveAdmin()     { this.router.navigate(['/']); }
+  toggleSidebar() { this.sidebarOpen.update(v => !v); }
+  closeSidebar()  { this.sidebarOpen.set(false); }
+  leaveAdmin()    { this.router.navigate(['/']); }
 }

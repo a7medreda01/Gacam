@@ -87,13 +87,14 @@ const db = {
     signatoryTitleEn: 'Executive Director of GACAM Administration',
     signatoryTitleAr: 'المدير التنفيذي لمجلس إدارة الهيئة',
     signatureImageUrl: '/uploads/logos/signature_demo.png',
+    backgroundImageUrl: null as string | null,
     showLogo: true,
     logoHeight: 65.0
   },
   serviceFees: [
-    { code: 'ACCREDITATION', nameEn: 'Media Accreditation Card Processing', nameAr: 'رسوم معالجة بطاقة الاعتماد الإعلامي', amount: 50.00, currency: 'CAD' },
-    { code: 'SHIPPING', nameEn: 'Printed Courier Shipping Fee', nameAr: 'رسوم الشحن بالبريد السريع للأصل', amount: 25.00, currency: 'CAD' },
-    { code: 'CERTIFICATE_PRINT', nameEn: 'Printed Certificate Fee', nameAr: 'رسوم طباعة وتوثيق الشهادة الورقية', amount: 10.00, currency: 'CAD' }
+    { id: 1, orderType: 0, code: 'CERTIFICATE_PRINT', nameEn: 'Printed Certificate Fee', nameAr: 'رسوم طباعة وتوثيق الشهادة الورقية', amount: 10.00, currency: 'CAD', unitPrice: 10.00, shippingFee: 25.00, isActive: true },
+    { id: 2, orderType: 1, code: 'ACCREDITATION', nameEn: 'Media Accreditation Card Processing', nameAr: 'رسوم معالجة بطاقة الاعتماد الإعلامي', amount: 50.00, currency: 'CAD', unitPrice: 50.00, shippingFee: 25.00, isActive: true },
+    { id: 3, orderType: 2, code: 'SHIPPING', nameEn: 'Printed Courier Shipping Fee', nameAr: 'رسوم الشحن بالبريد السريع للأصل', amount: 25.00, currency: 'CAD', unitPrice: 25.00, shippingFee: 0.00, isActive: true }
   ],
   pages: [] as any[],
   accreditations: [] as any[],
@@ -692,6 +693,16 @@ app.put('/api/Settings', (req: Request, res: Response) => {
   res.status(200).json(db.settings);
 });
 
+app.post('/api/Settings/upload-logo', (req: Request, res: Response) => {
+  const admin = getAuthUser(req);
+  if (!admin || !admin.roles.includes('Admin')) {
+    return handleError(res, 403, 'Forbidden.');
+  }
+  const relativePath = `/uploads/logos/logo_${Date.now()}.png`;
+  db.settings.logoUrl = relativePath;
+  return res.status(200).json({ relativePath, absoluteUrl: relativePath });
+});
+
 app.get('/api/Settings/certificate', (req: Request, res: Response) => {
   res.status(200).json(db.certificateDesign);
 });
@@ -709,6 +720,35 @@ app.put('/api/Settings/certificate', (req: Request, res: Response) => {
 
   logAction(admin.id, 'UPDATE_CERT_DESIGN', 'CertificateDesign', '1', 'Modified dynamic certificate template themes and signatories.');
   res.status(200).json(db.certificateDesign);
+});
+
+app.post('/api/Settings/certificate/upload-signature', (req: Request, res: Response) => {
+  const admin = getAuthUser(req);
+  if (!admin || !admin.roles.includes('Admin')) {
+    return handleError(res, 403, 'Forbidden.');
+  }
+  const relativePath = `/uploads/signatures/sign_${Date.now()}.png`;
+  db.certificateDesign.signatureImageUrl = relativePath;
+  return res.status(200).json({ relativePath, absoluteUrl: relativePath });
+});
+
+app.post('/api/Settings/certificate/upload-background', (req: Request, res: Response) => {
+  const admin = getAuthUser(req);
+  if (!admin || !admin.roles.includes('Admin')) {
+    return handleError(res, 403, 'Forbidden.');
+  }
+  const relativePath = `/uploads/certificate-backgrounds/bg_${Date.now()}.png`;
+  db.certificateDesign.backgroundImageUrl = relativePath;
+  return res.status(200).json({ relativePath, absoluteUrl: relativePath });
+});
+
+app.delete('/api/Settings/certificate/background', (req: Request, res: Response) => {
+  const admin = getAuthUser(req);
+  if (!admin || !admin.roles.includes('Admin')) {
+    return handleError(res, 403, 'Forbidden.');
+  }
+  db.certificateDesign.backgroundImageUrl = null;
+  return res.status(200).json({ message: 'Background image removed. Certificates will use plain white background.' });
 });
 
 
@@ -1226,14 +1266,70 @@ app.get('/api/Certificates/download/:id', (req: Request, res: Response) => {
 
 // --- News & Press releases ---
 
+const newsTypesList = ['News', 'PressRelease', 'Announcement', 'Statement', 'EventAndForum', 'Initiative'];
+
+function getNewsTypeNumber(type: any): number {
+  if (type === undefined || type === null) return 0;
+  if (typeof type === 'number') return type;
+  const num = parseInt(type, 10);
+  if (!isNaN(num)) return num;
+  const term = String(type).trim();
+  const idx = newsTypesList.indexOf(term);
+  return idx !== -1 ? idx : 0;
+}
+
 app.get('/api/News', (req: Request, res: Response) => {
+  let list = [...db.news];
+
+  // 1. Filter by Type if provided (as type string or number)
   const typeFilter = req.query['type'] as string;
-  if (typeFilter !== undefined) {
-    // 0 = News, 1 = PressRelease
-    const term = typeFilter === '0' ? 'News' : 'PressRelease';
-    return res.status(200).json(db.news.filter(n => n.type === term));
+  if (typeFilter !== undefined && typeFilter !== '') {
+    const filterNum = getNewsTypeNumber(typeFilter);
+    list = list.filter(n => getNewsTypeNumber(n.type) === filterNum);
   }
-  return res.status(200).json(db.news);
+
+  // 2. Search
+  const search = req.query['Search'] as string;
+  if (search) {
+    const q = search.toLowerCase();
+    list = list.filter(n =>
+      (n.titleEn || '').toLowerCase().includes(q) ||
+      (n.titleAr || '').toLowerCase().includes(q) ||
+      (n.contentEn || '').toLowerCase().includes(q) ||
+      (n.contentAr || '').toLowerCase().includes(q)
+    );
+  }
+
+  // 3. Paginate
+  const pageNumber = parseInt(req.query['PageNumber'] as string, 10) || 1;
+  const pageSize = parseInt(req.query['PageSize'] as string, 10);
+
+  if (pageSize) {
+    const totalCount = list.length;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const start = (pageNumber - 1) * pageSize;
+    const items = list.slice(start, start + pageSize);
+
+    return res.status(200).json({
+      items,
+      totalCount,
+      currentPage: pageNumber,
+      pageSize,
+      totalPages,
+      hasNext: pageNumber < totalPages,
+      hasPrevious: pageNumber > 1
+    });
+  }
+
+  return res.status(200).json({
+    items: list,
+    totalCount: list.length,
+    currentPage: 1,
+    pageSize: list.length,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
+  });
 });
 
 app.get('/api/News/:id', (req: Request, res: Response) => {
@@ -1267,7 +1363,7 @@ app.post('/api/News', (req: Request, res: Response) => {
     imageUrl: imageUrl || 'https://picsum.photos/seed/news/800/450',
     publishedAt: new Date().toISOString(),
     viewCount: 0,
-    type: type === 1 ? 'PressRelease' : 'News'
+    type: getNewsTypeNumber(type)
   };
   db.news.unshift(newArticle);
   logAction(staff.id, 'CREATE_NEWS', 'News', String(newArticle.id), `Created GACAM Press Announcement: ${titleEn}`);
@@ -1285,7 +1381,8 @@ app.put('/api/News/:id', (req: Request, res: Response) => {
   }
   db.news[idx] = {
     ...db.news[idx],
-    ...req.body
+    ...req.body,
+    type: getNewsTypeNumber(req.body.type)
   };
   logAction(staff.id, 'UPDATE_NEWS', 'News', req.params['id'] as string, `Modified Article properties: ${db.news[idx].titleEn}`);
   return res.status(200).json(db.news[idx]);
@@ -1358,16 +1455,35 @@ app.put('/api/ServiceFees/:code', (req: Request, res: Response) => {
   if (!admin || !admin.roles.includes('Admin')) {
     return handleError(res, 403, 'Forbidden permissions.');
   }
-  const fee = db.serviceFees.find(f => f.code.toUpperCase() === (req.params['code'] as string).toUpperCase());
+  const codeParam = req.params['code'] as string;
+  const fee = db.serviceFees.find(f => 
+    f.code.toUpperCase() === codeParam.toUpperCase() || 
+    f.orderType.toString() === codeParam
+  );
   if (!fee) {
     return handleError(res, 404, 'Fee item not found.');
   }
-  const { amount, nameEn, nameAr } = req.body;
-  fee.amount = parseFloat(amount);
-  if (nameEn) fee.nameEn = nameEn;
-  if (nameAr) fee.nameAr = nameAr;
 
-  logAction(admin.id, 'UPDATE_SERVICE_FEE', 'ServiceFees', fee.code, `Modified GACAM official Service prices: Code ${fee.code} set to ${fee.amount} CAD`);
+  // Support both old body and new body structure
+  if (req.body.unitPrice !== undefined) {
+    fee.unitPrice = parseFloat(req.body.unitPrice);
+    fee.amount = fee.unitPrice;
+  }
+  if (req.body.shippingFee !== undefined) {
+    fee.shippingFee = parseFloat(req.body.shippingFee);
+  }
+  if (req.body.isActive !== undefined) {
+    fee.isActive = !!req.body.isActive;
+  }
+  if (req.body.amount !== undefined) {
+    fee.amount = parseFloat(req.body.amount);
+    fee.unitPrice = fee.amount;
+  }
+  
+  if (req.body.nameEn) fee.nameEn = req.body.nameEn;
+  if (req.body.nameAr) fee.nameAr = req.body.nameAr;
+
+  logAction(admin.id, 'UPDATE_SERVICE_FEE', 'ServiceFees', fee.code, `Modified GACAM official Service prices: orderType ${fee.orderType} set to UnitPrice: ${fee.unitPrice}, Shipping: ${fee.shippingFee}`);
   return res.status(200).json(fee);
 });
 

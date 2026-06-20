@@ -8,8 +8,6 @@ import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Accreditation, AccreditationCategory, ServiceFee } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 import { MediaCardComponent } from './media-card/media-card';
 
@@ -22,7 +20,7 @@ const CARD_STATUS_LABELS: Record<number, string> = {
   standalone: true,
   imports: [
     CommonModule, RouterLink, ReactiveFormsModule, MatIconModule,
-    NavbarComponent, FooterComponent, TranslatePipe,MediaCardComponent
+    TranslatePipe, MediaCardComponent
   ],
   templateUrl: './services.html',
   // styleUrl: './services.css'
@@ -79,7 +77,7 @@ totalFee(): number {
   }
 
   checkApplication() {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.authService.isLoggedIn()) {
       this.loading.set(false);
       return;
     }

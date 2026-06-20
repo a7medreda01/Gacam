@@ -36,20 +36,23 @@ export class AdminOverviewComponent implements OnInit {
   fetchOverviewData() {
     this.loading.set(true);
     this.apiService.getAllAccreditations().subscribe({
-      next: (ac) => this.accsCount.set(ac.totalCount)
+      next: (ac) => this.accsCount.set(ac?.totalCount || 0),
+      error: () => {}
     });
 
     this.apiService.getAllEnrollments().subscribe({
-      next: (en) => this.enrollmentsCount.set(en.items?.length || 0)
+      next: (en) => this.enrollmentsCount.set(en?.items?.length || 0),
+      error: () => {}
     });
 
     this.apiService.getVolunteers().subscribe({
-      next: (vl) => this.volsCount.set(vl.length)
+      next: (vl) => this.volsCount.set(vl?.length || 0),
+      error: () => {}
     });
 
     this.apiService.getAllPayments().subscribe({
       next: (py) => {
-        this.payments.set(py.items);
+        this.payments.set(py?.items || []);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

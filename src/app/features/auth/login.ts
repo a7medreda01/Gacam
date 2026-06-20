@@ -6,14 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, TranslatePipe],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -40,7 +38,7 @@ export class LoginComponent {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: (user) => {
         this.loading.set(false);
-        this.toastService.showSuccess(`Welcome back, ${user.fullName}!`);
+        this.toastService.showSuccess(`Welcome back, ${user.user.fullName}!`);
         
         // Redirect appropriately using robust case-insensitive check
         if (this.authService.isStaff()) {

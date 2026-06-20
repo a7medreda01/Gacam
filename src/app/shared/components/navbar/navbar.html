@@ -13,7 +13,7 @@
         </span>
               <button (click)="toggleLanguage()" class="p-0 text-white/50 border border-white/5 rounded-lg text-s"
         title="Translate">
-       {{ langService.lang() === 'en' ? 'العربية' : 'English' }}
+       {{ 'NAV.LANG_TOGGLE' | translate }}
       </button>
       </div>
       <div class="hidden lg:flex items-center gap-4 text-white/80">
@@ -44,7 +44,7 @@
       <div class="flex flex-col">
         <span class="font-bold text-base md:text-lg tracking-wider font-sans uppercase">GACAM</span>
         <span class="text-[9px] md:text-[10px] text-champagne-gold font-medium tracking-widest">
-          {{ langService.lang() === 'ar' ? 'الهيئة العامة للإعلام بكندا' : 'Audiovisual Media Canada' }}
+          {{ 'NAV.SUB_BRAND' | translate }}
         </span>
       </div>
     </a>
@@ -60,7 +60,7 @@
       <a routerLink="/courses"
         class="text-[13px] px-3.5 flex items-center whitespace-nowrap border-b-2 border-transparent hover:text-champagne-gold transition-colors"
         routerLinkActive="text-champagne-gold !border-champagne-gold">
-        {{ langService.lang() === 'ar' ? 'البرامج التدريبية' : 'Training Programs' }}
+        {{ 'NAV.TRAINING_PROGS' | translate }}
       </a>
 
       <a routerLink="/services"
@@ -78,7 +78,7 @@
       <a routerLink="/verify-certificate"
         class="text-[13px] px-3.5 flex items-center whitespace-nowrap border-b-2 border-transparent hover:text-champagne-gold transition-colors"
         routerLinkActive="text-champagne-gold !border-champagne-gold">
-        {{ langService.lang() === 'ar' ? 'التحقق' : 'Verify' }}
+        {{ 'NAV.VERIFY' | translate }}
       </a>
 
       <a routerLink="/about"
@@ -93,7 +93,7 @@
         <button (click)="infoDropdownOpen.set(!infoDropdownOpen())"
           class="text-[13px] px-3.5 flex items-center whitespace-nowrap border-b-2 border-transparent hover:text-champagne-gold transition-colors gap-0.5 cursor-pointer"
           [class.text-champagne-gold]="infoDropdownOpen()" [class.!border-champagne-gold]="infoDropdownOpen()">
-          <span>{{ langService.lang() === 'ar' ? 'المزيد' : 'More' }}</span>
+          <span>{{ 'NAV.MORE' | translate }}</span>
           <mat-icon class="text-sm transition-transform duration-200"
             [class.rotate-180]="infoDropdownOpen()">keyboard_arrow_down</mat-icon>
         </button>
@@ -104,7 +104,7 @@
           [class.left-0]="langService.lang() !== 'ar'" [class.right-0]="langService.lang() === 'ar'">
           <div class="px-4 py-1.5 border-b border-light-ivory mb-2">
             <span class="text-[10px] font-bold uppercase tracking-wider text-deep-teal/50">
-              {{ langService.lang() === 'ar' ? 'دليل الصفحات والسياسات' : 'Portal Directory & Policies' }}
+              {{ 'NAV.DIRECTORY_POLICIES' | translate }}
             </span>
           </div>
 
@@ -132,13 +132,13 @@
       <button (click)="toggleLanguage()"
         class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-white bg-deep-teal hover:bg-champagne-gold hover:text-royal-teal border border-champagne-gold/30 rounded-lg transition-all font-semibold font-mono">
         <mat-icon class="text-sm">language</mat-icon>
-        <span>{{ langService.lang() === 'ar' ? 'English (EN)' : 'العربية (AR)' }}</span>
+        <span>{{ 'NAV.LANG_LABEL' | translate }}</span>
       </button>
 
       <!-- Auth Controls -->
-      @if (authService.isAuthenticated()) {
+      @if (authService.isLoggedIn()) {
       <div class="flex items-center gap-3 animate-fade-in">
-        @let curUser = authService.currentUser();
+        @let curUser = authService.getCurrentUser();
 
         @if (authService.isStaff()) {
         <!-- Admin: no avatar, just dashboard button -->
@@ -185,8 +185,8 @@
     <div class="flex items-center lg:hidden gap-2">
 
       <!-- Mobile avatar (user only, not admin) -->
-      @if (authService.isAuthenticated() && !authService.isStaff()) {
-      @let curUser = authService.currentUser();
+      @if (authService.isLoggedIn() && !authService.isStaff()) {
+      @let curUser = authService.getCurrentUser();
       @if (curUser) {
       <a routerLink="/profile"
         class="h-8 w-8 rounded-full border border-champagne-gold/50 hover:border-champagne-gold overflow-hidden flex items-center justify-center bg-deep-teal transition-all"
@@ -220,7 +220,7 @@
     </a>
     <a routerLink="/courses" (click)="mobileMenuOpen.set(false)"
       class="p-2 hover:bg-deep-teal/40 rounded-lg hover:text-champagne-gold transition-all">
-      {{ langService.lang() === 'ar' ? 'البرامج التدريبية' : 'Training Programs' }}
+      {{ 'NAV.TRAINING_PROGS' | translate }}
     </a>
     <a routerLink="/services" (click)="mobileMenuOpen.set(false)"
       class="p-2 hover:bg-deep-teal/40 rounded-lg hover:text-champagne-gold transition-all">
@@ -232,7 +232,7 @@
     </a>
     <a routerLink="/verify-certificate" (click)="mobileMenuOpen.set(false)"
       class="p-2 hover:bg-deep-teal/40 rounded-lg hover:text-champagne-gold transition-all">
-      {{ langService.lang() === 'ar' ? 'التحقق' : 'Verify' }}
+      {{ 'NAV.VERIFY' | translate }}
     </a>
     <a routerLink="/about" (click)="mobileMenuOpen.set(false)"
       class="p-2 hover:bg-deep-teal/40 rounded-lg hover:text-champagne-gold transition-all">
@@ -243,7 +243,7 @@
     <div id="mobile-directory" class="flex flex-col">
       <button (click)="mobileSubMenuOpen.set(!mobileSubMenuOpen())"
         class="w-full text-start p-2 hover:bg-deep-teal/40 rounded-lg hover:text-champagne-gold transition-all flex justify-between items-center cursor-pointer">
-        <span>{{ langService.lang() === 'ar' ? 'المزيد' : 'More' }}</span>
+        <span>{{ 'NAV.MORE' | translate }}</span>
         <mat-icon class="text-xs transition-transform duration-200"
           [class.rotate-180]="mobileSubMenuOpen()">keyboard_arrow_down</mat-icon>
       </button>
@@ -269,7 +269,7 @@
 
     <hr class="border-white/10 my-1" />
 
-    @if (authService.isAuthenticated()) {
+    @if (authService.isLoggedIn()) {
     <div class="flex flex-col gap-2">
       @if (authService.isStaff()) {
       <a routerLink="/admin" (click)="mobileMenuOpen.set(false)"

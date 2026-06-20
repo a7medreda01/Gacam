@@ -1,5 +1,3 @@
-<app-navbar></app-navbar>
-
 <main class="min-h-screen bg-light-ivory py-16">
   <div class="container-gacam max-w-4xl">
 
@@ -48,7 +46,7 @@
       <div class="md:col-span-8 bg-white p-8 rounded-2xl border border-champagne-gold/15 shadow-sm text-start">
 
         <!-- Guest -->
-        @if (!authService.isAuthenticated()) {
+        @if (!authService.isLoggedIn()) {
           <div class="text-center py-10 flex flex-col justify-center items-center gap-4">
             <mat-icon class="text-royal-teal text-5xl h-12 w-12">volunteer_activism</mat-icon>
             <h3 class="text-base font-bold text-royal-teal">{{ langService.lang() === 'ar' ? 'يتطلب التقديم تسجيل الدخول' : 'Sign In To Apply' }}</h3>
@@ -281,5 +279,3 @@
     </div>
   </div>
 </main>
-
-<app-footer></app-footer>

@@ -1,71 +1,77 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './core/guards/admin.guard';
 import { OrderDetailComponent } from './features/orders/order-details';
 import { CoursesComponent } from './features/courses/courses';
 import { noAuthGuard } from './core/guards/noAuthGuard';
+import { MainLayoutComponent } from './shared/components/main-layout/main-layout';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
-  },
-  {
-    path: 'about',
-    loadComponent: () => import('./features/about/about').then(m => m.AboutComponent)
-  },
-  {
-    path: 'services',
-    loadComponent: () => import('./features/services/services').then(m => m.ServicesComponent)
-  },
-  {
-    path: 'volunteer',
-    loadComponent: () => import('./features/volunteer/volunteer').then(m => m.VolunteerComponent)
-  },
-  {
-    path: 'news',
-    loadComponent: () => import('./features/news/news').then(m => m.NewsComponent)
-  },
-  { path: 'courses', component: CoursesComponent },
-  {
-  path: 'verify-certificate',
-  loadComponent: () =>
-    import('./features/verify-certificate/verify-certificate')
-      .then(m => m.VerifyCertificateComponent)
-},
-  {
-    path: 'verify-certificate/:number',
-    loadComponent: () => import('./features/verify-certificate/verify-certificate').then(m => m.VerifyCertificateComponent)
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login').then(m => m.LoginComponent),
-      canActivate: [noAuthGuard]
-    
-  },
-  {
-    path: 'forgot-password',
-    loadComponent: () => import('./features/auth/forgot-password').then(m => m.ForgotPasswordComponent)
-  },
-  {
-    path: 'reset-password',
-    loadComponent: () => import('./features/auth/reset-password').then(m => m.ResetPasswordComponent)
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./features/auth/register').then(m => m.RegisterComponent),
-      canActivate: [noAuthGuard]
-
-  },
-  {
-    path: 'profile',
-    loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent)
-  },
-  {
-     path: 'orders/:id', component: OrderDetailComponent 
-  },
-  {
-    path: 'page/:slug',
-    loadComponent: () => import('./features/page/page').then(m => m.PageComponent)
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
+      },
+      {
+        path: 'about',
+        loadComponent: () => import('./features/about/about').then(m => m.AboutComponent)
+      },
+      {
+        path: 'services',
+        loadComponent: () => import('./features/services/services').then(m => m.ServicesComponent)
+      },
+      {
+        path: 'volunteer',
+        loadComponent: () => import('./features/volunteer/volunteer').then(m => m.VolunteerComponent)
+      },
+      {
+        path: 'news',
+        loadComponent: () => import('./features/news/news').then(m => m.NewsComponent)
+      },
+      { path: 'courses', component: CoursesComponent },
+      {
+        path: 'verify-certificate',
+        loadComponent: () =>
+          import('./features/verify-certificate/verify-certificate')
+            .then(m => m.VerifyCertificateComponent)
+      },
+      {
+        path: 'verify-certificate/:number',
+        loadComponent: () => import('./features/verify-certificate/verify-certificate').then(m => m.VerifyCertificateComponent)
+      },
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login').then(m => m.LoginComponent),
+        canActivate: [noAuthGuard]
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./features/auth/forgot-password').then(m => m.ForgotPasswordComponent)
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () => import('./features/auth/reset-password').then(m => m.ResetPasswordComponent)
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register').then(m => m.RegisterComponent),
+        canActivate: [noAuthGuard]
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'orders/:id',
+        component: OrderDetailComponent 
+      },
+      {
+        path: 'page/:slug',
+        loadComponent: () => import('./features/page/page').then(m => m.PageComponent)
+      }
+    ]
   },
   {
     path: 'admin',
@@ -118,8 +124,16 @@ export const routes: Routes = [
         loadComponent: () => import('./admin/components/settings').then(m => m.AdminSettingsComponent)
       },
       {
+        path: 'fees',
+        loadComponent: () => import('./admin/components/fees').then(m => m.AdminFeesComponent)
+      },
+      {
         path: 'news',
         loadComponent: () => import('./admin/components/news/news').then(m => m.AdminNewsComponent)
+      },
+            {
+        path: 'users',
+        loadComponent: () => import('./admin/components/userManagementComponent/user-management.component').then(m => m.UserManagementComponent)
       },
       {
         path: 'academy-enrollments',

@@ -24,6 +24,50 @@ export class AdminOrdersComponent implements OnInit {
   orders      = signal<Order[]>([]);
   loading     = signal(true);
 
+  // --- Printing & Certificate Configurations sub-tabs ---
+  selectedSubTab = signal<'orders' | 'configs'>('orders');
+  configLoading  = signal(false);
+
+  // General site settings form
+  generalSettingsForm = new FormGroup({
+    id: new FormControl<number>(1),
+    siteTitleEn: new FormControl('', [Validators.required]),
+    siteTitleAr: new FormControl('', [Validators.required]),
+    logoUrl: new FormControl(''),
+    facebook: new FormControl(''),
+    twitter: new FormControl(''),
+    instagram: new FormControl(''),
+    linkedin: new FormControl(''),
+    youtube: new FormControl(''),
+    email: new FormControl(''),
+    phone: new FormControl(''),
+    address: new FormControl('')
+  });
+
+  // Certificate / Card Visual design configuration form
+  certDesignForm = new FormGroup({
+    id: new FormControl<number>(1),
+    primaryColor: new FormControl('#003F4A', [Validators.required]),
+    secondaryColor: new FormControl('#C9A96B', [Validators.required]),
+    borderColor: new FormControl('#003F4A', [Validators.required]),
+    borderWidth: new FormControl<number>(10, [Validators.required, Validators.min(0)]),
+    titleEn: new FormControl('', [Validators.required]),
+    titleAr: new FormControl('', [Validators.required]),
+    headerTextEn: new FormControl('', [Validators.required]),
+    headerTextAr: new FormControl('', [Validators.required]),
+    signatoryName: new FormControl(''),
+    signatoryTitleEn: new FormControl(''),
+    signatoryTitleAr: new FormControl(''),
+    signatureImageUrl: new FormControl<string | null>(null),
+    backgroundImageUrl: new FormControl<string | null>(null),
+    showLogo: new FormControl<boolean>(true),
+    logoHeight: new FormControl<number>(60, [Validators.required, Validators.min(10)])
+  });
+
+  uploadingLogo = signal(false);
+  uploadingSignature = signal(false);
+  uploadingBackground = signal(false);
+
   // Pagination & Search and Filter State
   searchVal   = signal('');
   statusFilter = signal<number | undefined>(undefined);
@@ -61,7 +105,9 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchConfigData();
+  }
 
   fetchOrders() {
     this.loading.set(true);
@@ -242,4 +288,219 @@ printCredential(ord: Order) {
 isCertificateOrder(ord: Order): boolean {
   return Number(ord.orderType) === 0;
 }
+
+  // --- Configurations & Printing Design logic ---
+  fetchConfigData() {
+    this.configLoading.set(true);
+    // Fetch settings
+    this.apiService.getSettings().subscribe({
+      next: (setts) => {
+        let social = { facebook: '', twitter: '', instagram: '', linkedin: '', youtube: '' };
+        let contact = { email: '', phone: '', address: '' };
+        try {
+          if (setts.socialLinksJson) {
+            social = { ...social, ...JSON.parse(setts.socialLinksJson) };
+          }
+        } catch(e) {}
+        try {
+          if (setts.contactInfo) {
+            contact = { ...contact, ...JSON.parse(setts.contactInfo) };
+          }
+        } catch(e) {}
+
+        this.generalSettingsForm.patchValue({
+          id: setts.id || 1,
+          siteTitleEn: setts.siteTitleEn || '',
+          siteTitleAr: setts.siteTitleAr || '',
+          logoUrl: setts.logoUrl || '',
+          facebook: social.facebook || '',
+          twitter: social.twitter || '',
+          instagram: social.instagram || '',
+          linkedin: social.linkedin || '',
+          youtube: social.youtube || '',
+          email: contact.email || '',
+          phone: contact.phone || '',
+          address: contact.address || ''
+        });
+      }
+    });
+
+    // Fetch cert design
+    this.apiService.getCertDesign().subscribe({
+      next: (design) => {
+        this.certDesignForm.patchValue({
+          id: design.id || 1,
+          primaryColor: design.primaryColor || '#003F4A',
+          secondaryColor: design.secondaryColor || '#C9A96B',
+          borderColor: design.borderColor || '#003F4A',
+          borderWidth: design.borderWidth ?? 10,
+          titleEn: design.titleEn || '',
+          titleAr: design.titleAr || '',
+          headerTextEn: design.headerTextEn || '',
+          headerTextAr: design.headerTextAr || '',
+          signatoryName: design.signatoryName || '',
+          signatoryTitleEn: design.signatoryTitleEn || '',
+          signatoryTitleAr: design.signatoryTitleAr || '',
+          signatureImageUrl: design.signatureImageUrl || null,
+          backgroundImageUrl: design.backgroundImageUrl || null,
+          showLogo: design.showLogo ?? true,
+          logoHeight: design.logoHeight ?? 60
+        });
+        this.configLoading.set(false);
+      },
+      error: () => {
+        this.configLoading.set(false);
+      }
+    });
+  }
+
+  onSaveGeneralSettings() {
+    if (this.generalSettingsForm.invalid) return;
+    this.configLoading.set(true);
+
+    const fv = this.generalSettingsForm.value;
+    const socialLinksJson = JSON.stringify({
+      facebook: fv.facebook || '',
+      twitter: fv.twitter || '',
+      instagram: fv.instagram || '',
+      linkedin: fv.linkedin || '',
+      youtube: fv.youtube || ''
+    });
+
+    const contactInfo = JSON.stringify({
+      email: fv.email || '',
+      phone: fv.phone || '',
+      address: fv.address || ''
+    });
+
+    const payload = {
+      id: fv.id || 1,
+      siteTitleEn: fv.siteTitleEn || '',
+      siteTitleAr: fv.siteTitleAr || '',
+      logoUrl: fv.logoUrl || '',
+      socialLinksJson,
+      contactInfo
+    };
+
+    this.apiService.updateSettings(payload as any).subscribe({
+      next: () => {
+        this.toast.showSuccess(
+          this.langService.lang() === 'ar' ? 'تم حفظ إعدادات الهوية العامة للموقع بنجاح!' : 'General site parameters updated successfully!'
+        );
+        this.configLoading.set(false);
+      },
+      error: () => {
+        this.toast.showError('Could not update general settings.');
+        this.configLoading.set(false);
+      }
+    });
+  }
+
+  onSaveCertDesign() {
+    if (this.certDesignForm.invalid) return;
+    this.configLoading.set(true);
+
+    const fv = this.certDesignForm.value;
+    const payload = {
+      id: fv.id || 1,
+      primaryColor: fv.primaryColor || '#003F4A',
+      secondaryColor: fv.secondaryColor || '#C9A96B',
+      borderColor: fv.borderColor || '#003F4A',
+      borderWidth: Number(fv.borderWidth) || 10,
+      titleEn: fv.titleEn || '',
+      titleAr: fv.titleAr || '',
+      headerTextEn: fv.headerTextEn || '',
+      headerTextAr: fv.headerTextAr || '',
+      signatoryName: fv.signatoryName || '',
+      signatoryTitleEn: fv.signatoryTitleEn || '',
+      signatoryTitleAr: fv.signatoryTitleAr || '',
+      signatureImageUrl: fv.signatureImageUrl || null,
+      backgroundImageUrl: fv.backgroundImageUrl || null,
+      showLogo: fv.showLogo ?? true,
+      logoHeight: Number(fv.logoHeight) || 60
+    };
+
+    this.apiService.updateCertDesign(payload as any).subscribe({
+      next: () => {
+        this.toast.showSuccess(
+          this.langService.lang() === 'ar' ? 'تم تحديث تصميم الشهادات والبطاقات واللوائح الشرفية بنجاح!' : 'Certificates and interactive credentials designer updated successfully!'
+        );
+        this.configLoading.set(false);
+      },
+      error: () => {
+        this.toast.showError('Could not write certificate design parameters.');
+        this.configLoading.set(false);
+      }
+    });
+  }
+
+  onFileSelected(event: Event, type: 'logo' | 'signature' | 'background') {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    if (type === 'logo') {
+      this.uploadingLogo.set(true);
+      this.apiService.uploadLogo(file).subscribe({
+        next: (res) => {
+          this.generalSettingsForm.patchValue({ logoUrl: res.relativePath });
+          this.toast.showSuccess(
+            this.langService.lang() === 'ar' ? 'تم رفع الشعار وحفظه تلقائيًا!' : 'Logo uploaded and auto-saved!'
+          );
+          this.uploadingLogo.set(false);
+        },
+        error: () => {
+          this.toast.showError('Could not upload logo.');
+          this.uploadingLogo.set(false);
+        }
+      });
+    } else if (type === 'signature') {
+      this.uploadingSignature.set(true);
+      this.apiService.uploadSignature(file).subscribe({
+        next: (res) => {
+          this.certDesignForm.patchValue({ signatureImageUrl: res.relativePath });
+          this.toast.showSuccess(
+            this.langService.lang() === 'ar' ? 'تم رفع التوقيع وحفظه تلقائيًا!' : 'Signature uploaded and auto-saved!'
+          );
+          this.uploadingSignature.set(false);
+        },
+        error: () => {
+          this.toast.showError('Could not upload signature.');
+          this.uploadingSignature.set(false);
+        }
+      });
+    } else if (type === 'background') {
+      this.uploadingBackground.set(true);
+      this.apiService.uploadBackground(file).subscribe({
+        next: (res) => {
+          this.certDesignForm.patchValue({ backgroundImageUrl: res.relativePath });
+          this.toast.showSuccess(
+            this.langService.lang() === 'ar' ? 'تم رفع الخلفية وحفظها تلقائيًا!' : 'Background image uploaded and auto-saved!'
+          );
+          this.uploadingBackground.set(false);
+        },
+        error: () => {
+          this.toast.showError('Could not upload background image.');
+          this.uploadingBackground.set(false);
+        }
+      });
+    }
+  }
+
+  removeBackgroundImage() {
+    this.configLoading.set(true);
+    this.apiService.removeBackground().subscribe({
+      next: () => {
+        this.certDesignForm.patchValue({ backgroundImageUrl: null });
+        this.toast.showSuccess(
+          this.langService.lang() === 'ar' ? 'تم إزالة خلفية الشهادات بنجاح!' : 'Background image removed.'
+        );
+        this.configLoading.set(false);
+      },
+      error: () => {
+        this.toast.showError('Could not remove background image.');
+        this.configLoading.set(false);
+      }
+    });
+  }
 }

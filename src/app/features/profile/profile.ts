@@ -7,16 +7,14 @@ import { GacamApiService } from '../../core/services/gacam-api';
 import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { Certificate, Course, Enrollment, Payment, Order, OrderType, OrderStatus, ServiceFee } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
+import { Certificate, Course, Enrollment, Payment, Order, OrderType, ServiceFee } from '../../models/types';
 import { TranslatePipe } from '../../shared/pipes/translate';
 type MobileProfileTab = 'catalog' | 'courses' | 'payments' | 'certificates' | 'orders';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })
@@ -86,7 +84,7 @@ serviceFees = signal<ServiceFee[]>([]);
    * Priority: Admin > Employee > Volunteer > User
    */
   getUserRoleLabel(): string {
-    const roles: string[] = this.authService.currentUser()?.roles ?? [];
+    const roles: string[] = this.authService.getCurrentUser()?.roles ?? [];
     const isAr = this.langService.lang() === 'ar';
 
     if (roles.some(r => r.toLowerCase() === 'admin'))
@@ -103,7 +101,7 @@ serviceFees = signal<ServiceFee[]>([]);
    * based on the user's highest role.
    */
   getRoleStyles(): { ring: string; badge: string; icon: string } {
-    const roles: string[] = this.authService.currentUser()?.roles ?? [];
+    const roles: string[] = this.authService.getCurrentUser()?.roles ?? [];
 
     if (roles.some(r => r.toLowerCase() === 'admin'))
       return {
@@ -161,7 +159,7 @@ serviceFees = signal<ServiceFee[]>([]);
 
   // ────────────────────────────────────────────────────────────────
   ngOnInit() {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
     }
@@ -415,7 +413,7 @@ getOrderTotalPrice(type: OrderType | null, quantity: number = 1): number {
     this.certLoadingIds.update(ids => new Set([...ids, en.id]));
 
     this.apiService.issueCertificate({
-      fullNameOnCertificate: this.authService.currentUser()?.fullName,
+      fullNameOnCertificate: this.authService.getCurrentUser()?.fullName,
       type: 0,
       relatedRecordId: en.courseId
     }).subscribe({
@@ -589,5 +587,18 @@ openOrderModel(recordId: number, type: OrderType) {
   this.orderForm.patchValue({ amount: total });
 
   this.showOrderModal.set(true);
+
+}
+today = new Date();
+
+isCourseEnded(en: any): boolean {
+  const course = this.courses().find(c => c.id === Number(en.courseId ?? en['CourseId']));
+  if (!course?.endDate) return true; // لو مفيش تاريخ، اسمح بالإصدار
+  return new Date(course.endDate) <= new Date();
+}
+
+getCourseEndDate(en: any): Date | null {
+  const course = this.courses().find(c => c.id === Number(en.courseId ?? en['CourseId']));
+  return course?.endDate ? new Date(course.endDate) : null;
 }
 }

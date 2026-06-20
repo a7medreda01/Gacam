@@ -1,5 +1,3 @@
-<app-navbar></app-navbar>
-
 <main class="min-h-screen bg-light-ivory py-16">
   <div class="container-gacam">
 
@@ -12,36 +10,103 @@
     </div>
 
     <!-- Filter tabs bar -->
-    <div class="flex justify-center items-center gap-4 mb-10">
+    <div class="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-12">
+      <!-- الكل / All -->
       <button
         (click)="changeFilter(undefined)"
-        class="px-5 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
         [class.bg-royal-teal]="activeFilter() === undefined"
         [class.text-white]="activeFilter() === undefined"
+        [class.border-royal-teal]="activeFilter() === undefined"
         [class.bg-white]="activeFilter() !== undefined"
         [class.text-deep-teal]="activeFilter() !== undefined"
+        [class.border-champagne-gold/25]="activeFilter() !== undefined"
         [class.hover:bg-champagne-gold/15]="activeFilter() !== undefined">
         {{ langService.lang() === 'ar' ? 'الكل' : 'All Stories' }}
       </button>
+
+      <!-- أخبار / News (0) -->
       <button
         (click)="changeFilter(0)"
-        class="px-5 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
         [class.bg-royal-teal]="activeFilter() === 0"
         [class.text-white]="activeFilter() === 0"
+        [class.border-royal-teal]="activeFilter() === 0"
         [class.bg-white]="activeFilter() !== 0"
         [class.text-deep-teal]="activeFilter() !== 0"
+        [class.border-champagne-gold/25]="activeFilter() !== 0"
         [class.hover:bg-champagne-gold/15]="activeFilter() !== 0">
-        {{ langService.lang() === 'ar' ? 'الأخبار العامة' : 'General News' }}
+        {{ langService.lang() === 'ar' ? 'أخبار عامة' : 'General News' }}
       </button>
+
+      <!-- بيان صحفي / Press Release (1) -->
       <button
         (click)="changeFilter(1)"
-        class="px-5 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
         [class.bg-royal-teal]="activeFilter() === 1"
         [class.text-white]="activeFilter() === 1"
+        [class.border-royal-teal]="activeFilter() === 1"
         [class.bg-white]="activeFilter() !== 1"
         [class.text-deep-teal]="activeFilter() !== 1"
+        [class.border-champagne-gold/25]="activeFilter() !== 1"
         [class.hover:bg-champagne-gold/15]="activeFilter() !== 1">
         {{ langService.lang() === 'ar' ? 'البيانات الصحفية' : 'Press Releases' }}
+      </button>
+
+      <!-- إعلان / Announcement (2) -->
+      <button
+        (click)="changeFilter(2)"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
+        [class.bg-royal-teal]="activeFilter() === 2"
+        [class.text-white]="activeFilter() === 2"
+        [class.border-royal-teal]="activeFilter() === 2"
+        [class.bg-white]="activeFilter() !== 2"
+        [class.text-deep-teal]="activeFilter() !== 2"
+        [class.border-champagne-gold/25]="activeFilter() !== 2"
+        [class.hover:bg-champagne-gold/15]="activeFilter() !== 2">
+        {{ langService.lang() === 'ar' ? 'إعلانات' : 'Announcements' }}
+      </button>
+
+      <!-- تصريح / Statement (3) -->
+      <button
+        (click)="changeFilter(3)"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
+        [class.bg-royal-teal]="activeFilter() === 3"
+        [class.text-white]="activeFilter() === 3"
+        [class.border-royal-teal]="activeFilter() === 3"
+        [class.bg-white]="activeFilter() !== 3"
+        [class.text-deep-teal]="activeFilter() !== 3"
+        [class.border-champagne-gold/25]="activeFilter() !== 3"
+        [class.hover:bg-champagne-gold/15]="activeFilter() !== 3">
+        {{ langService.lang() === 'ar' ? 'تصريحات' : 'Statements' }}
+      </button>
+
+      <!-- فعالية ومنتدى / EventAndForum (4) -->
+      <button
+        (click)="changeFilter(4)"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
+        [class.bg-royal-teal]="activeFilter() === 4"
+        [class.text-white]="activeFilter() === 4"
+        [class.border-royal-teal]="activeFilter() === 4"
+        [class.bg-white]="activeFilter() !== 4"
+        [class.text-deep-teal]="activeFilter() !== 4"
+        [class.border-champagne-gold/25]="activeFilter() !== 4"
+        [class.hover:bg-champagne-gold/15]="activeFilter() !== 4">
+        {{ langService.lang() === 'ar' ? 'الفعاليات والمنتديات' : 'Events & Forums' }}
+      </button>
+
+      <!-- مبادرة / Initiative (5) -->
+      <button
+        (click)="changeFilter(5)"
+        class="px-4 py-2 text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer border"
+        [class.bg-royal-teal]="activeFilter() === 5"
+        [class.text-white]="activeFilter() === 5"
+        [class.border-royal-teal]="activeFilter() === 5"
+        [class.bg-white]="activeFilter() !== 5"
+        [class.text-deep-teal]="activeFilter() !== 5"
+        [class.border-champagne-gold/25]="activeFilter() !== 5"
+        [class.hover:bg-champagne-gold/15]="activeFilter() !== 5">
+        {{ langService.lang() === 'ar' ? 'مبادرات الهيئة' : 'Initiatives' }}
       </button>
     </div>
 
@@ -64,8 +129,8 @@
             <div class="bg-white rounded-2xl border border-champagne-gold/15 overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-150">
               <div class="relative">
                 <img [src]="item.imageUrl" alt="Article Visual" referrerpolicy="no-referrer" class="w-full h-40 object-cover" />
-                <div class="absolute top-3 left-3 bg-royal-teal text-white text-[9px] font-bold px-2 py-0.5 rounded tracking-wider uppercase">
-                  {{ item.type === 'PressRelease' ? 'PR' : 'NEWS' }}
+                <div class="absolute top-3 start-3 text-[9px] font-bold px-2.5 py-0.5 rounded-lg shadow-sm z-10" [class]="getTypeClass(item.type)">
+                  {{ getTypeLabel(item.type) }}
                 </div>
               </div>
 
@@ -163,9 +228,11 @@
 
       <!-- Type and Date tags -->
       <div class="flex items-center gap-3 text-xs font-semibold">
-        <span class="px-3 py-1 bg-royal-teal text-white rounded-lg">
-          {{ selectedItem()?.type === 'PressRelease' ? 'Press Release' : 'General News' }}
-        </span>
+        @if (selectedItem(); as currentItem) {
+          <span class="px-3 py-1 rounded-lg text-xs font-bold" [class]="getTypeClass(currentItem.type)">
+            {{ getTypeLabel(currentItem.type) }}
+          </span>
+        }
         <span class="text-deep-teal/60 font-mono">{{ selectedItem()?.publishedAt | date:'medium' }}</span>
         <span class="text-deep-teal/60 flex items-center gap-1 font-mono">
           <mat-icon class="text-xs h-3.5 w-3.5">visibility</mat-icon>
@@ -195,5 +262,3 @@
     </div>
   </div>
 }
-
-<app-footer></app-footer>

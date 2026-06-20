@@ -7,8 +7,6 @@ import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Order, OrderStatus, OrderType, OrderStatusHistory, Payment } from '../../models/types';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 type StepState = 'done' | 'current' | 'upcoming';
@@ -16,7 +14,7 @@ type StepState = 'done' | 'current' | 'upcoming';
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, RouterLink, MatIconModule, TranslatePipe],
   templateUrl: './order-details.html',
 })
 export class OrderDetailComponent implements OnInit {
@@ -66,7 +64,7 @@ export class OrderDetailComponent implements OnInit {
   });
 
   ngOnInit() {
-    if (!this.authService.isAuthenticated()) {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
     }

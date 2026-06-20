@@ -1,5 +1,3 @@
-<app-navbar></app-navbar>
-
 <main class="min-h-screen bg-light-ivory py-16 pb-28 lg:pb-16 text-start">
   <div class="container-gacam max-w-6xl">
 
@@ -14,11 +12,11 @@
           <div class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-deep-teal border-[3px] overflow-hidden flex items-center justify-center shadow-lg font-bold font-sans text-xl sm:text-2xl uppercase transition-all relative"
                [class]="getRoleStyles().ring + ' border-[3px]'">
             
-            @if (authService.currentUser()?.profileImageUrl) {
-              <img [src]="authService.currentUser()?.profileImageUrl" alt="Profile" class="h-full w-full object-cover" referrerpolicy="no-referrer" />
+            @if (authService.getCurrentUser()?.profileImageUrl) {
+              <img [src]="authService.getCurrentUser()?.profileImageUrl" alt="Profile" class="h-full w-full object-cover" referrerpolicy="no-referrer" />
             } @else {
               <span [class]="getRoleStyles().badge.includes('text-white') ? 'text-white' : 'text-royal-teal'">
-                {{ authService.currentUser()?.fullName?.charAt(0) }}
+                {{ authService.getCurrentUser()?.fullName?.charAt(0) }}
               </span>
             }
 
@@ -45,10 +43,10 @@
         </div>
 
         <div class="text-center sm:text-start mt-3 sm:mt-0">
-          <h2 class="text-lg sm:text-xl font-extrabold tracking-wide uppercase">{{ authService.currentUser()?.fullName }}</h2>
-          <p class="text-xs text-champagne-gold">{{ authService.currentUser()?.email }}</p>
+          <h2 class="text-lg sm:text-xl font-extrabold tracking-wide uppercase">{{ authService.getCurrentUser()?.fullName }}</h2>
+          <p class="text-xs text-champagne-gold">{{ authService.getCurrentUser()?.email }}</p>
           <p class="text-[11px] text-white/75 mt-1 font-sans">
-            Affiliate Node: <span class="font-bold">{{ authService.currentUser()?.organization }}</span> • Location: {{ authService.currentUser()?.country }}
+            {{ langService.lang() === 'ar' ? 'مرحباً بك في ملفك الشخصي' : 'Welcome to your profile dashboard' }}
           </p>
         </div>
       </div>
@@ -146,39 +144,50 @@
                   </div>
 
                   <!-- Row 2: Certificate action (only if Approved) -->
-                  @if (isApproved(en.status)) {
-                    @let cert = getCertForEnrollment(en);
-                    @if (cert) {
-                      <!-- Already has a certificate → show download -->
-                      <div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-                        <div class="flex items-center gap-1.5 text-emerald-700">
-                          <mat-icon class="text-sm" style="font-size:15px;width:15px;height:15px;line-height:15px;">workspace_premium</mat-icon>
-                          <span class="font-bold text-[10px]">
-                            {{ langService.lang() === 'ar' ? 'شهادتك جاهزة' : 'Certificate Ready' }}
-                          </span>
-                          <span class="font-mono text-[9px] text-emerald-600/70">{{ cert.certificateNumber }}</span>
-                        </div>
-                        <button (click)="downloadCert(cert)"
-                                class="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
-                          <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">download</mat-icon>
-                          <span>{{ langService.lang() === 'ar' ? 'تحميل PDF' : 'Download PDF' }}</span>
-                        </button>
-                      </div>
-                    } @else {
-                      <!-- No certificate yet → request button -->
-                      <button (click)="issueCert(en)"
-                              [disabled]="certLoadingIds().has(en.id)"
-                              class="flex items-center justify-center gap-1.5 w-full py-1.5 border border-champagne-gold/40 text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal text-[10px] font-bold rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                        @if (certLoadingIds().has(en.id)) {
-                          <mat-icon class="animate-spin text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">sync</mat-icon>
-                          <span>{{ langService.lang() === 'ar' ? 'جاري الإصدار...' : 'Issuing...' }}</span>
-                        } @else {
-                          <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">workspace_premium</mat-icon>
-                          <span>{{ langService.lang() === 'ar' ? 'طلب الشهادة' : 'Request Certificate' }}</span>
-                        }
-                      </button>
-                    }
-                  }
+                 @if (isApproved(en.status)) {
+  @let cert = getCertForEnrollment(en);
+  @if (cert) {
+    <!-- Already has a certificate → show download -->
+    <div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <div class="flex items-center gap-1.5 text-emerald-700">
+        <mat-icon class="text-sm" style="font-size:15px;width:15px;height:15px;line-height:15px;">workspace_premium</mat-icon>
+        <span class="font-bold text-[10px]">
+          {{ langService.lang() === 'ar' ? 'شهادتك جاهزة' : 'Certificate Ready' }}
+        </span>
+        <span class="font-mono text-[9px] text-emerald-600/70">{{ cert.certificateNumber }}</span>
+      </div>
+      <button (click)="downloadCert(cert)"
+              class="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
+        <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">download</mat-icon>
+        <span>{{ langService.lang() === 'ar' ? 'تحميل PDF' : 'Download PDF' }}</span>
+      </button>
+    </div>
+  } @else {
+    @if (isCourseEnded(en)) {
+      <!-- Course ended → show request button -->
+      <button (click)="issueCert(en)"
+              [disabled]="certLoadingIds().has(en.id)"
+              class="flex items-center justify-center gap-1.5 w-full py-1.5 border border-champagne-gold/40 text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal text-[10px] font-bold rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (certLoadingIds().has(en.id)) {
+          <mat-icon class="animate-spin text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">sync</mat-icon>
+          <span>{{ langService.lang() === 'ar' ? 'جاري الإصدار...' : 'Issuing...' }}</span>
+        } @else {
+          <mat-icon class="text-xs" style="font-size:13px;width:13px;height:13px;line-height:13px;">workspace_premium</mat-icon>
+          <span>{{ langService.lang() === 'ar' ? 'طلب الشهادة' : 'Request Certificate' }}</span>
+        }
+      </button>
+    } @else {
+      <!-- Course not ended yet → show end date message -->
+      <div class="flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-light-ivory border border-champagne-gold/20 text-[10px] text-deep-teal/60 font-sans">
+        <mat-icon style="font-size:13px;width:13px;height:13px;line-height:13px;">schedule</mat-icon>
+        <span>{{ langService.lang() === 'ar' ? 'الشهادة متاحة بعد:' : 'Certificate available after:' }}</span>
+        <span class="font-bold font-mono text-royal-teal">
+          {{ getCourseEndDate(en) | date:'mediumDate' }}
+        </span>
+      </div>
+    }
+  }
+}
 
                 </div>
               }
@@ -690,5 +699,3 @@
     </div>
   </div>
 }
-
-<app-footer></app-footer>

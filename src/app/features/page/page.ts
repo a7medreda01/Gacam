@@ -4,8 +4,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 interface PageDataModel {
@@ -20,10 +18,8 @@ interface PageDataModel {
 @Component({
   selector: 'app-dynamic-page',
   standalone: true,
-  imports: [CommonModule, MatIconModule, NavbarComponent, FooterComponent, RouterLink],
+  imports: [CommonModule, MatIconModule, RouterLink],
   template: `
-    <app-navbar></app-navbar>
-
     <main class="min-h-screen bg-light-ivory py-16">
       <div class="container-gacam max-w-5xl">
         
@@ -106,8 +102,6 @@ interface PageDataModel {
 
       </div>
     </main>
-
-    <app-footer></app-footer>
   `
 })
 export class PageComponent implements OnInit {

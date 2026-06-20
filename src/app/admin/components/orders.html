@@ -1,15 +1,30 @@
 <div class="p-6">
 
   <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-4">
     <h2 class="text-sm font-bold text-royal-teal uppercase tracking-widest flex items-center gap-2">
       <mat-icon class="text-champagne-gold">local_shipping</mat-icon>
       {{ langService.lang() === 'ar' ? 'إدارة طلبات شحن وتوصيل المطبوعات' : 'Print & Dispatch Ledger' }}
     </h2>
   </div>
 
-  <!-- Search & Filters -->
-  <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+  <!-- Navigation Sub-tabs -->
+  <div class="flex gap-4 border-b border-champagne-gold/15 mb-6 text-xs font-bold text-start">
+    <button (click)="selectedSubTab.set('orders')"
+            class="pb-2 px-1 border-b-2 transition-all cursor-pointer bg-transparent border-none text-start"
+            [class]="selectedSubTab() === 'orders' ? 'border-royal-teal text-royal-teal' : 'border-transparent text-deep-teal/50 hover:text-royal-teal'">
+      {{ langService.lang() === 'ar' ? 'طلبات الشحن والتوصيل' : 'Print & Logistics Orders' }}
+    </button>
+    <button (click)="selectedSubTab.set('configs')"
+            class="pb-2 px-1 border-b-2 transition-all cursor-pointer bg-transparent border-none text-start"
+            [class]="selectedSubTab() === 'configs' ? 'border-royal-teal text-royal-teal' : 'border-transparent text-deep-teal/50 hover:text-royal-teal'">
+      {{ langService.lang() === 'ar' ? 'تصميم وإعدادات الشهادات والبطاقات' : 'Design & Certificate Configurator' }}
+    </button>
+  </div>
+
+  @if (selectedSubTab() === 'orders') {
+    <!-- Search & Filters -->
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
     
     <!-- Search -->
     <div class="relative w-full md:max-w-xs">
@@ -186,6 +201,291 @@
                 class="w-8 h-8 rounded-lg border border-champagne-gold/25 bg-white hover:bg-light-ivory text-royal-teal flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
           <mat-icon class="text-sm">chevron_right</mat-icon>
         </button>
+      </div>
+
+    </div>
+  }
+  }
+
+  @if (selectedSubTab() === 'configs') {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in text-start">
+      
+      <!-- 1. General Site Configuration Card -->
+      <div class="bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-6">
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wide text-royal-teal border-b border-light-ivory pb-2 flex items-center gap-2">
+            <mat-icon class="text-champagne-gold">settings</mat-icon>
+            {{ langService.lang() === 'ar' ? 'إعدادات الهوية العامة والشعار' : 'General Configuration & Branding' }}
+          </h3>
+          <p class="text-[11px] text-deep-teal/60 font-sans mt-1">
+            {{ langService.lang() === 'ar' ? 'تعديل شعار الهيئة، مع روابط التواصل الاجتماعي وبيانات موقع الويب العام.' : 'Modify logo assets, social media networks handles, and contact coordinates.' }}
+          </p>
+        </div>
+
+        @if (configLoading()) {
+          <div class="h-64 flex items-center justify-center animate-pulse text-xs font-semibold">
+            {{ langService.lang() === 'ar' ? 'جاري تحميل الإعدادات...' : 'Loading configurations...' }}
+          </div>
+        } @else {
+          <form [formGroup]="generalSettingsForm" (ngSubmit)="onSaveGeneralSettings()" class="flex flex-col gap-4 text-xs font-sans">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 text-start">
+                <label for="siteTitleEn-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'عنوان الموقع (إنجليزي)' : 'Site Title (EN)' }} *</label>
+                <input id="siteTitleEn-input" type="text" formControlName="siteTitleEn" class="px-3 py-2 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none focus:ring-1 focus:ring-royal-teal" />
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="siteTitleAr-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'عنوان الموقع (عربي)' : 'Site Title (AR)' }} *</label>
+                <input id="siteTitleAr-input" type="text" formControlName="siteTitleAr" class="px-3 py-2 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none focus:ring-1 focus:ring-royal-teal" />
+              </div>
+            </div>
+
+            <!-- Logo Upload -->
+            <div class="flex flex-col gap-1 bg-light-ivory/40 p-3 rounded-xl border border-champagne-gold/10 text-start">
+              <label class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'شعار البوابة (Logo)' : 'Portal Branding Logo' }}</label>
+              <div class="flex items-center gap-4 mt-1">
+                @if (generalSettingsForm.value.logoUrl) {
+                  <img [src]="generalSettingsForm.value.logoUrl" alt="Logo" class="h-10 w-fit object-contain bg-royal-teal/5 p-1 rounded-lg border border-champagne-gold/20" />
+                }
+                <div class="flex-grow">
+                  <input type="text" formControlName="logoUrl" class="w-full px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-white focus:outline-none text-[10px] font-mono" placeholder="/assets/logo.png" />
+                </div>
+                <div>
+                  <label for="logo-file-input" class="px-3 py-1.5 bg-champagne-gold/10 hover:bg-champagne-gold hover:text-royal-teal text-royal-teal font-bold rounded duration-200 cursor-pointer block text-center min-w-[100px]">
+                    @if (uploadingLogo()) {
+                      <mat-icon class="animate-spin text-sm">sync</mat-icon>
+                    } @else {
+                      <mat-icon class="text-sm">upload</mat-icon>
+                      <span>{{ langService.lang() === 'ar' ? 'رفع...' : 'Upload...' }}</span>
+                    }
+                  </label>
+                  <input id="logo-file-input" type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'logo')" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Links Fields -->
+            <div class="border-t border-light-ivory pt-4 mt-2 text-start">
+              <span class="font-extrabold uppercase tracking-widest text-[9px] text-royal-teal">{{ langService.lang() === 'ar' ? 'روابط شبكات التواصل الاجتماعي' : 'Social Platforms' }}</span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="facebook-input" class="font-semibold text-deep-teal/70">Facebook</label>
+                  <input id="facebook-input" type="text" formControlName="facebook" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="twitter-input" class="font-semibold text-deep-teal/70">Twitter/X</label>
+                  <input id="twitter-input" type="text" formControlName="twitter" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="instagram-input" class="font-semibold text-deep-teal/70">Instagram</label>
+                  <input id="instagram-input" type="text" formControlName="instagram" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="linkedin-input" class="font-semibold text-deep-teal/70">LinkedIn</label>
+                  <input id="linkedin-input" type="text" formControlName="linkedin" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start col-span-full">
+                  <label for="youtube-input" class="font-semibold text-deep-teal/70">YouTube</label>
+                  <input id="youtube-input" type="text" formControlName="youtube" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Information Fields -->
+            <div class="border-t border-light-ivory pt-4 mt-2 text-start">
+              <span class="font-extrabold uppercase tracking-widest text-[9px] text-royal-teal">{{ langService.lang() === 'ar' ? 'معلومات الاتصال الرسمية' : 'Official Contact Parameters' }}</span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="email-input" class="font-semibold text-deep-teal/70">Email</label>
+                  <input id="email-input" type="email" formControlName="email" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="phone-input" class="font-semibold text-deep-teal/70">Phone</label>
+                  <input id="phone-input" type="text" formControlName="phone" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start col-span-full">
+                  <label for="address-input" class="font-semibold text-deep-teal/70">Physical Address</label>
+                  <input id="address-input" type="text" formControlName="address" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="generalSettingsForm.invalid || configLoading()" class="w-full mt-4 px-4 py-2.5 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal rounded-xl text-xs flex items-center justify-center gap-2 duration-300">
+              <mat-icon class="text-sm">save</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'حفظ هوية الموقع العامة' : 'Save General Brand' }}</span>
+            </button>
+          </form>
+        }
+      </div>
+
+      <!-- 2. Certificate Visual Design Configurator Card -->
+      <div class="bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm flex flex-col gap-6">
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wide text-royal-teal border-b border-light-ivory pb-2 flex items-center gap-2">
+            <mat-icon class="text-champagne-gold">palette</mat-icon>
+            {{ langService.lang() === 'ar' ? 'مصمم ومعدل الشهادات والبطاقات الرقمية والورقية' : 'Certificate & Card Visual Design' }}
+          </h3>
+          <p class="text-[11px] text-deep-teal/60 font-sans mt-1">
+            {{ langService.lang() === 'ar' ? 'ضبط الألوان، الإطار، السيرفر الشاحن للخلفية والموقّع الرسمي للشهادة والبطاقات.' : 'Configure hex colors, borders, high-res certificate backgrounds and official signatory parameters.' }}
+          </p>
+        </div>
+
+        @if (configLoading()) {
+          <div class="h-64 flex items-center justify-center animate-pulse text-xs font-semibold">
+            {{ langService.lang() === 'ar' ? 'جاري تحميل خيارات القالب...' : 'Loading design configuration...' }}
+          </div>
+        } @else {
+          <form [formGroup]="certDesignForm" (ngSubmit)="onSaveCertDesign()" class="flex flex-col gap-4 text-xs font-sans">
+            
+            <!-- Color Palettes & Border -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-light-ivory/30 p-3 rounded-xl border border-champagne-gold/10 text-start">
+              <div class="flex flex-col gap-1 text-start">
+                <label for="primaryColor-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'اللون الأساسي' : 'Primary Hex' }}</label>
+                <div class="flex items-center gap-2">
+                  <input id="primaryColor-input" type="color" formControlName="primaryColor" class="h-8 w-8 cursor-pointer rounded border border-champagne-gold/20" />
+                  <input type="text" formControlName="primaryColor" class="w-full px-2 py-1 text-[10px] uppercase font-mono border rounded" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-2 text-start">
+                <label for="secondaryColor-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'اللون الثانوي' : 'Secondary' }}</label>
+                <div class="flex items-center gap-2">
+                  <input id="secondaryColor-input" type="color" formControlName="secondaryColor" class="h-8 w-8 cursor-pointer rounded border border-champagne-gold/20" />
+                  <input type="text" formControlName="secondaryColor" class="w-full px-2 py-1 text-[10px] uppercase font-mono border rounded" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="borderColor-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'لون الإطار' : 'Border Hex' }}</label>
+                <div class="flex items-center gap-2">
+                  <input id="borderColor-input" type="color" formControlName="borderColor" class="h-8 w-8 cursor-pointer rounded border border-champagne-gold/20" />
+                  <input type="text" formControlName="borderColor" class="w-full px-2 py-1 text-[10px] uppercase font-mono border rounded" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="borderWidth-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'سمك الإطار' : 'Width px' }}</label>
+                <input id="borderWidth-input" type="number" formControlName="borderWidth" class="w-full px-2 py-1.5 border border-champagne-gold/30 bg-white rounded-lg focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Logo config in certificate -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center gap-4 bg-light-ivory/20 p-3 rounded-xl border border-champagne-gold/5 text-start">
+                <input id="showLogo-input" type="checkbox" formControlName="showLogo" class="rounded h-4 w-4 border-champagne-gold accent-royal-teal cursor-pointer" />
+                <label for="showLogo-input" class="font-bold text-deep-teal cursor-pointer pb-0 mb-0">{{ langService.lang() === 'ar' ? 'إظهار الشعار في ترويسة الشهادة' : 'Show Logo in Certificate header' }}</label>
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="logoHeight-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'ارتفاع الشعار (px)' : 'Logo Height px' }}</label>
+                <input id="logoHeight-input" type="number" formControlName="logoHeight" class="px-3 py-1.5 border border-champagne-gold/30 rounded-lg focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Title English & Arabic -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 text-start">
+                <label for="titleEn-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'عنوان الشهادة (EN)' : 'Certificate Main Title (EN)' }} *</label>
+                <input id="titleEn-input" type="text" formControlName="titleEn" class="px-3 py-2 border border-champagne-gold/30 bg-light-ivory rounded-lg focus:outline-none" placeholder="e.g. CERTIFICATE OF ACCREDITATION" />
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="titleAr-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'عنوان الشهادة (AR)' : 'Certificate Main Title (AR)' }} *</label>
+                <input id="titleAr-input" type="text" formControlName="titleAr" class="px-3 py-2 border border-champagne-gold/30 bg-light-ivory rounded-lg focus:outline-none" placeholder="مثال: شهادة اعتماد إعلامي رسمي" />
+              </div>
+            </div>
+
+            <!-- Header Text English & Arabic -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1 text-start">
+                <label for="headerTextEn-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'نص الترويسة (EN)' : 'Header Text (EN)' }} *</label>
+                <textarea id="headerTextEn-input" rows="2" formControlName="headerTextEn" class="px-3 py-2 border border-champagne-gold/30 bg-light-ivory rounded-lg focus:outline-none"></textarea>
+              </div>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="headerTextAr-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'نص الترويسة (AR)' : 'Header Text (AR)' }} *</label>
+                <textarea id="headerTextAr-input" rows="2" formControlName="headerTextAr" class="px-3 py-2 border border-champagne-gold/30 bg-light-ivory rounded-lg focus:outline-none"></textarea>
+              </div>
+            </div>
+
+            <!-- Operational Signatory params -->
+            <div class="border-t border-light-ivory pt-4 mt-2 flex flex-col gap-3 text-start">
+              <span class="font-extrabold uppercase tracking-widest text-[9px] text-royal-teal text-start">{{ langService.lang() === 'ar' ? 'الموقّع الرسمي للشهادة والبطاقات (Signatory)' : 'Official Document Signatory' }}</span>
+              <div class="flex flex-col gap-1 text-start">
+                <label for="signatoryName-input" class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'اسم الموقّع بالكامل' : 'Signatory Full Name' }}</label>
+                <input id="signatoryName-input" type="text" formControlName="signatoryName" class="px-3 py-2 border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-none" placeholder="Dr. Faisal Al-Subaie" />
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="signatoryTitleEn-input" class="font-semibold text-deep-teal/70">{{ langService.lang() === 'ar' ? 'لقب الموقّع (EN)' : 'Signatory Title (EN)' }}</label>
+                  <input id="signatoryTitleEn-input" type="text" formControlName="signatoryTitleEn" class="px-3 py-2 border border-champagne-gold/30 rounded-lg focus:outline-none" />
+                </div>
+                <div class="flex flex-col gap-1 text-start">
+                  <label for="signatoryTitleAr-input" class="font-semibold text-deep-teal/70">{{ langService.lang() === 'ar' ? 'لقب الموقّع (AR)' : 'Signatory Title (AR)' }}</label>
+                  <input id="signatoryTitleAr-input" type="text" formControlName="signatoryTitleAr" class="px-3 py-2 border border-champagne-gold/30 rounded-lg focus:outline-none" />
+                </div>
+              </div>
+
+              <!-- Signatory Signature Image Upload -->
+              <div class="flex flex-col gap-1 bg-light-ivory/40 p-3 rounded-xl border border-champagne-gold/10 mt-1 text-start">
+                <label class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'صورة توقيع الموقّع (PNG شفاف)' : 'Translucent Signatory Signature' }}</label>
+                <div class="flex items-center gap-4 mt-1">
+                  @if (certDesignForm.value.signatureImageUrl) {
+                    <img [src]="certDesignForm.value.signatureImageUrl" alt="Signature" class="h-10 w-fit object-contain bg-white p-1 rounded border" />
+                  }
+                  <div class="flex-grow">
+                    <input type="text" formControlName="signatureImageUrl" class="w-full px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-white focus:outline-none text-[10px] font-mono" />
+                  </div>
+                  <div>
+                    <label for="sig-file-input" class="px-3 py-1.5 bg-champagne-gold/10 hover:bg-champagne-gold hover:text-royal-teal text-royal-teal font-bold rounded duration-200 cursor-pointer block text-center min-w-[100px]">
+                      @if (uploadingSignature()) {
+                        <mat-icon class="animate-spin text-sm">sync</mat-icon>
+                      } @else {
+                        <mat-icon class="text-sm">upload</mat-icon>
+                        <span>{{ langService.lang() === 'ar' ? 'رفع...' : 'Upload...' }}</span>
+                      }
+                    </label>
+                    <input id="sig-file-input" type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'signature')" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Background Image Support -->
+            <div class="border-t border-light-ivory pt-4 mt-2 text-start">
+              <span class="font-extrabold uppercase tracking-widest text-[9px] text-royal-teal text-start">{{ langService.lang() === 'ar' ? 'خلفية قالب الشهادات والأوراق الرسمية' : 'Dynamic Certificates & Stationery Background' }}</span>
+              <div class="flex flex-col gap-1 bg-light-ivory/40 p-3 rounded-xl border border-champagne-gold/10 mt-2 text-start">
+                <label class="font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'صورة الخلفية المصممة (Full-Width PDF Background)' : 'High-Res Stationary Vector Background' }}</label>
+                <div class="flex items-center gap-4 mt-1">
+                  @if (certDesignForm.value.backgroundImageUrl) {
+                    <div class="relative group">
+                      <img [src]="certDesignForm.value.backgroundImageUrl" alt="Background" class="h-10 w-16 object-cover bg-white rounded border" />
+                      <button type="button" (click)="removeBackgroundImage()" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 hover:bg-red-700 duration-200" title="Remove Background">
+                        <mat-icon class="text-[10px] h-3.5 w-3.5 text-center leading-[14px]">close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  <div class="flex-grow">
+                    <input type="text" formControlName="backgroundImageUrl" class="w-full px-3 py-1.5 border border-champagne-gold/30 rounded-lg bg-white focus:outline-none text-[10px] font-mono" placeholder="Default plain white" />
+                  </div>
+                  <div>
+                    <label for="bg-file-input" class="px-3 py-1.5 bg-champagne-gold/10 hover:bg-champagne-gold hover:text-royal-teal text-royal-teal font-bold rounded duration-200 cursor-pointer block text-center min-w-[100px]">
+                      @if (uploadingBackground()) {
+                        <mat-icon class="animate-spin text-sm">sync</mat-icon>
+                      } @else {
+                        <mat-icon class="text-sm">upload</mat-icon>
+                        <span>{{ langService.lang() === 'ar' ? 'رفع...' : 'Upload...' }}</span>
+                      }
+                    </label>
+                    <input id="bg-file-input" type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'background')" />
+                  </div>
+                </div>
+                <p class="text-[9px] text-deep-teal/50 font-sans mt-1 text-start">
+                  {{ langService.lang() === 'ar' ? 'إذا تُركت فارغة، سيتم ملء خلفية الشهادات تلقائيًا باللون الأبيض السادة.' : 'If unoccupied/un-uploaded, certificates fall back to plain solid white backgrounds.' }}
+                </p>
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="certDesignForm.invalid || configLoading()" class="w-full mt-4 px-4 py-2.5 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal rounded-xl text-xs flex items-center justify-center gap-2 duration-300">
+              <mat-icon class="text-sm">save</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'حفظ تصميم وقالب الشهادات' : 'Save Certificate Design' }}</span>
+            </button>
+          </form>
+        }
       </div>
 
     </div>

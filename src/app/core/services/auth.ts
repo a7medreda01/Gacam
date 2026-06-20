@@ -1,215 +1,308 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, throwError, catchError } from 'rxjs';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
-
-import { LoginResponse, User } from '../../models/types';
 import { environment } from '../../../environments/environment';
+// ─── DTOs (matching backend exactly) ──────────────────────────────────────────
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+  phoneNumber?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface UserDto {
+  id: number;
+  email: string;
+  fullName: string;
+  phoneNumber?: string;
+  profileImageUrl?: string;
+  isActive: boolean;
+  createdAt: Date;
+  roles: string[];
+}
+
+export interface LoginResponse {
+  token: string;
+  refreshToken: string;
+  expiresAt: Date;
+  user: UserDto;
+}
+
+export interface AuthResponseDto {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+  userId: string;
+  email: string;
+  role: string;
+}
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  phoneNumber?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface AssignRoleRequest {
+  roleName: string;
+}
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  email:           string;
+  token:           string;
+  newPassword:     string;
+  confirmPassword: string;  // ← زود ده
+}
+
+export interface RefreshTokenRequestDto {
+  refreshToken: string;
+}
+
+export interface PagedRequestDto {
+  pageNumber?: number;
+  pageSize?: number;
+  search?: string;
+}
+
+export interface PagedResponse<T> {
+  items: T[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+// ─── Storage Keys ──────────────────────────────────────────────────────────────
+
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
+const TOKEN_EXPIRY_KEY = 'token_expiry';
+const USER_KEY = 'current_user';
+
+// ─── Service ───────────────────────────────────────────────────────────────────
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  // Core authenticated states
-  currentUser = signal<User | null>(null);
-  token = signal<string | null>(null);
-  isAuthenticated = computed(() => this.currentUser() !== null);
+  private currentUserSubject = new BehaviorSubject<UserDto | null>(this.loadUser());
+  currentUser$ = this.currentUserSubject.asObservable();
 
-  // Get user roles robustly from flat list or EF Core relation nested inside userRoles
-  getUserRoles(): string[] {
-    const user = this.currentUser() as any;
-    if (!user) return [];
-    
-    const list: string[] = [];
-    if (Array.isArray(user.roles)) {
-      list.push(...user.roles);
-    }
-    if (Array.isArray(user.Roles)) {
-      list.push(...user.Roles);
-    }
-    if (Array.isArray(user.userRoles)) {
-      user.userRoles.forEach((ur: any) => {
-        if (ur && ur.role && typeof ur.role.name === 'string') {
-          list.push(ur.role.name);
-        } else if (ur && ur.role && typeof ur.role.Name === 'string') {
-          list.push(ur.role.Name);
-        } else if (ur && typeof ur.roleName === 'string') {
-          list.push(ur.roleName);
-        } else if (ur && typeof ur.RoleName === 'string') {
-          list.push(ur.RoleName);
-        } else if (ur && ur.role && typeof ur.role === 'string') {
-          list.push(ur.role);
-        } else if (ur && typeof ur === 'string') {
-          list.push(ur);
-        }
-      });
-    }
-    if (Array.isArray(user.UserRoles)) {
-      user.UserRoles.forEach((ur: any) => {
-        if (ur && ur.role && typeof ur.role.name === 'string') {
-          list.push(ur.role.name);
-        } else if (ur && ur.role && typeof ur.role.Name === 'string') {
-          list.push(ur.role.Name);
-        } else if (ur && typeof ur.roleName === 'string') {
-          list.push(ur.roleName);
-        } else if (ur && typeof ur.RoleName === 'string') {
-          list.push(ur.RoleName);
-        } else if (ur && ur.role && typeof ur.role === 'string') {
-          list.push(ur.role);
-        } else if (ur && typeof ur === 'string') {
-          list.push(ur);
-        }
-      });
-    }
-    return list;
+  constructor(private http: HttpClient, private router: Router) {}
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+
+  register(request: RegisterRequest): Observable<UserDto> {
+    return this.http.post<UserDto>(`${this.baseUrl}/register`, request);
   }
 
-  isAdmin = computed(() => {
-    const roles = this.getUserRoles();
-    return roles.some(r => r.toLowerCase() === 'admin');
-  });
-
-  isStaff = computed(() => {
-    const roles = this.getUserRoles();
-    return roles.some(r => r.toLowerCase() === 'admin' || r.toLowerCase() === 'employee' || r.toLowerCase() === 'staff');
-  });
-
-  constructor() {
-    this.restoreSession();
-  }
-
-  private restoreSession() {
-    if (typeof window !== 'undefined') {
-      const savedToken = localStorage.getItem('gacam_token');
-      const savedUser = localStorage.getItem('gacam_user');
-      if (savedToken && savedUser) {
-        this.token.set(savedToken);
-        try {
-          this.currentUser.set(JSON.parse(savedUser));
-        } catch {
-          this.logout();
-        }
-      }
-    }
-  }
-
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<any>(`${environment.apiUrl}/Auth/login`, credentials).pipe(
-      tap(res => {
-        const anyRes = res as any;
-        const tokenVal = anyRes.token || anyRes.Token;
-        const emailVal = anyRes.email || anyRes.Email;
-        const fullNameVal = anyRes.fullName || anyRes.FullName;
-        const rolesVal = anyRes.roles || anyRes.Roles || [];
-
-        this.token.set(tokenVal);
-        const placeholderUser: User = {
-          id: 0, 
-          email: emailVal,
-          fullName: fullNameVal,
-          isActive: true,
-          roles: Array.isArray(rolesVal) ? rolesVal : [rolesVal]
-        };
-        this.currentUser.set(placeholderUser);
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('gacam_token', tokenVal || '');
-          localStorage.setItem('gacam_user', JSON.stringify(placeholderUser));
-        }
-
-        // Immediately fetch actual detailed profiles to retrieve correct user ID
-        this.fetchProfile().subscribe();
+  login(request: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request).pipe(
+      tap((response) => {
+        this.saveTokens(response.token, response.refreshToken, response.expiresAt);
+        this.saveUser(response.user);
       })
     );
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/Auth/register`, userData);
+  logout(): void {
+    this.revokeToken().subscribe({ error: () => {} });
+    this.clearSession();
+    this.router.navigate(['/login']);
   }
 
-  fetchProfile(): Observable<User> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${environment.apiUrl}/profile`, { headers }).pipe(
-      tap(res => {
-        const user: User = {
-          id: res.id ?? res.Id ?? 0,
-          email: res.email || res.Email,
-          fullName: res.fullName || res.FullName,
-          isActive: res.isActive ?? res.IsActive ?? true,
-          roles: res.roles || res.Roles || [],
-          country: res.country || res.Country || '',
-          organization: res.organization || res.Organization || '',
-          profileImageUrl: res.profileImageUrl ?? res.ProfileImageUrl ?? ''
-        };
-        
-        const rawRoles = res.roles || res.Roles || [];
-        const userRolesList = res.userRoles || res.UserRoles || [];
-        (user as any).roles = Array.isArray(rawRoles) ? rawRoles : [];
-        (user as any).userRoles = Array.isArray(userRolesList) ? userRolesList : [];
+  // ── Profile ─────────────────────────────────────────────────────────────────
 
-        this.currentUser.set(user);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('gacam_user', JSON.stringify(user));
-        }
-      }),
-      catchError(err => {
-        if (err && err.status === 401) {
-          this.logout();
-        }
-        return throwError(() => err);
-      })
+  getProfile(): Observable<UserDto> {
+    return this.http.get<UserDto>(`${this.baseUrl}/profile`).pipe(
+      tap((user) => this.saveUser(user))
     );
   }
 
-  updateProfile(fullName: string, phoneNumber: string): Observable<User> {
-    const headers = this.getAuthHeaders();
-    return this.http.put<any>(`${environment.apiUrl}/profile`, { fullName, phoneNumber }, { headers }).pipe(
-      tap(res => {
-        this.fetchProfile().subscribe();
-      })
+  updateProfile(request: UpdateProfileRequest): Observable<UserDto> {
+    return this.http.put<UserDto>(`${this.baseUrl}/profile`, request).pipe(
+      tap((user) => this.saveUser(user))
     );
   }
 
-  uploadProfileImage(file: File): Observable<any> {
-    const headers = this.getAuthHeaders();
-    const fd = new FormData();
-    fd.append('file', file);
-    return this.http.post<any>(`${environment.apiUrl}/profile/upload-image`, fd, { headers }).pipe(
-      tap(() => {
-        this.fetchProfile().subscribe();
-      })
+  uploadProfileImage(file: File): Observable<UserDto> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<UserDto>(`${this.baseUrl}/profile/image`, formData).pipe(
+      tap((user) => this.saveUser(user))
     );
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/Auth/forgot-password`, { email });
+  // ── Password ─────────────────────────────────────────────────────────────────
+
+  changePassword(request: ChangePasswordRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/change-password`, request);
   }
 
-  resetPassword(payload: any): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/Auth/reset-password`, payload);
+  forgotPassword(dto: ForgotPasswordDto): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/forgot-password`, dto);
   }
 
-  getAuthHeaders(): HttpHeaders {
-    let headers = new HttpHeaders();
-    const tokenVal = this.token();
-    if (tokenVal) {
-      headers = headers.set('Authorization', `Bearer ${tokenVal}`);
-    }
-    return headers;
+  resetPassword(dto: ResetPasswordDto): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/reset-password`, dto);
   }
 
+  // ── Tokens ───────────────────────────────────────────────────────────────────
 
-  logout() {
-    this.token.set(null);
-    this.currentUser.set(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('gacam_token');
-      localStorage.removeItem('gacam_user');
-    }
-    this.router.navigate(['/']);
+  refreshToken(): Observable<AuthResponseDto> {
+    const token = this.getRefreshToken();
+    if (!token) return throwError(() => new Error('No refresh token'));
+
+    return this.http
+      .post<AuthResponseDto>(`${this.baseUrl}/refresh-token`, { refreshToken: token } as RefreshTokenRequestDto)
+      .pipe(
+        tap((response) => {
+          this.saveTokens(response.accessToken, response.refreshToken, response.expiresAt);
+        }),
+        catchError((err) => {
+          this.clearSession();
+          this.router.navigate(['/login']);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  revokeToken(): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/revoke-token`, {});
+  }
+
+  // ── Admin / Users ─────────────────────────────────────────────────────────────
+
+  getAllUsers(request: PagedRequestDto = {}): Observable<PagedResponse<UserDto>> {
+    let params = new HttpParams();
+    if (request.pageNumber != null) params = params.set('pageNumber', request.pageNumber);
+    if (request.pageSize != null) params = params.set('pageSize', request.pageSize);
+    if (request.search) params = params.set('search', request.search);
+
+    return this.http.get<PagedResponse<UserDto>>(`${this.baseUrl}/users`, { params });
+  }
+
+  assignRole(userId: number, roleName: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/users/${userId}/roles`,
+      { roleName } as AssignRoleRequest
+    );
+  }
+
+  removeRole(userId: number, roleName: string): Observable<{ message: string }> {
+    const params = new HttpParams().set('roleName', roleName);
+    return this.http.delete<{ message: string }>(
+      `${this.baseUrl}/users/${userId}/roles`,
+      { params }
+    );
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  getAccessToken(): string | null {
+    return this.storage.getItem(ACCESS_TOKEN_KEY);
+  }
+
+  token(): string | null {
+    return this.getAccessToken();
+  }
+
+  getRefreshToken(): string | null {
+    return this.storage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getAccessToken();
+  }
+
+  isAuthenticated(): boolean {
+    return this.isLoggedIn();
+  }
+
+  isTokenExpired(): boolean {
+    const expiry = this.storage.getItem(TOKEN_EXPIRY_KEY);
+    if (!expiry) return true;
+    return new Date(expiry) <= new Date();
+  }
+
+  getCurrentUser(): UserDto | null {
+    return this.currentUserSubject.value;
+  }
+
+  hasRole(role: string): boolean {
+    return this.getCurrentUser()?.roles.includes(role) ?? false;
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('Admin');
+  }
+
+  isEmployee(): boolean {
+    return this.hasRole('Employee');
+  }
+
+  isStaff(): boolean {
+    return this.isAdmin() || this.isEmployee();
+  }
+
+  // ── Private ──────────────────────────────────────────────────────────────────
+
+  /** localStorage wrapper — آمن في SSR */
+  private get storage(): Storage {
+    if (this.isBrowser) return localStorage;
+    // SSR fallback: in-memory store وهمي
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
+      length: 0,
+    } as unknown as Storage;
+  }
+
+  private saveTokens(accessToken: string, refreshToken: string, expiresAt: Date): void {
+    this.storage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    this.storage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    this.storage.setItem(TOKEN_EXPIRY_KEY, new Date(expiresAt).toISOString());
+  }
+
+  private saveUser(user: UserDto): void {
+    this.storage.setItem(USER_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
+  private loadUser(): UserDto | null {
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) return null;
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  private clearSession(): void {
+    this.storage.removeItem(ACCESS_TOKEN_KEY);
+    this.storage.removeItem(REFRESH_TOKEN_KEY);
+    this.storage.removeItem(TOKEN_EXPIRY_KEY);
+    this.storage.removeItem(USER_KEY);
+    this.currentUserSubject.next(null);
   }
 }

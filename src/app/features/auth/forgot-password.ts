@@ -6,17 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, TranslatePipe],
   template: `
-    <app-navbar></app-navbar>
-
     <main class="min-h-screen bg-light-ivory py-20 flex items-center justify-center text-start">
       <div class="w-full max-w-md p-6 sm:p-8 bg-white border border-champagne-gold/20 rounded-2xl shadow-xl animate-fade-in mx-4">
         
@@ -83,8 +79,6 @@ import { TranslatePipe } from '../../shared/pipes/translate';
 
       </div>
     </main>
-
-    <app-footer></app-footer>
   `
 })
 export class ForgotPasswordComponent {
@@ -104,7 +98,7 @@ export class ForgotPasswordComponent {
     this.loading.set(true);
 
     const email = this.forgotForm.value.email!;
-    this.authService.forgotPassword(email).subscribe({
+    this.authService.forgotPassword({email}).subscribe({
       next: () => {
         this.toast.showSuccess(
           this.langService.lang() === 'ar' ? 'تم إرسال تعليمات الاستعادة!' : 'Password reset link sent!'

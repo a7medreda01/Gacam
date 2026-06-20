@@ -3,20 +3,16 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../core/services/auth';
+import { AuthService, RegisterRequest } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatIconModule, TranslatePipe],
   template: `
-    <app-navbar></app-navbar>
-
     <main class="min-h-screen bg-light-ivory py-16 flex items-center justify-center">
       <div class="w-full max-w-lg bg-white p-8 rounded-2xl border border-champagne-gold/15 shadow-xl text-start">
         
@@ -55,24 +51,13 @@ import { TranslatePipe } from '../../shared/pipes/translate';
               <input id="reg-phone" type="text" formControlName="phoneNumber" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="+1 (416) 555-0199" />
             </div>
             <!-- Agency -->
-            <div class="flex flex-col gap-1.5">
-              <label for="reg-org" class="text-xs font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'الجهة الإعلامية المنتسب لها' : 'Affiliated Media Body' }} *</label>
-              <input id="reg-org" type="text" formControlName="organization" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="e.g., Canada Broadcasting Corp" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Password -->
             <div class="flex flex-col gap-1.5">
               <label for="reg-pass" class="text-xs font-bold text-deep-teal">{{ 'COMMON.PASSWORD' | translate }} *</label>
               <input id="reg-pass" type="password" formControlName="password" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="Minimum 6 characters" />
             </div>
-            <!-- Country code -->
-            <div class="flex flex-col gap-1.5">
-              <label for="reg-country" class="text-xs font-bold text-deep-teal">{{ langService.lang() === 'ar' ? 'الدولة والمدينة الحالية' : 'Country / Location' }} *</label>
-              <input id="reg-country" type="text" formControlName="country" class="px-4 py-2 text-xs border border-champagne-gold/30 rounded-lg bg-light-ivory focus:outline-royal-teal font-sans" placeholder="e.g., Canada" />
-            </div>
           </div>
+
 
 
           <!-- CTA Buttons -->
@@ -96,8 +81,6 @@ import { TranslatePipe } from '../../shared/pipes/translate';
 
       </div>
     </main>
-
-    <app-footer></app-footer>
   `
 })
 export class RegisterComponent {
@@ -121,7 +104,7 @@ export class RegisterComponent {
     if (this.registerForm.invalid) return;
     this.loading.set(true);
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(this.registerForm.value as RegisterRequest).subscribe({
       next: (user) => {
         this.loading.set(false);
         this.toastService.showSuccess(`Welcome, ${user.fullName}! Account created.`);

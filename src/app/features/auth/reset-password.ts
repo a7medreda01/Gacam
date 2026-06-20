@@ -6,17 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
-import { NavbarComponent } from '../../shared/components/navbar/navbar';
-import { FooterComponent } from '../../shared/components/footer/footer';
 import { TranslatePipe } from '../../shared/pipes/translate';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, NavbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, TranslatePipe],
   template: `
-    <app-navbar></app-navbar>
-
     <main class="min-h-screen bg-light-ivory py-20 flex items-center justify-center text-start">
       <div class="w-full max-w-md p-6 sm:p-8 bg-white border border-champagne-gold/20 rounded-2xl shadow-xl animate-fade-in mx-4">
         
@@ -79,8 +75,6 @@ import { TranslatePipe } from '../../shared/pipes/translate';
 
       </div>
     </main>
-
-    <app-footer></app-footer>
   `
 })
 export class ResetPasswordComponent implements OnInit {
@@ -110,6 +104,8 @@ export class ResetPasswordComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.tokenStr = params['token'] || '';
       this.emailStr = params['email'] || '';
+          console.log('token:', this.tokenStr);
+    console.log('email:', this.emailStr);
     });
   }
 
@@ -120,7 +116,9 @@ export class ResetPasswordComponent implements OnInit {
     const payload = {
       email:       this.emailStr,
       token:       this.tokenStr,
-      newPassword: this.resetForm.value.newPassword!
+      newPassword: this.resetForm.value.newPassword!,
+          confirmPassword: this.resetForm.value.confirmPassword!  // ← ده ناقص
+
     };
 
     this.authService.resetPassword(payload).subscribe({
