@@ -6,6 +6,19 @@
       </h2>
       <p class="text-xs text-deep-teal/60">GACAM central administrative metrics and compliance node</p>
     </div>
+    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-champagne-gold/15 shadow-xs">
+      <span class="text-xs text-deep-teal/70 font-semibold select-none">Period:</span>
+<select
+  [value]="selectedPeriod()"
+  (change)="onPeriodChange($any($event.target).value)"
+  class="border-0 bg-transparent text-xs text-royal-teal focus:outline-none font-extrabold cursor-pointer">
+
+  <option [value]="DashboardPeriod.Month">Month</option>
+  <option [value]="DashboardPeriod.Week">Week</option>
+  <option [value]="DashboardPeriod.Year">Year</option>
+
+</select>
+    </div>
   </div>
   
   @if (loading()) {
@@ -13,42 +26,79 @@
       Querying active nodes, please wait...
     </div>
   } @else {
-    <!-- Bento Stats Cards -->
+    <!-- Bento Stats Cards Grid -->
     <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <div id="card-total-accreditations" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
-        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Total Cards</span>
-        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ accsCount() }}</span>
+      
+      <!-- Total Revenue -->
+      <div id="card-secured-revenue" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1 md:col-span-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Secured Revenue</span>
+          <mat-icon class="text-emerald-600 text-lg">monetization_on</mat-icon>
+        </div>
+        <span class="text-3xl font-extrabold tracking-tight font-mono text-emerald-600 mt-2">{{ totalRevenue() }} CAD</span>
+        <!-- <p class="text-[10px] text-deep-teal/40">Total revenue aggregated within the {{ selectedPeriod() }} timeframe</p> -->
       </div>
-      <div id="card-active-students" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
-        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Active Students</span>
-        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ enrollmentsCount() }}</span>
-      </div>
-      <div id="card-secured-revenue" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
-        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Secured Revenue</span>
-        <span class="text-2xl font-extrabold tracking-tight font-mono text-emerald-600">{{ totalRevenue() }} CAD</span>
-      </div>
-      <div id="card-volunteer-limit" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
-        <span class="text-[10px] text-deep-teal/50 font-bold uppercase">Volunteer Node Limit</span>
-        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal">{{ volsCount() }} / 50</span>
-      </div>
-    </div>
 
-    <!-- Reports Export Center -->
-    <div id="reports-export-banner" class="bg-royal-teal text-white border border-champagne-gold/20 p-6 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="text-start">
-        <h3 class="text-sm font-bold text-champagne-gold uppercase tracking-wider">GACAM Financial Spreadsheet Exports</h3>
-        <p class="text-[11px] text-white/75 mt-0.5">Generate valid XML spreadsheets containing active transactions, user rosters, and audit trails.</p>
+      <!-- Accreditations count -->
+      <div id="card-total-accreditations" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Accreditations</span>
+          <mat-icon class="text-royal-teal text-lg">badge</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ accreditationsCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Applications received</p>
       </div>
-      <div class="flex gap-3">
-        <button id="btn-export-payments" (click)="exportReport('payments')" class="px-4 py-2 bg-champagne-gold text-royal-teal hover:bg-white hover:text-royal-teal font-extrabold rounded-lg text-xs cursor-pointer transition-colors flex items-center gap-1">
-          <mat-icon class="text-sm">download_for_offline</mat-icon>
-          <span>Payments.xls</span>
-        </button>
-        <button id="btn-export-audit" (click)="exportReport('auditlogs')" class="px-4 py-2 bg-champagne-gold text-royal-teal hover:bg-white hover:text-royal-teal font-extrabold rounded-lg text-xs cursor-pointer transition-colors flex items-center gap-1">
-          <mat-icon class="text-sm">download_for_offline</mat-icon>
-          <span>SystemLogs.xls</span>
-        </button>
+
+      <!-- Orders count (Course enrollments) -->
+      <div id="card-active-students" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Course Orders</span>
+          <mat-icon class="text-royal-teal text-lg">assignment</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ ordersCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Registered enrollments</p>
       </div>
+
+      <!-- Volunteers count -->
+      <div id="card-volunteer-limit" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Volunteers</span>
+          <mat-icon class="text-royal-teal text-lg">volunteer_activism</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ volunteersCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Active volunteer applications</p>
+      </div>
+
+      <!-- Payments count -->
+      <div id="card-payments-count" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Payments Count</span>
+          <mat-icon class="text-royal-teal text-lg">receipt</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ paymentsCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Transactions captured</p>
+      </div>
+
+      <!-- Courses count -->
+      <div id="card-courses-count" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Created Courses</span>
+          <mat-icon class="text-royal-teal text-lg">school</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ coursesCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Academic offerings active</p>
+      </div>
+
+      <!-- Partners count -->
+      <div id="card-partners-count" class="bg-white p-5 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-wider">Partners</span>
+          <mat-icon class="text-royal-teal text-lg">handshake</mat-icon>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight font-mono text-royal-teal mt-2">{{ partnersCount() }}</span>
+        <p class="text-[10px] text-deep-teal/40">Corporate alliances</p>
+      </div>
+
     </div>
 
     <!-- General Health & Latency Indicators -->
@@ -63,6 +113,8 @@
         <div>Latency: <span class="text-emerald-600">~14ms</span></div>
         <div class="text-deep-teal/50">|</div>
         <div>Platform State: <span class="font-bold text-royal-teal">Production Active</span></div>
+        <div class="text-deep-teal/50">|</div>
+        <div>Active Filter: <span class="text-royal-teal font-extrabold hover:underline">{{ selectedPeriod() }} Range</span></div>
       </div>
     </div>
   }

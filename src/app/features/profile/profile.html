@@ -405,7 +405,7 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
-
+<app-interac-payment-banner />
       <!-- Course Summary -->
       @if (payTargetCourse()) {
         <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between text-start">
@@ -620,8 +620,13 @@
         }
 
         <!-- STEP 2: بيانات الدفع -->
+<!-- STEP 2: بيانات الدفع -->
         @if (orderStep() === 2) {
           <div class="flex flex-col gap-4">
+
+            <!-- Payment Method -->
+<app-interac-payment-banner />
+
             <div class="flex flex-col gap-1.5">
               <label class="text-xs font-bold text-deep-teal">
                 {{ langService.lang() === 'ar' ? 'اسم المُرسِل (كما في الحساب البنكي) *' : 'Sender Name (as on bank account) *' }}

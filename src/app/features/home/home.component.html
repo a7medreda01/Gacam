@@ -2,6 +2,8 @@
   <!-- 1. Hero Spotlight Section -->
   <section class="relative bg-gradient-to-b from-royal-teal to-deep-teal text-white overflow-hidden py-24 sm:py-32 border-b border-champagne-gold/30">
     <!-- Ambient background graphics -->
+       <app-hero-background></app-hero-background>
+
     <div class="absolute inset-0 opacity-10 mix-blend-overlay">
       <div class="absolute -top-12 -left-12 w-96 h-96 rounded-full bg-champagne-gold blur-3xl"></div>
       <div class="absolute bottom-12 right-12 w-[600px] h-[600px] rounded-full bg-royal-teal blur-3xl"></div>
@@ -161,53 +163,96 @@
     </div>
   </section>
 
-  <!-- 3. About GACAM Summary -->
-  <section class="py-20 bg-light-ivory border-y border-champagne-gold/10">
+<!-- 3. About GACAM Summary -->
+  <section class="py-20 bg-light-ivory border-y border-champagne-gold/10 overflow-hidden">
     <div class="container-gacam grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
       <!-- Image -->
-      <div class="lg:col-span-6 relative">
-        <div class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-champagne-gold/20">
-          <img src="https://picsum.photos/seed/summit/1000/600" alt="GACAM Board Summit" referrerpolicy="no-referrer" class="w-full h-auto object-cover max-h-96" />
-          <div class="absolute bottom-0 inset-x-0 bg-royal-teal/85 p-4 text-white text-xs flex justify-between items-center backdrop-blur-sm">
-            <span>GACAM GULF & ARAB MULTICULTURAL SUMMIT 2026</span>
-            <span class="text-champagne-gold font-bold">TORONTO</span>
+      <div class="lg:col-span-6 relative flex justify-center lg:justify-start">
+        <div class="relative w-full max-w-xl aspect-square">
+          <!-- Outer ivory/gold ring -->
+          <div class="absolute inset-0 rounded-full bg-light-ivory border border-champagne-gold/30 shadow-2xl"></div>
+          <!-- Inner image circle -->
+          <div class="absolute inset-[14px] rounded-full overflow-hidden border-4 border-champagne-gold/70 shadow-inner">
+            <img
+              src="aboutbanner.jpeg"
+              alt="GACAM Voice. Vision. Values."
+              referrerpolicy="no-referrer"
+              class="w-full h-full object-cover"
+            />
+            <!-- subtle teal overlay so any image blends with brand palette -->
+            <div class="absolute inset-0 bg-royal-teal/10 mix-blend-multiply pointer-events-none"></div>
           </div>
-        </div>
-        <div class="absolute -top-5 -right-5 h-20 w-20 rounded-full border border-champagne-gold bg-royal-teal hidden sm:flex items-center justify-center shadow-lg transform translate-y-2">
-          <mat-icon class="text-champagne-gold text-3xl h-8 w-8">stars</mat-icon>
         </div>
       </div>
 
       <!-- Text -->
       <div class="lg:col-span-6 flex flex-col gap-6">
-        <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
-          {{ 'NAV.ABOUT' | translate }}
-        </span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-royal-teal tracking-tight">
-          {{ 'HOME.ABOUT_TITLE' | translate }}
+        <div class="flex flex-col gap-2">
+          <span class="text-xs font-bold uppercase tracking-[0.25em] text-champagne-gold">
+            {{ 'NAV.ABOUT' | translate }}
+          </span>
+          <span class="block w-10 h-px bg-champagne-gold/60 relative">
+            <span class="absolute -right-1 -top-[3px] h-[7px] w-[7px] rotate-45 bg-champagne-gold"></span>
+          </span>
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-extrabold text-royal-teal tracking-tight leading-tight">
+          {{ langService.lang() === 'ar' ? 'عن الهيئة  و' : 'About' }}
+          <span class="text-champagne-gold">{{ langService.lang() === 'ar' ? 'الأهداف الاستراتيجية' : 'GACAM' }}</span>
+          <ng-container *ngIf="langService.lang() !== 'ar'"><br />Strategic Objectives</ng-container>
         </h2>
-        <p class="text-sm text-deep-teal/80 leading-relaxed font-sans">
+
+        <span class="flex items-center gap-3 w-full max-w-sm">
+          <span class="flex-1 h-px bg-champagne-gold/40"></span>
+          <span class="h-2 w-2 rotate-45 bg-champagne-gold"></span>
+          <span class="flex-1 h-px bg-champagne-gold/40"></span>
+        </span>
+
+        <p class="text-sm text-deep-teal/80 leading-relaxed font-sans max-w-lg">
           {{ langService.lang() === 'ar'
             ? 'الهيئة العامة للإعلام المرئي والمسموع الخليجي والعربي في كندا هي مؤسسة مرخصة تهدف لرسم أطر التعاون الإيجابي للإعلامي الخليجي والعربي وإظهار المساهمة الفكرية والثقافية للمتطوعين بكندا. نهتم بصياغة مذكرات السياسة الصحفية وأخلاقيات التغطية الرصينة.'
             : 'The Gulf & Arab General Commission for Audiovisual Media in Canada is a professional licensing organization advocating for multicultural journalism inclusion, regulatory standards, ethical compliance, and safe journalistic development across the Canadian landscape.'
           }}
         </p>
-        <div class="flex flex-col gap-3 font-medium text-xs">
-          <span class="flex items-center gap-2 text-deep-teal">
-            <mat-icon class="text-champagne-gold">verified</mat-icon>
-            <span>{{ langService.lang() === 'ar' ? 'النزاهة الأكاديمية والمصداقية المهنية' : 'Academic Rigor & Press Credibility' }}</span>
-          </span>
-          <span class="flex items-center gap-2 text-deep-teal">
-            <mat-icon class="text-champagne-gold">verified</mat-icon>
-            <span>{{ langService.lang() === 'ar' ? 'حماية الصحفي وحرية البث المسؤول' : 'Journalistic Safety & Objective Broadcasting' }}</span>
-          </span>
-          <span class="flex items-center gap-2 text-deep-teal">
-            <mat-icon class="text-champagne-gold">verified</mat-icon>
-            <span>{{ langService.lang() === 'ar' ? 'إثباتات الدفع بالبريد والشفافية التامة' : 'Audit Trails & Complete Payment Transparencies' }}</span>
-          </span>
+
+        <!-- Feature rows with circular icon badges + dotted line -->
+        <div class="flex flex-col gap-5 mt-2">
+
+          <div class="flex items-center gap-4">
+<div class="flex-shrink-0 h-11 w-11 rounded-full bg-champagne-gold/20 border border-champagne-gold flex items-center justify-center shadow-md">
+  <mat-icon class="text-champagne-gold text-xl leading-none">school</mat-icon>
+</div>
+            <span class="text-sm font-bold text-royal-teal">
+              {{ langService.lang() === 'ar' ? 'النزاهة الأكاديمية والمصداقية المهنية' : 'Academic Rigor & Press Credibility' }}
+            </span>
+            <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
+          </div>
+
+          <div class="flex items-center gap-4">
+<div class="flex-shrink-0 h-11 w-11 rounded-full bg-champagne-gold/20 border border-champagne-gold flex items-center justify-center shadow-md">
+  <mat-icon class="text-champagne-gold text-xl leading-none">verified_user</mat-icon>
+</div>
+            <span class="text-sm font-bold text-royal-teal">
+              {{ langService.lang() === 'ar' ? 'حماية الصحفي وحرية البث المسؤول' : 'Journalistic Safety & Objective Broadcasting' }}
+            </span>
+            <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
+          </div>
+
+          <div class="flex items-center gap-4">
+<div class="flex-shrink-0 h-11 w-11 rounded-full bg-champagne-gold/20 border border-champagne-gold flex items-center justify-center shadow-md">
+  <mat-icon class="text-champagne-gold text-xl leading-none">fact_check</mat-icon>
+</div>
+            <span class="text-sm font-bold text-royal-teal">
+              {{ langService.lang() === 'ar' ? 'إثباتات الدفع بالبريد والشفافية التامة' : 'Audit Trails & Complete Payment Transparencies' }}
+            </span>
+            <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
+          </div>
+
         </div>
-        <a routerLink="/about" class="inline-flex self-start items-center gap-2 px-6 py-3 text-xs font-bold bg-royal-teal text-white hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-all shadow-md">
+
+        <a routerLink="/about"
+           class="inline-flex self-start items-center gap-3 px-7 py-3.5 mt-2 text-xs font-bold uppercase tracking-wide bg-royal-teal text-champagne-gold border border-champagne-gold/60 hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-all shadow-md">
           <span>{{ langService.lang() === 'ar' ? 'تصفح ميثاق الشرف والسياسات' : 'View Full Strategic Policies' }}</span>
           <mat-icon class="text-sm">arrow_forward</mat-icon>
         </a>

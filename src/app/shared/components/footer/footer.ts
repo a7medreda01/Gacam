@@ -27,10 +27,7 @@ import { TranslatePipe } from '../../pipes/translate';
             {{ 'FOOTER.DESC' | translate }}
           </p>
           <div class="flex items-center gap-3 text-white/50 pt-2">
-            <a href="https://facebook.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-facebook"></i></a>
             <a href="https://instagram.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-instagram"></i></a>
-            <a href="https://twitter.com/gacam" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-twitter"></i></a>
-            <a href="https://linkedin.com" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-linkedin"></i></a>
           </div>
         </div>
 
@@ -87,8 +84,12 @@ import { TranslatePipe } from '../../pipes/translate';
       <!-- Trademark Signatures & Slogan -->
       <div class="container-gacam pt-6 flex flex-col md:flex-row justify-between items-center text-xs gap-3 text-white/60">
         <span>&copy; 2026 GACAM Canada. {{ 'FOOTER.COPYRIGHT' | translate }}</span>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
           <span class="text-champagne-gold">One Media • One Future</span>
+          <span class="text-white/20">|</span>
+          <a href="https://www.facebook.com/RunXTech" target="_blank" rel="noopener noreferrer" class="text-[10px] text-white/40 hover:text-champagne-gold transition-colors">
+            Developed by RunX
+          </a>
         </div>
       </div>
     </footer>

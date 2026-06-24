@@ -6,6 +6,7 @@ import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { AccreditationCategory } from '../../models/types';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-admin-accreditation-categories',
@@ -16,6 +17,7 @@ export class AdminAccreditationCategoriesComponent implements OnInit {
   apiService   = inject(GacamApiService);
   langService  = inject(LanguageService);
   toastService = inject(ToastService);
+  authService  = inject(AuthService);
 
   loading    = signal(true);
   categories = signal<AccreditationCategory[]>([]);

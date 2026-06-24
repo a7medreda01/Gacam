@@ -1,0 +1,23 @@
+{
+  "name": "GACAM – Gulf & Arab General Commission for Audiovisual Media in Canada",
+  "short_name": "GACAM",
+  "description": "هيئة الخليج والعرب العامة للإعلام المرئي والمسموع في كندا",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a3a5c",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

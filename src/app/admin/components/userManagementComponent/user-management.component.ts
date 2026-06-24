@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../../core/services/language';
 import { GacamApiService, UserListDto, CreateUserByAdminDto } from '../../../core/services/gacam-api';
 import { TranslatePipe } from '../../../shared/pipes/translate';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-user-management',
@@ -15,6 +16,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate';
 export class UserManagementComponent implements OnInit {
   private svc = inject(GacamApiService);
   langService = inject(LanguageService);
+  authService = inject(AuthService);
 
   users = signal<UserListDto[]>([]);
   loading = signal(false);

@@ -5,16 +5,19 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 import { AuthService } from '../services/auth';
+import { Router } from '@angular/router';
 
 let isRefreshing = false;
+const refreshDone$ = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
   const token = authService.getAccessToken();
 
   const authReq = token
@@ -23,30 +26,42 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isAuthUrl = req.url.includes('refresh-token') ||
-                        req.url.includes('login') ||
-                        req.url.includes('register');
+      if (error.status === 401 && !req.url.includes('refresh-token')) {
+        
+        // لو في refresh جاري، استنى التوكن الجديد
+        if (isRefreshing) {
+          return refreshDone$.pipe(
+            filter(token => token !== null),
+            take(1),
+            switchMap(newToken => {
+              return next(req.clone({
+                setHeaders: { Authorization: `Bearer ${newToken}` }
+              }));
+            })
+          );
+        }
 
-      if (error.status === 401 && !isAuthUrl && !isRefreshing) {
         isRefreshing = true;
+        refreshDone$.next(null);
 
         return authService.refreshToken().pipe(
           switchMap((response) => {
             isRefreshing = false;
-            const retryReq = req.clone({
+            refreshDone$.next(response.accessToken);
+
+            return next(req.clone({
               setHeaders: { Authorization: `Bearer ${response.accessToken}` },
-            });
-            return next(retryReq);
+            }));
           }),
           catchError((refreshError) => {
             isRefreshing = false;
-            // refresh فشل → logout
-            authService.logout();
+            refreshDone$.next(null);
+            // بس هنا نعمل navigate للـ login لو الـ refresh فشل فعلاً
+            router.navigate(['/login']);
             return throwError(() => refreshError);
           })
         );
       }
-
       return throwError(() => error);
     })
   );

@@ -125,23 +125,23 @@
 <td class="px-5 py-3">
   <div class="flex items-center justify-center gap-2">
 
-    <!-- Print -->
+    <!-- View / Print credential (routes to Card or Certificate modal) -->
     <button
-      (click)="printCredential(ord)"
-      [disabled]="printLoadingIds().has(ord.id)"
+      (click)="viewCredential(ord)"
+      [disabled]="credentialLoadingIds().has(ord.id)"
       class="flex items-center gap-1.5 px-3 py-1.5 border border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-royal-teal rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
 
-      @if (printLoadingIds().has(ord.id)) {
+      @if (credentialLoadingIds().has(ord.id)) {
         <mat-icon class="animate-spin !text-[16px]">sync</mat-icon>
       } @else {
-        <mat-icon class="!text-[16px]">print</mat-icon>
+        <mat-icon class="!text-[16px]">{{ isCertificateOrder(ord) ? 'workspace_premium' : 'qr_code_2' }}</mat-icon>
       }
 
       <span class="text-[11px] font-semibold">
         {{
           isCertificateOrder(ord)
-            ? (langService.lang() === 'ar' ? 'طباعة الشهادة' : 'Print Certificate')
-            : (langService.lang() === 'ar' ? 'طباعة البطاقة' : 'Print Card')
+            ? (langService.lang() === 'ar' ? 'عرض الشهادة' : 'View Certificate')
+            : (langService.lang() === 'ar' ? 'عرض البطاقة' : 'View Card')
         }}
       </span>
     </button>
@@ -624,6 +624,142 @@
 
         </form>
       }
+
+    </div>
+  </div>
+}
+
+
+<!-- ── Credential Preview Modal (Card / Certificate) ─────────────── -->
+@if (showCredentialModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background: rgba(0,0,0,0.5);"
+       (click)="closeCredentialModal()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col overflow-hidden animate-fade-in text-start max-h-[90vh]"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-royal-teal px-6 py-4 flex items-center justify-between text-white shrink-0">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-champagne-gold">{{ credentialKind() === 'certificate' ? 'workspace_premium' : 'badge' }}</mat-icon>
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
+              {{ credentialKind() === 'certificate'
+                  ? (langService.lang() === 'ar' ? 'تفاصيل الشهادة' : 'Certificate Details')
+                  : (langService.lang() === 'ar' ? 'تفاصيل البطاقة الإعلامية' : 'Media Card Details') }}
+            </h3>
+            <p class="text-sm font-bold mt-0.5">
+              {{ credentialKind() === 'certificate' ? certificateData()?.certificateNumber : cardData()?.mediaCard?.cardNumber }}
+            </p>
+          </div>
+        </div>
+        <button (click)="closeCredentialModal()" class="text-white/70 hover:text-white cursor-pointer select-none">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 flex flex-col gap-5 text-xs overflow-y-auto">
+
+        <!-- QR Code -->
+        <div class="flex flex-col items-center gap-2 bg-light-ivory/40 p-4 rounded-xl border border-champagne-gold/10">
+          @if (qrDataUrl()) {
+            <img [src]="qrDataUrl()" alt="QR Code" class="w-36 h-36 object-contain bg-white p-2 rounded-lg border border-champagne-gold/20" />
+          } @else {
+            <div class="w-36 h-36 flex items-center justify-center bg-white rounded-lg border border-champagne-gold/20">
+              <mat-icon class="animate-spin text-royal-teal">sync</mat-icon>
+            </div>
+          }
+          <span class="text-[10px] text-deep-teal/50 font-sans text-center">
+            {{ langService.lang() === 'ar' ? 'رمز الاستجابة السريعة للتحقق من صحة المستند' : 'Scan to verify document authenticity' }}
+          </span>
+        </div>
+
+        <!-- ── Card Details ───────────────────────────── -->
+        @if (credentialKind() === 'card') {
+          @let card = cardData();
+          @if (card) {
+            <div class="grid grid-cols-2 gap-3 font-sans">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'رقم البطاقة' : 'Card Number' }}</span>
+                <span class="font-mono font-bold text-royal-teal select-all">{{ card.mediaCard?.cardNumber }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'حالة البطاقة' : 'Card Status' }}</span>
+                <span class="font-bold text-deep-teal">{{ cardStatusLabel(card.mediaCard?.status ?? -1) }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5 col-span-2">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'اسم حامل البطاقة' : 'Cardholder Name' }}</span>
+                <span class="font-bold text-deep-teal">{{ card.userFullName }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5 col-span-2">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</span>
+                <span class="text-deep-teal">{{ card.userEmail }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5 col-span-2">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'الفئة' : 'Category' }}</span>
+                <span class="text-deep-teal">{{ langService.lang() === 'ar' ? card.categoryNameAr : card.categoryNameEn }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'تاريخ الإصدار' : 'Issued At' }}</span>
+                <span class="text-deep-teal">{{ card.mediaCard?.issuedAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'تاريخ الانتهاء' : 'Expires At' }}</span>
+                <span class="text-deep-teal">{{ card.mediaCard?.expiresAt | date:'mediumDate' }}</span>
+              </div>
+              @if (card.documentUrl) {
+                <div class="flex flex-col gap-0.5 col-span-2">
+                  <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'المستند المرفق' : 'Attached Document' }}</span>
+                  <a [href]="card.documentUrl" target="_blank" class="text-royal-teal underline font-bold break-all">{{ langService.lang() === 'ar' ? 'عرض المستند' : 'View Document' }}</a>
+                </div>
+              }
+              @if (card.checkedByUserName) {
+                <div class="flex flex-col gap-0.5 col-span-2">
+                  <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'تمت المراجعة بواسطة' : 'Reviewed By' }}</span>
+                  <span class="text-deep-teal">{{ card.checkedByUserName }} — {{ card.checkedAt | date:'medium' }}</span>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ── Certificate Details ───────────────────────────── -->
+        @if (credentialKind() === 'certificate') {
+          @let cert = certificateData();
+          @if (cert) {
+            <div class="grid grid-cols-2 gap-3 font-sans">
+              <div class="flex flex-col gap-0.5 col-span-2">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'رقم الشهادة' : 'Certificate Number' }}</span>
+                <span class="font-mono font-bold text-royal-teal select-all">{{ cert.certificateNumber }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5 col-span-2">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'الاسم على الشهادة' : 'Name on Certificate' }}</span>
+                <span class="font-bold text-deep-teal">{{ cert.fullNameOnCertificate }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'تاريخ الإصدار' : 'Issued At' }}</span>
+                <span class="text-deep-teal">{{ cert.issuedAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-champagne-gold">{{ langService.lang() === 'ar' ? 'الحالة' : 'Status' }}</span>
+                <span class="font-bold" [class]="cert.isExpired ? 'text-red-600' : 'text-emerald-600'">
+                  {{ cert.isExpired ? (langService.lang() === 'ar' ? 'منتهية' : 'Expired') : (langService.lang() === 'ar' ? 'سارية' : 'Valid') }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Print certificate action -->
+            <button
+              (click)="printCertificateFromModal()"
+              class="w-full mt-2 px-4 py-2.5 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal rounded-xl text-xs flex items-center justify-center gap-2 duration-300">
+              <mat-icon class="text-sm">print</mat-icon>
+              <span>{{ langService.lang() === 'ar' ? 'طباعة الشهادة' : 'Print Certificate' }}</span>
+            </button>
+          }
+        }
+
+      </div>
 
     </div>
   </div>

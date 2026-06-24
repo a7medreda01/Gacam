@@ -6,10 +6,21 @@
       <mat-icon class="text-champagne-gold">category</mat-icon>
       {{ langService.lang() === 'ar' ? 'إدارة فئات الاعتماد' : 'Accreditation Categories' }}
     </h2>
-    <button (click)="openCreateModal()"
-            class="flex items-center gap-1.5 px-4 py-2 bg-royal-teal hover:bg-deep-teal text-white text-xs font-bold rounded-lg transition-colors cursor-pointer">
-      <mat-icon class="text-sm">add</mat-icon>
+    <button (click)="authService.isAdmin() ? openCreateModal() : null"
+            [disabled]="!authService.isAdmin()"
+            [title]="authService.isAdmin() ? '' : 'Admin Only / أدمن فقط'"
+            [class.opacity-50]="!authService.isAdmin()"
+            [class.cursor-not-allowed]="!authService.isAdmin()"
+            class="flex items-center gap-1.5 px-4 py-2 bg-royal-teal hover:bg-deep-teal disabled:hover:bg-royal-teal text-white text-xs font-bold rounded-lg transition-colors cursor-pointer">
+      @if (!authService.isAdmin()) {
+        <mat-icon class="text-sm scale-90">lock</mat-icon>
+      } @else {
+        <mat-icon class="text-sm">add</mat-icon>
+      }
       {{ langService.lang() === 'ar' ? 'فئة جديدة' : 'New Category' }}
+      @if (!authService.isAdmin()) {
+        <span class="text-[9px] text-champagne-gold font-light">({{ langService.lang() === 'ar' ? 'أدمن فقط' : 'Admin only' }})</span>
+      }
     </button>
   </div>
 
@@ -43,14 +54,30 @@
               <td class="px-4 py-3 font-sans text-deep-teal/80" dir="rtl">{{ cat.nameAr }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center justify-center gap-2">
-                  <button (click)="openEditModal(cat)"
+                  <button (click)="authService.isAdmin() ? openEditModal(cat) : null"
+                          [disabled]="!authService.isAdmin()"
+                          [class.opacity-50]="!authService.isAdmin()"
+                          [class.cursor-not-allowed]="!authService.isAdmin()"
+                          [title]="authService.isAdmin() ? '' : 'Admin Only / أدمن فقط'"
                           class="flex items-center gap-1 px-3 py-1.5 bg-royal-teal hover:bg-deep-teal text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
-                    <mat-icon class="text-xs">edit</mat-icon>
+                    @if (!authService.isAdmin()) {
+                      <mat-icon class="text-xs scale-90">lock</mat-icon>
+                    } @else {
+                      <mat-icon class="text-xs">edit</mat-icon>
+                    }
                     {{ langService.lang() === 'ar' ? 'تعديل' : 'Edit' }}
                   </button>
-                  <button (click)="confirmDelete(cat.id)"
+                  <button (click)="authService.isAdmin() ? confirmDelete(cat.id) : null"
+                          [disabled]="!authService.isAdmin()"
+                          [class.opacity-50]="!authService.isAdmin()"
+                          [class.cursor-not-allowed]="!authService.isAdmin()"
+                          [title]="authService.isAdmin() ? '' : 'Admin Only / أدمن فقط'"
                           class="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer">
-                    <mat-icon class="text-xs">delete</mat-icon>
+                    @if (!authService.isAdmin()) {
+                      <mat-icon class="text-xs scale-90">lock</mat-icon>
+                    } @else {
+                      <mat-icon class="text-xs">delete</mat-icon>
+                    }
                     {{ langService.lang() === 'ar' ? 'حذف' : 'Delete' }}
                   </button>
                 </div>

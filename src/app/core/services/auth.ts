@@ -102,6 +102,7 @@ const USER_KEY = 'current_user';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly Url = `${environment.apiUrl}`;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
@@ -148,7 +149,7 @@ export class AuthService {
   uploadProfileImage(file: File): Observable<UserDto> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<UserDto>(`${this.baseUrl}/profile/image`, formData).pipe(
+    return this.http.post<UserDto>(`${this.Url}/profile/upload-image`, formData).pipe(
       tap((user) => this.saveUser(user))
     );
   }
@@ -169,23 +170,23 @@ export class AuthService {
 
   // ── Tokens ───────────────────────────────────────────────────────────────────
 
-  refreshToken(): Observable<AuthResponseDto> {
-    const token = this.getRefreshToken();
-    if (!token) return throwError(() => new Error('No refresh token'));
+// في auth.service.ts — عدّل refreshToken()
+refreshToken(): Observable<AuthResponseDto> {
+  const token = this.getRefreshToken();
+  if (!token) return throwError(() => new Error('No refresh token'));
 
-    return this.http
-      .post<AuthResponseDto>(`${this.baseUrl}/refresh-token`, { refreshToken: token } as RefreshTokenRequestDto)
-      .pipe(
-        tap((response) => {
-          this.saveTokens(response.accessToken, response.refreshToken, response.expiresAt);
-        }),
-        catchError((err) => {
-          this.clearSession();
-          this.router.navigate(['/login']);
-          return throwError(() => err);
-        })
-      );
-  }
+  return this.http
+    .post<AuthResponseDto>(`${this.baseUrl}/refresh-token`, { refreshToken: token } as RefreshTokenRequestDto)
+    .pipe(
+      tap((response) => {
+        this.saveTokens(response.accessToken, response.refreshToken, response.expiresAt);
+      }),
+      catchError((err) => {
+        this.clearSession(); // امسح الـ session بس
+        return throwError(() => err); // وسيب الـ navigate للـ interceptor
+      })
+    );
+}
 
   revokeToken(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/revoke-token`, {});

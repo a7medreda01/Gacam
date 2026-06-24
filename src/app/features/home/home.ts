@@ -5,11 +5,13 @@ import { GacamApiService } from '../../core/services/gacam-api';
 import { LanguageService } from '../../core/services/language';
 import { NewsArticle } from '../../models/types';
 import { TranslatePipe } from '../../shared/pipes/translate';
+import { HeroBackgroundComponent } from './heroBackground/hero-background';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MatIconModule, TranslatePipe],
+  imports: [RouterLink, MatIconModule, TranslatePipe,HeroBackgroundComponent,CommonModule],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {

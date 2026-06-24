@@ -10,6 +10,7 @@ import { ToastService } from '../../shared/components/toast/toast';
 import { Accreditation, AccreditationCategory, ServiceFee } from '../../models/types';
 import { TranslatePipe } from '../../shared/pipes/translate';
 import { MediaCardComponent } from './media-card/media-card';
+import { InteracPaymentBannerComponent } from '../../shared/components/payment/iteractpayment';
 
 const CARD_STATUS_LABELS: Record<number, string> = {
   0: 'ACTIVE', 1: 'EXPIRED', 2: 'SUSPENDED', 3: 'REVOKED',
@@ -20,10 +21,9 @@ const CARD_STATUS_LABELS: Record<number, string> = {
   standalone: true,
   imports: [
     CommonModule, RouterLink, ReactiveFormsModule, MatIconModule,
-    TranslatePipe, MediaCardComponent
+    TranslatePipe, MediaCardComponent, InteracPaymentBannerComponent
   ],
   templateUrl: './services.html',
-  // styleUrl: './services.css'
 })
 export class ServicesComponent implements OnInit {
   langService  = inject(LanguageService);
@@ -35,34 +35,32 @@ export class ServicesComponent implements OnInit {
   submitting    = signal(false);
   myApplication = signal<Accreditation | null>(null);
   categories    = signal<AccreditationCategory[]>([]);
+  cardFee       = signal<ServiceFee | null>(null);
 
   applyForm = new FormGroup({
     category: new FormControl('', [Validators.required]),
     document: new FormControl<File | null>(null),
   });
 
+  ngOnInit() {
+    this.checkApplication();
+    this.fetchCategories();
+    this.fetchServiceFees();
+  }
 
-cardFee = signal<ServiceFee | null>(null);
+  fetchServiceFees() {
+    this.apiService.getServiceFees().subscribe({
+      next: (fees) => {
+        const card = fees.find(f => f.orderType === 1 && f.isActive);
+        this.cardFee.set(card ?? null);
+      }
+    });
+  }
 
-ngOnInit() {
-  this.checkApplication();
-  this.fetchCategories();
-  this.fetchServiceFees();
-}
-
-fetchServiceFees() {
-  this.apiService.getServiceFees().subscribe({
-    next: (fees) => {
-      const card = fees.find(f => f.orderType === 1 && f.isActive);
-      this.cardFee.set(card ?? null);
-    }
-  });
-}
-
-totalFee(): number {
-  const fee = this.cardFee();
-  return fee ? fee.unitPrice + fee.shippingFee : 0;
-}
+  totalFee(): number {
+    const fee = this.cardFee();
+    return fee ? fee.unitPrice + fee.shippingFee : 0;
+  }
 
   fetchCategories() {
     this.apiService.getAccreditationCategories().subscribe({
@@ -77,11 +75,7 @@ totalFee(): number {
   }
 
   checkApplication() {
-    if (!this.authService.isLoggedIn()) {
-      this.loading.set(false);
-      return;
-    }
-
+    if (!this.authService.isLoggedIn()) { this.loading.set(false); return; }
     this.apiService.getMyAccreditation().subscribe({
       next:  (app) => { this.myApplication.set(app); this.loading.set(false); },
       error: ()    => this.loading.set(false),
@@ -96,7 +90,6 @@ totalFee(): number {
   onApply() {
     if (this.applyForm.invalid) return;
     this.submitting.set(true);
-
     const { category, document } = this.applyForm.value;
     this.apiService.applyAccreditation(category!, document ?? undefined).subscribe({
       next: (res) => {
@@ -110,9 +103,7 @@ totalFee(): number {
       },
       error: () => {
         this.toastService.showError(
-          this.langService.lang() === 'ar'
-            ? 'فشل تقديم الطلب. حاول مجدداً.'
-            : 'Unable to submit application. Please try again.'
+          this.langService.lang() === 'ar' ? 'فشل تقديم الطلب. حاول مجدداً.' : 'Unable to submit application. Please try again.'
         );
         this.submitting.set(false);
       },
@@ -122,7 +113,6 @@ totalFee(): number {
   requestCertificate() {
     const app = this.myApplication();
     if (!app) return;
-
     this.apiService.issueCertificate({
       fullNameOnCertificate: app.userFullName,
       type:                  0,
@@ -130,9 +120,7 @@ totalFee(): number {
     }).subscribe({
       next: (cert) => {
         this.toastService.showSuccess(
-          this.langService.lang() === 'ar'
-            ? 'تم إصدار شهادتك! سيبدأ التنزيل فوراً.'
-            : 'Certificate issued! Starting download…'
+          this.langService.lang() === 'ar' ? 'تم إصدار شهادتك! سيبدأ التنزيل فوراً.' : 'Certificate issued! Starting download…'
         );
         const url = this.apiService.downloadCertificateUrl(cert.id);
         if (typeof window !== 'undefined') window.open(url, '_blank');
@@ -141,8 +129,7 @@ totalFee(): number {
     });
   }
 
-  /* ── Display helpers — accept string or number from API ── */
-
+  // ── Display helpers ──────────────────────────────────────────────
   private toStr(val: string | number | undefined | null): string {
     return val == null ? '' : String(val);
   }
@@ -168,44 +155,90 @@ totalFee(): number {
     return 'bg-gray-100 text-gray-500';
   }
 
-  isPending(status: string | number | undefined | null): boolean {
-    const s = this.toStr(status).toLowerCase();
-    return s === 'pending' || s === '0';
-  }
-
-  isApproved(status: string | number | undefined | null): boolean {
-    const s = this.toStr(status).toLowerCase();
-    return s === 'approved' || s === '1';
-  }
-
-  isRejected(status: string | number | undefined | null): boolean {
-    const s = this.toStr(status).toLowerCase();
-    return s === 'rejected' || s === '2';
-  }
-
-  isRefunded(status: string | number | undefined | null): boolean {
-    const s = this.toStr(status).toLowerCase();
-    return s === 'refunded' || s === '3';
-  }
+  isPending(status:  string | number | undefined | null): boolean { return ['pending',  '0'].includes(this.toStr(status).toLowerCase()); }
+  isApproved(status: string | number | undefined | null): boolean { return ['approved', '1'].includes(this.toStr(status).toLowerCase()); }
+  isRejected(status: string | number | undefined | null): boolean { return ['rejected', '2'].includes(this.toStr(status).toLowerCase()); }
+  isRefunded(status: string | number | undefined | null): boolean { return ['refunded', '3'].includes(this.toStr(status).toLowerCase()); }
 
   cardStatusLabel(status: number | undefined | null): string {
-    if (status == null) return 'ACTIVE';
-    return CARD_STATUS_LABELS[status] ?? 'ACTIVE';
+    return status != null ? (CARD_STATUS_LABELS[status] ?? 'ACTIVE') : 'ACTIVE';
   }
 
   cardStatusClass(status: number | undefined | null): string {
     const map: Record<number, string> = {
-      0: 'bg-emerald-500 text-white', // Active
-      1: 'bg-orange-500 text-white',  // Expired
-      2: 'bg-yellow-500 text-white',  // Suspended
-      3: 'bg-red-500 text-white',     // Revoked
+      0: 'bg-emerald-500 text-white',
+      1: 'bg-orange-500 text-white',
+      2: 'bg-yellow-500 text-white',
+      3: 'bg-red-500 text-white',
     };
     return status != null ? (map[status] ?? 'bg-emerald-500 text-white') : 'bg-emerald-500 text-white';
   }
 
+  getCardOrderTotal(): number {
+    const fee = this.cardFee();
+    return fee ? fee.unitPrice + fee.shippingFee : 0;
+  }
 
+  // ── Shared file helpers ──────────────────────────────────────────
 
-  // ── Order Modal State ──
+  /** Validate file type; show error and abort if unsupported */
+  private validateAndSetFile(file: File): boolean {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      this.toastService.showError(
+        this.langService.lang() === 'ar'
+          ? 'صيغة الملف غير مدعومة. يُرجى رفع صورة (JPG, PNG, WEBP) أو PDF.'
+          : 'Unsupported file type. Please upload an image (JPG, PNG, WEBP) or PDF.'
+      );
+      return false;
+    }
+    this.orderReceiptFile.set(file);
+    this.orderReceiptFileName.set(file.name);
+    return true;
+  }
+
+  /** Convert any image to JPG before upload; PDF passes through unchanged */
+  private convertToJpg(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      if (file.type === 'application/pdf') { resolve(file); return; }
+
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(blob => {
+          if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+          const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+          resolve(new File([blob], name, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.92);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+      img.src = url;
+    });
+  }
+
+  /** Upload receipt (converted to JPG). Returns URL or throws. */
+  private async uploadReceipt(rawFile: File): Promise<string> {
+    let file: File;
+    try {
+      file = await this.convertToJpg(rawFile);
+    } catch {
+      throw new Error('convert_failed');
+    }
+    const uploadRes: any = await this.apiService.uploadPaymentReceipt(file).toPromise();
+    const url = uploadRes?.absoluteUrl || uploadRes?.AbsoluteUrl || '';
+    if (!url) throw new Error('upload_failed');
+    return url;
+  }
+
+  // ── Order Modal State ────────────────────────────────────────────
   showOrderModal       = signal(false);
   orderLoading         = signal(false);
   orderReceiptFile     = signal<File | null>(null);
@@ -224,60 +257,72 @@ totalFee(): number {
 
   openOrderModal() {
     const fee = this.cardFee();
-    const total = fee ? fee.unitPrice + fee.shippingFee : 0;
     this.orderForm.reset();
-    this.orderForm.patchValue({ amount: total });
+    this.orderForm.patchValue({ amount: fee ? fee.unitPrice + fee.shippingFee : 0 });
     this.orderReceiptFile.set(null);
     this.orderReceiptFileName.set('');
     this.orderStep.set(1);
     this.showOrderModal.set(true);
   }
 
-  closeOrderModal() {
-    this.showOrderModal.set(false);
-  }
+  closeOrderModal() { this.showOrderModal.set(false); }
+  goToOrderStep2()  { this.orderStep.set(2); }
+  goToOrderStep1()  { this.orderStep.set(1); }
 
-  goToOrderStep2() { this.orderStep.set(2); }
-  goToOrderStep1() { this.orderStep.set(1); }
-
-  onOrderDragOver(e: DragEvent)  { e.preventDefault(); this.orderDragOver.set(true); }
+  onOrderDragOver(e: DragEvent)  { e.preventDefault(); this.orderDragOver.set(true);  }
   onOrderDragLeave(e: DragEvent) { e.preventDefault(); this.orderDragOver.set(false); }
+
   onOrderDrop(e: DragEvent) {
-    e.preventDefault(); this.orderDragOver.set(false);
+    e.preventDefault();
+    this.orderDragOver.set(false);
     const file = e.dataTransfer?.files?.[0];
-    if (file) { this.orderReceiptFile.set(file); this.orderReceiptFileName.set(file.name); }
+    if (file) this.validateAndSetFile(file);
   }
+
   onOrderFileSelected(e: Event) {
     const input = e.target as HTMLInputElement;
     const file  = input.files?.[0];
-    if (file) { this.orderReceiptFile.set(file); this.orderReceiptFileName.set(file.name); }
+    if (file) this.validateAndSetFile(file);
   }
+
+  private orderSubmitInProgress = false;
 
   async onSubmitCardOrder() {
     if (this.orderStep() !== 2 || this.orderForm.invalid) return;
     const app = this.myApplication();
     if (!app) return;
+    if (this.orderSubmitInProgress) return;
 
+    this.orderSubmitInProgress = true;
     this.orderLoading.set(true);
+
     try {
-      // 1. Create Order — type = 1 (بطاقة اعتماد)
+      // 1. Create Order
       const order = await this.apiService.createOrder({
-        orderType:       1, // AccreditationCardPrint
+        orderType:       1,
         relatedRecordId: app.id,
         quantity:        1,
-        notes:           this.orderForm.value.notes ?? '',
-        phone:           this.orderForm.value.phone  || undefined,
+        notes:           this.orderForm.value.notes   ?? '',
+        phone:           this.orderForm.value.phone   || undefined,
         address:         this.orderForm.value.address || undefined,
       }).toPromise();
 
       if (!order) throw new Error('Order creation failed.');
 
-      // 2. Upload receipt
+      // 2. Upload receipt (converted to JPG)
       let receiptUrl = '';
-      const file = this.orderReceiptFile();
-      if (file) {
-        const uploadRes: any = await this.apiService.uploadPaymentReceipt(file).toPromise();
-        receiptUrl = uploadRes?.absoluteUrl || uploadRes?.AbsoluteUrl || '';
+      const rawFile = this.orderReceiptFile();
+      if (rawFile) {
+        try {
+          receiptUrl = await this.uploadReceipt(rawFile);
+        } catch (err: any) {
+          this.toastService.showError(
+            err?.message === 'convert_failed'
+              ? (this.langService.lang() === 'ar' ? 'تعذّر معالجة الصورة. اختر ملفاً مختلفاً.' : 'Could not process the image. Please choose a different file.')
+              : (this.langService.lang() === 'ar' ? 'فشل رفع الإيصال. تأكد من الملف وحاول مجدداً.'  : 'Receipt upload failed. Please check the file and try again.')
+          );
+          return;
+        }
       }
 
       // 3. Submit Payment
@@ -301,15 +346,24 @@ totalFee(): number {
           : 'Card print order submitted successfully!'
       );
       this.closeOrderModal();
+
     } catch {
       this.toastService.showError('Could not process card order. Please try again.');
     } finally {
       this.orderLoading.set(false);
+      this.orderSubmitInProgress = false;
     }
   }
 
-  getCardOrderTotal(): number {
-    const fee = this.cardFee();
-    return fee ? fee.unitPrice + fee.shippingFee : 0;
+  // ── Interac ──────────────────────────────────────────────────────
+  interacCopied = signal(false);
+
+  copyInteracEmail(): void {
+    navigator.clipboard.writeText('media@gacam.ca')
+      .then(() => {
+        this.interacCopied.set(true);
+        setTimeout(() => this.interacCopied.set(false), 2000);
+      })
+      .catch(err => console.error('Copy failed:', err));
   }
 }

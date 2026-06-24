@@ -50,7 +50,9 @@ export interface CreateUserByAdminDto {
 })
 export class GacamApiService {
   private http = inject(HttpClient);
-  private base = environment.apiUrl;
+  private base = (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) 
+    ? '/api' 
+    : environment.apiUrl;
 
   private buildParams(pageNumber?: number, pageSize?: number, search?: string, extra?: Record<string, any>): any {
     const params: any = {};
@@ -464,4 +466,57 @@ export class GacamApiService {
   deleteManagedUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/UserManagement/${id}`);
   }
+
+  // ── Dashboard Summary API ──────────────────────────────────────────────────
+getDashboardSummary(dto: {
+  Period?: number;
+  period?: number;
+  From?: string;
+  To?: string;
+  from?: string;
+  to?: string;
+} = {}): Observable<{
+    paymentsCount?: number;
+    PaymentsCount?: number;
+    coursesCount?: number;
+    CoursesCount?: number;
+    accreditationsCount?: number;
+    AccreditationsCount?: number;
+    ordersCount?: number;
+    OrdersCount?: number;
+    partnersCount?: number;
+    PartnersCount?: number;
+    volunteersCount?: number;
+    VolunteersCount?: number;
+    totalRevenue?: number;
+    TotalRevenue?: number;
+  }> {
+const payload = {
+  Period: dto.Period ?? dto.period ?? 0,
+  From: dto.From ?? dto.from,
+  To: dto.To ?? dto.to,
+  period: dto.period ?? dto.Period ?? 0,
+  from: dto.from ?? dto.From,
+  to: dto.to ?? dto.To
+};
+    return this.http.post<{
+      paymentsCount?: number;
+      PaymentsCount?: number;
+      coursesCount?: number;
+      CoursesCount?: number;
+      accreditationsCount?: number;
+      AccreditationsCount?: number;
+      ordersCount?: number;
+      OrdersCount?: number;
+      partnersCount?: number;
+      PartnersCount?: number;
+      volunteersCount?: number;
+      VolunteersCount?: number;
+      totalRevenue?: number;
+      TotalRevenue?: number;
+    }>(`${this.base}/dashboard/summary`, payload);
+  }
+  getAccreditationById(id: number): Observable<any> {
+  return this.http.get<any>(`${this.base}/Accreditation/${id}`);
+}
 }

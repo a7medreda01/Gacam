@@ -123,29 +123,103 @@ export class CoursesComponent implements OnInit {
     e.preventDefault();
     this.receiptDragOver.set(false);
     const file = e.dataTransfer?.files?.[0];
-    if (file) { this.receiptFile.set(file); this.receiptFileName.set(file.name); }
+    if (file) this.setReceiptFile(file);
   }
 
   onReceiptSelected(e: Event) {
     const input = e.target as HTMLInputElement;
     const file  = input.files?.[0];
-    if (file) { this.receiptFile.set(file); this.receiptFileName.set(file.name); }
+    if (file) this.setReceiptFile(file);
   }
+
+  // ── Receipt helpers ──────────────────────────────────────────────
+
+  /** Validate file type then store it */
+  private setReceiptFile(file: File) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      this.toastService.showError(
+        this.langService.lang() === 'ar'
+          ? 'صيغة الملف غير مدعومة. يُرجى رفع صورة (JPG, PNG, WEBP) أو PDF.'
+          : 'Unsupported file type. Please upload an image (JPG, PNG, WEBP) or PDF.'
+      );
+      return;
+    }
+    this.receiptFile.set(file);
+    this.receiptFileName.set(file.name);
+  }
+
+  /** Convert any image to JPG before upload; PDF passes through unchanged */
+  private convertToJpg(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      if (file.type === 'application/pdf') { resolve(file); return; }
+
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d')!;
+        // White background so transparent PNGs don't go black
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(blob => {
+          if (!blob) { reject(new Error('Canvas toBlob failed')); return; }
+          const jpgName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+          resolve(new File([blob], jpgName, { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.92);
+      };
+
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+      img.src = url;
+    });
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────
+  private submitInProgress = false;   // prevents double-submit
 
   async onSubmitPayment() {
     if (this.payForm.invalid) return;
     const course = this.payTargetCourse();
     if (!course) return;
+    if (this.submitInProgress) return;   // block repeated taps
 
+    this.submitInProgress = true;
     this.payLoading.set(true);
 
     try {
-      // 1. Upload receipt if provided
+      // 1. Upload receipt (converted to JPG) if provided
       let receiptUrl = '';
-      const file = this.receiptFile();
-      if (file) {
-        const uploadRes: any = await this.apiService.uploadPaymentReceipt(file).toPromise();
+      const rawFile = this.receiptFile();
+      if (rawFile) {
+        let jpgFile: File;
+        try {
+          jpgFile = await this.convertToJpg(rawFile);
+        } catch {
+          this.toastService.showError(
+            this.langService.lang() === 'ar'
+              ? 'تعذّر معالجة الصورة. حاول مرة أخرى أو اختر ملفاً مختلفاً.'
+              : 'Could not process the image. Please try again or choose a different file.'
+          );
+          return;   // finally block will reset flags
+        }
+
+        const uploadRes: any = await this.apiService.uploadPaymentReceipt(jpgFile).toPromise();
         receiptUrl = uploadRes?.absoluteUrl || uploadRes?.AbsoluteUrl || '';
+
+        if (!receiptUrl) {
+          this.toastService.showError(
+            this.langService.lang() === 'ar'
+              ? 'فشل رفع الإيصال. تأكد من الملف وحاول مجدداً.'
+              : 'Receipt upload failed. Please check the file and try again.'
+          );
+          return;   // finally block will reset flags
+        }
       }
 
       // 2. Check if already enrolled (avoid duplicate enrollment)
@@ -193,6 +267,18 @@ export class CoursesComponent implements OnInit {
       );
     } finally {
       this.payLoading.set(false);
+      this.submitInProgress = false;   // always unlock after response
     }
+  }
+
+  interacCopied = signal(false);
+
+  copyInteracEmail(): void {
+    navigator.clipboard.writeText('media@gacam.ca')
+      .then(() => {
+        this.interacCopied.set(true);
+        setTimeout(() => this.interacCopied.set(false), 2000);
+      })
+      .catch(err => console.error('Copy failed:', err));
   }
 }

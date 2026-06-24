@@ -71,7 +71,7 @@ import { TranslatePipe } from '../../shared/pipes/translate';
                   </h3>
                   <p class="text-[10px] text-deep-teal/50 font-sans mt-0.5">
                     {{ langService.lang() === 'ar' ? 'نوع الطلب المالي: ' : 'Financial Order Type: ' }}
-                    <span class="font-mono text-xs font-bold text-champagne-gold">#{{ fee.orderType }}</span>
+                    <span class="font-mono text-xs font-bold text-champagne-gold">{{ getOrderTypeLabel(fee.orderType) }}</span>
                   </p>
                 </div>
 
@@ -206,6 +206,19 @@ export class AdminFeesComponent implements OnInit {
   isFormInvalid(id: number): boolean {
     const group = this.feeFormsMap[id];
     return group ? group.invalid : true;
+  }
+
+  /**
+   * Maps the numeric/raw OrderType value coming from the backend
+   * to its human-readable label, matching the backend enum:
+   * public enum OrderType { CertificatePrint, AccreditationCardPrint }
+   */
+  getOrderTypeLabel(t: any): string {
+    const isAr = this.langService.lang() === 'ar';
+    const val = Number(t);
+    return val === OrderType.CertificatePrint
+      ? (isAr ? 'طباعة شهادة' : 'Certificate Print')
+      : (isAr ? 'طباعة بطاقة الاعتماد' : 'Accreditation Card Print');
   }
 
   saveFee(fee: ServiceFee) {

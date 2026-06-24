@@ -96,8 +96,8 @@ export class RegisterComponent {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
     phoneNumber: new FormControl('', [Validators.required]),
-    organization: new FormControl('', [Validators.required]),
-    country: new FormControl('Canada', [Validators.required])
+    // organization: new FormControl('', [Validators.required]),
+    // country: new FormControl('Canada', [Validators.required])
   });
 
   onRegister() {

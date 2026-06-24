@@ -8,6 +8,50 @@ import { LanguageService } from '../../core/services/language';
 import { ToastService } from '../../shared/components/toast/toast';
 import { Order, OrderStatus, OrderType } from '../../models/types';
 import { TranslatePipe } from '../../shared/pipes/translate';
+import QRCode from 'qrcode';
+
+// --- Shapes returned by the related-record endpoints ---
+// GET /api/Accreditation/{id}  -> includes nested mediaCard
+interface MediaCardRecord {
+  id: number;
+  cardNumber: string;
+  qrCodeData: string;
+  status: number;
+  issuedAt: string;
+  expiresAt: string;
+}
+
+interface AccreditationRecord {
+  id: number;
+  userId: number;
+  userFullName: string;
+  userEmail: string;
+  categoryId: number;
+  categoryNameEn: string;
+  categoryNameAr: string;
+  status: number;
+  documentUrl: string;
+  createdAt: string;
+  checkedAt: string | null;
+  checkedByUserName: string | null;
+  mediaCard: MediaCardRecord | null;
+}
+
+// GET /api/Certificate/{id} (or equivalent) -> certificate record
+interface CertificateRecord {
+  id: number;
+  userId: number;
+  userFullName: string;
+  type: number;
+  relatedRecordId: number;
+  fullNameOnCertificate: string;
+  certificateNumber: string;
+  qrCodeData: string;
+  pdfUrl: string;
+  issuedAt: string;
+  expiredAt: string;
+  isExpired: boolean;
+}
 
 @Component({
   selector: 'app-orders',
@@ -71,7 +115,7 @@ export class AdminOrdersComponent implements OnInit {
   // Pagination & Search and Filter State
   searchVal   = signal('');
   statusFilter = signal<number | undefined>(undefined);
-  
+
   currentPage = signal(1);
   pageSize    = signal(10);
   totalCount  = signal(0);
@@ -79,7 +123,7 @@ export class AdminOrdersComponent implements OnInit {
   hasNext     = signal(false);
   hasPrevious = signal(false);
 
-  // Modal actions
+  // Modal actions (status / tracking dispatch modal)
   showEditModal = signal(false);
   editingOrder  = signal<Order | null>(null);
   updating      = signal(false);
@@ -98,6 +142,14 @@ export class AdminOrdersComponent implements OnInit {
 
   activeTab = signal<'status' | 'tracking'>('status');
 
+  // --- Credential Preview Modal (Card / Certificate) ---
+  showCredentialModal = signal(false);
+  credentialLoadingIds = signal<Set<number>>(new Set());
+  credentialKind = signal<'card' | 'certificate' | null>(null);
+  cardData = signal<AccreditationRecord | null>(null);
+  certificateData = signal<CertificateRecord | null>(null);
+  qrDataUrl = signal<string | null>(null);
+
   constructor() {
     // Re-fetch when page, size, search, and status tags update
     effect(() => {
@@ -113,7 +165,7 @@ export class AdminOrdersComponent implements OnInit {
     this.loading.set(true);
     const search = this.searchVal();
     const status = this.statusFilter();
-    
+
     this.apiService.getOrders(
       this.currentPage(),
       this.pageSize(),
@@ -157,7 +209,7 @@ export class AdminOrdersComponent implements OnInit {
     this.currentPage.set(page);
   }
 
-  // Edit / Update Modal Actions
+  // Edit / Update Modal Actions (status & tracking)
   openEditModal(ord: Order) {
     this.editingOrder.set(ord);
     this.statusForm.reset({
@@ -262,32 +314,100 @@ export class AdminOrdersComponent implements OnInit {
     return 'bg-amber-100 text-amber-800 border-amber-200';
   }
 
+  isCertificateOrder(ord: Order): boolean {
+    return Number(ord.orderType) === 0;
+  }
 
-  printLoadingIds = signal<Set<number>>(new Set());
+  // ── Credential Preview (Card / Certificate) ─────────────────────
+  // Single entry point used by the "view / print" action button.
+  // Routes to the card endpoint (Accreditation) or the certificate
+  // endpoint based on orderType, then opens the matching modal.
+  viewCredential(ord: Order) {
+    this.credentialLoadingIds.update(ids => new Set([...ids, ord.id]));
 
-printCredential(ord: Order) {
-  this.printLoadingIds.update(ids => new Set([...ids, ord.id]));
-
-  this.apiService.getCertificateById(ord.relatedRecordId).subscribe({
-    next: (cert) => {
-      this.printLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
-      if (typeof window !== 'undefined') {
-        window.open(this.apiService.downloadCertificateUrl(cert.id), '_blank');
-      }
-    },
-    error: () => {
-      this.printLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
-      this.toast.showError(
-        this.langService.lang() === 'ar'
-          ? 'تعذر العثور على السجل المرتبط بهذا الطلب (شهادة / بطاقة).'
-          : 'Could not find the related certificate/card record for this order.'
-      );
+    if (this.isCertificateOrder(ord)) {
+      this.apiService.getCertificateById(ord.relatedRecordId).subscribe({
+        next: (cert: any) => {
+          this.credentialLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
+          this.certificateData.set(cert as CertificateRecord);
+          this.cardData.set(null);
+          this.credentialKind.set('certificate');
+          this.showCredentialModal.set(true);
+          this.generateQr((cert as CertificateRecord).qrCodeData);
+        },
+        error: () => {
+          this.credentialLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
+          this.toast.showError(
+            this.langService.lang() === 'ar'
+              ? 'تعذر العثور على الشهادة المرتبطة بهذا الطلب.'
+              : 'Could not find the related certificate record for this order.'
+          );
+        }
+      });
+    } else {
+      this.apiService.getAccreditationById(ord.relatedRecordId).subscribe({
+        next: (acc: any) => {
+          this.credentialLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
+          const record = acc as AccreditationRecord;
+          if (!record.mediaCard) {
+            this.toast.showError(
+              this.langService.lang() === 'ar'
+                ? 'لا توجد بطاقة مصدرة بعد لهذا السجل.'
+                : 'No media card has been issued for this record yet.'
+            );
+            return;
+          }
+          this.cardData.set(record);
+          this.certificateData.set(null);
+          this.credentialKind.set('card');
+          this.showCredentialModal.set(true);
+          this.generateQr(record.mediaCard.qrCodeData);
+        },
+        error: () => {
+          this.credentialLoadingIds.update(ids => { const s = new Set(ids); s.delete(ord.id); return s; });
+          this.toast.showError(
+            this.langService.lang() === 'ar'
+              ? 'تعذر العثور على البطاقة المرتبطة بهذا الطلب.'
+              : 'Could not find the related media card record for this order.'
+          );
+        }
+      });
     }
-  });
-}
-isCertificateOrder(ord: Order): boolean {
-  return Number(ord.orderType) === 0;
-}
+  }
+
+  closeCredentialModal() {
+    this.showCredentialModal.set(false);
+    this.credentialKind.set(null);
+    this.cardData.set(null);
+    this.certificateData.set(null);
+    this.qrDataUrl.set(null);
+  }
+
+  private generateQr(data: string) {
+    this.qrDataUrl.set(null);
+    if (!data) return;
+    QRCode.toDataURL(data, { width: 220, margin: 1 })
+      .then((url: string) => this.qrDataUrl.set(url))
+      .catch(() => this.qrDataUrl.set(null));
+  }
+
+  printCertificateFromModal() {
+    const cert = this.certificateData();
+    if (!cert) return;
+    if (typeof window !== 'undefined') {
+      window.open(this.apiService.downloadCertificateUrl(cert.id), '_blank');
+    }
+  }
+
+  cardStatusLabel(s: number): string {
+    const isAr = this.langService.lang() === 'ar';
+    switch (Number(s)) {
+      case 0: return isAr ? 'نشطة' : 'Active';
+      case 1: return isAr ? 'موقوفة' : 'Suspended';
+      case 2: return isAr ? 'منتهية' : 'Expired';
+      default: return isAr ? 'غير معروف' : 'Unknown';
+    }
+  }
 
   // --- Configurations & Printing Design logic ---
   fetchConfigData() {

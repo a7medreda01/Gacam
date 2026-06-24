@@ -92,6 +92,34 @@
         </button>
       </div>
 
+      <!-- Payment Method -->
+      <div class="px-6 py-3 bg-champagne-gold/10 border-b border-champagne-gold/20 flex items-center justify-between gap-3 text-start">
+        <div class="flex items-center gap-2 min-w-0">
+          <mat-icon class="text-royal-teal text-base shrink-0">account_balance</mat-icon>
+          <div class="min-w-0">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-deep-teal/60">
+              {{ langService.lang() === 'ar' ? 'الدفع عبر Interac e‑Transfer إلى' : 'Send Interac e‑Transfer to' }}
+            </p>
+            <p class="text-xs font-extrabold text-royal-teal font-mono truncate">media&#64;gacam.ca</p>
+          </div>
+        </div>
+        <button type="button" (click)="copyInteracEmail()"
+                class="shrink-0 flex items-center gap-1 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+                [class.text-green-600]="interacCopied()"
+                [class.bg-green-50]="interacCopied()"
+                [class.text-royal-teal\/70]="!interacCopied()"
+                [class.hover:text-royal-teal]="!interacCopied()"
+                [class.hover:bg-royal-teal\/10]="!interacCopied()"
+                [attr.aria-label]="langService.lang() === 'ar' ? 'نسخ البريد الإلكتروني' : 'Copy email'">
+          @if (interacCopied()) {
+            <mat-icon class="text-base">check</mat-icon>
+            <span class="text-[10px] font-bold">{{ langService.lang() === 'ar' ? 'تم النسخ' : 'Copied' }}</span>
+          } @else {
+            <mat-icon class="text-base">content_copy</mat-icon>
+          }
+        </button>
+      </div>
+
       <!-- Course Summary -->
       @if (payTargetCourse()) {
         <div class="px-6 pt-5 pb-3 bg-light-ivory border-b border-champagne-gold/15 flex items-center justify-between text-start">

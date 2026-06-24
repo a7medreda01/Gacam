@@ -1,22 +1,49 @@
 <main class="min-h-screen bg-light-ivory py-10 px-4">
   <div class="container-gacam max-w-6xl mx-auto flex flex-col gap-6">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
-          {{ langService.lang() === 'ar' ? 'لوحة التحكم' : 'Admin Panel' }}
-        </span>
-        <h1 class="text-2xl font-extrabold text-royal-teal tracking-tight mt-1">
-          {{ langService.lang() === 'ar' ? 'إدارة المستخدمين' : 'User Management' }}
-        </h1>
+    @if (authService.isEmployee()) {
+      <!-- Display Restricted Page Panel for Employees as requested -->
+      <div class="bg-white rounded-3xl border border-red-100 p-8 text-center flex flex-col items-center justify-center gap-6 shadow-sm py-20 animate-fade-in my-8">
+        <div class="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-full flex items-center justify-center">
+          <mat-icon class="text-4xl h-10 w-10">lock</mat-icon>
+        </div>
+        <div class="max-w-md">
+          <h2 class="text-xl font-extrabold text-royal-teal">صلاحية غير كافية / Access Restricted</h2>
+          <p class="text-sm text-red-600 font-extrabold mt-4 select-all">
+            غير متاحة للـ employee واكتب عليها كدا ومتظظهرش مستخدمين
+          </p>
+          <p class="text-xs text-deep-teal/60 mt-2 select-all font-sans">
+            This page is strictly restricted and is not available for employees. Roster directory has been masked.
+          </p>
+        </div>
       </div>
-      <button (click)="openCreate()"
-        class="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-royal-teal hover:bg-champagne-gold hover:text-royal-teal rounded-xl shadow transition-all">
-        <mat-icon class="text-base h-4 w-4">person_add</mat-icon>
-        {{ langService.lang() === 'ar' ? 'إضافة مستخدم' : 'Add User' }}
-      </button>
-    </div>
+    } @else {
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">
+            {{ langService.lang() === 'ar' ? 'لوحة التحكم' : 'Admin Panel' }}
+          </span>
+          <h1 class="text-2xl font-extrabold text-royal-teal tracking-tight mt-1">
+            {{ langService.lang() === 'ar' ? 'إدارة المستخدمين' : 'User Management' }}
+          </h1>
+        </div>
+        <button (click)="authService.isAdmin() ? openCreate() : null"
+           [disabled]="!authService.isAdmin()"
+           [title]="authService.isAdmin() ? '' : 'Admin Only / أدمن فقط'"
+           [class.opacity-50]="!authService.isAdmin()"
+           [class.cursor-not-allowed]="!authService.isAdmin()"
+           class="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-royal-teal hover:bg-champagne-gold hover:text-royal-teal rounded-xl shadow transition-all">
+          @if (!authService.isAdmin()) {
+            <mat-icon class="text-base h-4 w-4">lock</mat-icon>
+            {{ langService.lang() === 'ar' ? 'إضافة مستخدم (أدمن فقط)' : 'Add User (Admin Only)' }}
+          @} @else {
+            <mat-icon class="text-base h-4 w-4">person_add</mat-icon>
+            {{ langService.lang() === 'ar' ? 'إضافة مستخدم' : 'Add User' }}
+          }
+        </button>
+      </div>
 
     <!-- Alerts -->
     @if (successMsg()) {
@@ -122,20 +149,31 @@
                   <td class="px-5 py-4">
                     <div class="flex items-center justify-end gap-1">
                       <!-- Toggle Active -->
-                      <button (click)="toggleActive(user)"
-                        [title]="user.isActive ? 'Deactivate' : 'Activate'"
+                      <button (click)="authService.isAdmin() ? toggleActive(user) : null"
+                        [disabled]="!authService.isAdmin()"
+                        [title]="authService.isAdmin() ? (user.isActive ? 'Deactivate' : 'Activate') : 'Admin Only / أدمن فقط'"
+                        [class.opacity-40]="!authService.isAdmin()"
+                        [class.cursor-not-allowed]="!authService.isAdmin()"
                         class="p-1.5 rounded-lg hover:bg-royal-teal/10 text-deep-teal/50 hover:text-royal-teal transition">
-                        <mat-icon class="text-base h-4 w-4">{{ user.isActive ? 'lock' : 'lock_open' }}</mat-icon>
+                        <mat-icon class="text-base h-4 w-4">{{ !authService.isAdmin() ? 'lock' : (user.isActive ? 'lock' : 'lock_open') }}</mat-icon>
                       </button>
                       <!-- Change Role -->
-                      <button (click)="openRoleChange(user)" title="Change Role"
+                      <button (click)="authService.isAdmin() ? openRoleChange(user) : null"
+                        [disabled]="!authService.isAdmin()"
+                        [title]="authService.isAdmin() ? 'Change Role' : 'Admin Only / أدمن فقط'"
+                        [class.opacity-40]="!authService.isAdmin()"
+                        [class.cursor-not-allowed]="!authService.isAdmin()"
                         class="p-1.5 rounded-lg hover:bg-champagne-gold/10 text-deep-teal/50 hover:text-champagne-gold transition">
-                        <mat-icon class="text-base h-4 w-4">manage_accounts</mat-icon>
+                        <mat-icon class="text-base h-4 w-4">{{ !authService.isAdmin() ? 'lock' : 'manage_accounts' }}</mat-icon>
                       </button>
                       <!-- Delete -->
-                      <button (click)="openDelete(user)" title="Delete"
+                      <button (click)="authService.isAdmin() ? openDelete(user) : null"
+                        [disabled]="!authService.isAdmin()"
+                        [title]="authService.isAdmin() ? 'Delete' : 'Admin Only / أدمن فقط'"
+                        [class.opacity-40]="!authService.isAdmin()"
+                        [class.cursor-not-allowed]="!authService.isAdmin()"
                         class="p-1.5 rounded-lg hover:bg-red-50 text-deep-teal/50 hover:text-red-500 transition">
-                        <mat-icon class="text-base h-4 w-4">delete_outline</mat-icon>
+                        <mat-icon class="text-base h-4 w-4">{{ !authService.isAdmin() ? 'lock' : 'delete_outline' }}</mat-icon>
                       </button>
                     </div>
                   </td>
@@ -152,6 +190,7 @@
       <p class="text-[10px] text-deep-teal/40 text-end">
         {{ filteredUsers().length }} {{ langService.lang() === 'ar' ? 'مستخدم' : 'users' }}
       </p>
+    }
     }
   </div>
 </main>

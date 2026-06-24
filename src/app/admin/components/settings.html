@@ -1,34 +1,159 @@
-<div class="flex flex-col gap-6 animate-fade-in text-start">
-  <div>
-    <h2 id="settings-management-title" class="text-xl font-bold uppercase text-royal-teal tracking-wide">
-      Global Site Parameters
-    </h2>
-    <p class="text-xs text-deep-teal/60 font-sans">Visual branding seal alignment and official signatory parameters for E-Certificates</p>
+<div class="flex flex-col gap-8 animate-fade-in text-start pb-20">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h2 id="settings-management-title" class="text-xl font-extrabold uppercase text-royal-teal tracking-wider flex items-center gap-2">
+        <mat-icon class="text-champagne-gold">admin_panel_settings</mat-icon>
+        خدمة تطوير الشهادات جاري العمل عليها
+      </h2>
+      <p class="text-xs text-deep-teal/60 font-sans">
+        Certificate development services - Work in progress. Upload authoritative signatory credentials and vector background files below.
+      </p>
+    </div>
+
+    @if (!authService.isAdmin()) {
+      <div class="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-xs font-semibold">
+        <mat-icon class="text-xs">lock</mat-icon>
+        <span>{{ langService.lang() === 'ar' ? 'عرض فقط للموظف (مغلق من الأدمن)' : 'Read-Only Mode for Employees (Admin restricted)' }}</span>
+      </div>
+    }
   </div>
 
-  @if (loading()) {
-    <div id="loading-spinner" class="h-64 flex items-center justify-center animate-pulse font-semibold">
-      Loading visual nodes settings...
-    </div>
-  } @else {
-    <div id="settings-card" class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm text-start max-w-2xl">
-      <h3 class="text-sm font-bold border-b border-light-ivory pb-2 uppercase tracking-wide text-royal-teal mb-6">Visual branding &amp; Certificates parameters</h3>
-
-      <form [formGroup]="settForm" (ngSubmit)="onSaveSettings()" class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-          <label for="settings-sig" class="text-xs font-bold text-deep-teal">Issuer Principal Signatory *</label>
-          <input id="settings-sig" type="text" formControlName="signatoryName" class="px-4 py-2 border border-champagne-gold/30 rounded-lg text-xs bg-light-ivory focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal" placeholder="e.g. Executive Director Committee" />
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Column Forms (lg:col-span-7) -->
+    <div class="lg:col-span-12 flex flex-col gap-8">
+      
+      <!-- Certificate Designer Parameters -->
+      <div id="cert-settings" class="bg-white p-6 rounded-2xl border border-champagne-gold/15 shadow-sm text-start">
+        <div class="flex items-center justify-between border-b border-light-ivory pb-2.5 mb-6">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-royal-teal flex items-center gap-2">
+            <mat-icon class="text-champagne-gold">workspace_premium</mat-icon>
+            {{ langService.lang() === 'ar' ? 'رفع التواقيع والخلفية المعتمدة للشهادات' : 'Authoritative Signature & Background Management' }}
+          </h3>
+          @if (!authService.isAdmin()) {
+            <span class="text-[10px] text-deep-teal/50 font-bold uppercase tracking-widest flex items-center gap-1">
+              <mat-icon class="text-xs scale-75">lock</mat-icon> Read Only
+            </span>
+          }
         </div>
-        <!-- Courier Charge -->
-        <div class="flex flex-col gap-1">
-          <label for="settings-seal" class="text-xs font-bold text-deep-teal">Issuer seal visual path (Absolute URL) *</label>
-          <input id="settings-seal" type="text" formControlName="sealPhotoUrl" class="px-4 py-2 border border-champagne-gold/30 rounded-lg text-xs bg-light-ivory focus:outline-royal-teal focus:ring-1 focus:ring-royal-teal font-sans" />
-        </div>
 
-        <button type="submit" [disabled]="settForm.invalid" class="px-4 py-2 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal rounded text-xs cursor-pointer mt-2 transition-colors">
-          Update Settings Node
-        </button>
-      </form>
+        @if (certLoading() || loading()) {
+          <div class="h-64 flex items-center justify-center animate-pulse font-semibold text-xs text-deep-teal/50">
+            {{ langService.lang() === 'ar' ? 'جاري تحميل هيكل قالب الشهادات...' : 'Constructing design schema nodes...' }}
+          </div>
+        } @else {
+          <form [formGroup]="certForm" (ngSubmit)="onSaveCertSettings()" class="flex flex-col gap-6">
+            
+            <!-- HIDDEN FIELDS FOR COMPELETENESS OF FORM BINDINGS -->
+            <div class="hidden">
+              <input type="text" formControlName="titleEn" />
+              <input type="text" formControlName="titleAr" />
+              <textarea formControlName="headerTextEn"></textarea>
+              <textarea formControlName="headerTextAr"></textarea>
+              <input type="color" formControlName="primaryColor" />
+              <input type="color" formControlName="secondaryColor" />
+              <input type="color" formControlName="borderColor" />
+              <input type="number" formControlName="borderWidth" />
+              <input type="checkbox" formControlName="showLogo" />
+              <input type="number" formControlName="logoHeight" />
+              <input type="text" formControlName="signatoryName" />
+              <input type="text" formControlName="signatoryTitleEn" />
+              <input type="text" formControlName="signatoryTitleAr" />
+            </div>
+
+            <!-- Official Assets Uploads & Files -->
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#003F4A] mb-3 block">
+                أصول التواقيع وخلفية الشهادة / Official Signature & Background Assets
+              </span>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Signature Block -->
+                <div class="p-4 bg-light-ivory/55 border border-champagne-gold/10 rounded-xl flex flex-col gap-3">
+                  <p class="text-[10px] font-bold text-deep-teal uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="text-xs scale-90 text-royal-teal">gesture</mat-icon>
+                    {{ langService.lang() === 'ar' ? 'توقيع المفوّض الرسمي' : 'Official Authorized Signature' }}
+                  </p>
+                  
+                  <div class="h-32 w-full bg-white border border-champagne-gold/15 rounded-xl flex items-center justify-center p-2 relative overflow-hidden">
+                    @if (certForm.value.signatureImageUrl) {
+                      <img [src]="certForm.value.signatureImageUrl" alt="Authorized Signature" class="h-full object-contain filter brightness-100 contrast-125" referrerpolicy="no-referrer" />
+                    } @else {
+                      <span class="text-[10px] text-deep-teal/35 italic">No signature image asset uploaded</span>
+                    }
+                  </div>
+
+                  @if (authService.isAdmin()) {
+                    <div class="flex items-center gap-2 mt-1">
+                      <label class="px-4 py-2 bg-royal-teal hover:bg-deep-teal text-white font-bold rounded-lg cursor-pointer text-xs select-none transition-colors">
+                        {{ langService.lang() === 'ar' ? 'رفع توقيع جديد' : 'Upload Signature' }}
+                        <input type="file" (change)="onUploadSignature($event)" accept="image/*" class="hidden" />
+                      </label>
+                    </div>
+                  } @else {
+                    <p class="text-[10px] text-amber-600 font-medium flex items-center gap-1">
+                      <mat-icon class="text-xs scale-75">lock</mat-icon> Admin credentials required to modify signature
+                    </p>
+                  }
+                </div>
+
+                <!-- Background Block -->
+                <div class="p-4 bg-light-ivory/55 border border-champagne-gold/10 rounded-xl flex flex-col gap-3">
+                  <p class="text-[10px] font-bold text-deep-teal uppercase tracking-wider flex items-center gap-1">
+                    <mat-icon class="text-xs scale-90 text-royal-teal">wallpaper</mat-icon>
+                    {{ langService.lang() === 'ar' ? 'الصورة الخلفية المزخرفة للشهادة (أثريّة)' : 'Decorative Frame/Background Image' }}
+                  </p>
+
+                  <div class="h-32 w-full bg-white border border-champagne-gold/15 rounded-xl flex items-center justify-center p-2 relative overflow-hidden text-center">
+                    @if (certForm.value.backgroundImageUrl) {
+                      <div class="flex flex-col items-center justify-center gap-1 p-2">
+                        <span class="text-xs truncate text-royal-teal font-mono max-w-[260px]">{{ certForm.value.backgroundImageUrl }}</span>
+                        <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                          <mat-icon class="text-xs">check_circle</mat-icon> Background Active
+                        </span>
+                      </div>
+                    } @else {
+                      <span class="text-[10px] text-deep-teal/35 italic">Plain white vector card with dynamic margins active</span>
+                    }
+                  </div>
+
+                  @if (authService.isAdmin()) {
+                    <div class="flex items-center gap-2 mt-1">
+                      <label class="px-4 py-2 bg-royal-teal hover:bg-deep-teal text-white font-bold rounded-lg cursor-pointer text-xs select-none transition-colors">
+                        {{ langService.lang() === 'ar' ? 'رفع خلفية مزخرفة' : 'Upload Background File' }}
+                        <input type="file" (change)="onUploadBackground($event)" accept="image/*" class="hidden" />
+                      </label>
+                      @if (certForm.value.backgroundImageUrl) {
+                        <button type="button" (click)="onRemoveBackground()" class="px-4 py-2 border border-red-200 hover:bg-red-50 text-red-500 font-bold rounded-lg text-xs cursor-pointer transition-colors">
+                          {{ langService.lang() === 'ar' ? 'إزالة الخلفية' : 'Remove Background' }}
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <p class="text-[10px] text-amber-600 font-medium flex items-center gap-1">
+                      <mat-icon class="text-xs scale-75">lock</mat-icon> Admin credentials required to upload background
+                    </p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Certificate Settings Button -->
+            @if (authService.isAdmin()) {
+              <div class="pt-4 border-t border-light-ivory flex justify-end">
+                <button type="submit" [disabled]="certForm.invalid" 
+                  class="px-6 py-3 bg-[#C9A96B] hover:bg-[#003F4A] text-white font-extrabold rounded-xl text-xs flex items-center gap-2 tracking-wide cursor-pointer shadow transition-all">
+                  <mat-icon>save_alt</mat-icon>
+                  {{ langService.lang() === 'ar' ? 'حفظ التغييرات المعتمدة' : 'Commit Assets Design modifications' }}
+                </button>
+              </div>
+            }
+          </form>
+        }
+      </div>
+
     </div>
-  }
+
+  </div>
 </div>

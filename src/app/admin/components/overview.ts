@@ -1,9 +1,14 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { GacamApiService } from '../../core/services/gacam-api';
 import { TranslatePipe } from '../../shared/pipes/translate';
-import { Payment } from '../../models/types';
+
+enum DashboardPeriod {
+  Month = 0,
+  Week = 1,
+  Year = 2
+}
 
 @Component({
   selector: 'app-admin-overview',
@@ -15,60 +20,60 @@ export class AdminOverviewComponent implements OnInit {
   private apiService = inject(GacamApiService);
 
   loading = signal(true);
-  accsCount = signal(0);
-  enrollmentsCount = signal(0);
-  volsCount = signal(0);
-  payments = signal<Payment[]>([]);
 
-  totalRevenue = computed(() => {
-    return this.payments()
-      .filter(p => {
-        const val = String(p.status || '');
-        return val === 'Approved' || val === 'Paid' || val === '1';
-      })
-      .reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  });
+  selectedPeriod = signal<DashboardPeriod>(DashboardPeriod.Month);
 
-  ngOnInit() {
+  paymentsCount = signal(0);
+  coursesCount = signal(0);
+  accreditationsCount = signal(0);
+  ordersCount = signal(0);
+  partnersCount = signal(0);
+  volunteersCount = signal(0);
+  totalRevenue = signal(0);
+
+  DashboardPeriod = DashboardPeriod;
+
+  ngOnInit(): void {
     this.fetchOverviewData();
   }
 
-  fetchOverviewData() {
+  fetchOverviewData(): void {
     this.loading.set(true);
-    this.apiService.getAllAccreditations().subscribe({
-      next: (ac) => this.accsCount.set(ac?.totalCount || 0),
-      error: () => {}
-    });
 
-    this.apiService.getAllEnrollments().subscribe({
-      next: (en) => this.enrollmentsCount.set(en?.items?.length || 0),
-      error: () => {}
-    });
+    this.apiService.getDashboardSummary({
+      period: this.selectedPeriod()
+    }).subscribe({
+      next: (summary) => {
+        this.paymentsCount.set(summary.paymentsCount ?? 0);
+        this.coursesCount.set(summary.coursesCount ?? 0);
+        this.accreditationsCount.set(summary.accreditationsCount ?? 0);
+        this.ordersCount.set(summary.ordersCount ?? 0);
+        this.partnersCount.set(summary.partnersCount ?? 0);
+        this.volunteersCount.set(summary.volunteersCount ?? 0);
+        this.totalRevenue.set(summary.totalRevenue ?? 0);
 
-    this.apiService.getVolunteers().subscribe({
-      next: (vl) => this.volsCount.set(vl?.length || 0),
-      error: () => {}
-    });
-
-    this.apiService.getAllPayments().subscribe({
-      next: (py) => {
-        this.payments.set(py?.items || []);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false);
+      }
     });
   }
+onPeriodChange(value: DashboardPeriod) {
+  this.selectedPeriod.set(value);
+  this.fetchOverviewData();
+}
 
-  exportReport(type: 'payments' | 'auditlogs') {
-    let url = '';
-    if (type === 'payments') {
-      url = this.apiService.getPaymentsReportUrl();
-    } else {
-      url = this.apiService.getAuditLogsReportUrl();
-    }
-
-    if (typeof window !== 'undefined') {
-      window.open(url, '_blank');
+  getPeriodLabel(): string {
+    switch (this.selectedPeriod()) {
+      case DashboardPeriod.Month:
+        return 'Month';
+      case DashboardPeriod.Week:
+        return 'Week';
+      case DashboardPeriod.Year:
+        return 'Year';
+      default:
+        return 'Month';
     }
   }
 }

@@ -29,21 +29,7 @@ export const adminGuard: CanActivateFn = () => {
   return false;
 };
 
-/** يمنع الدخول لو اليوزر logged in (للـ login/register) */
-export const noAuthGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  const router = inject(Router);
-
-  if (!auth.isLoggedIn()) return true;
-
-  // لو Admin أو Employee يروح للـ admin panel
-  if (auth.isStaff()) {
-    router.navigate(['/admin']);
-  } else {
-    router.navigate(['/']);
-  }
-  return false;
-};
+/** يم
 
 /** Role-based guard مرن */
 export const roleGuard = (roles: string[]): CanActivateFn =>

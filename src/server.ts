@@ -61,11 +61,11 @@ const db = {
     siteTitleAr: 'الهيئة العامة للإعلام بكندا',
     logoUrl: '/assets/logo.png',
     socialLinksJson: JSON.stringify({
-      facebook: 'https://facebook.com/gacam',
-      twitter: 'https://twitter.com/gacam',
+      // facebook: 'https://facebook.com/gacam',
+      // twitter: 'https://twitter.com/gacam',
       instagram: 'https://instagram.com/gacam',
-      youtube: 'https://youtube.com/gacam',
-      linkedin: 'https://linkedin.com/company/gacam'
+      // youtube: 'https://youtube.com/gacam',
+      // linkedin: 'https://linkedin.com/company/gacam'
     }),
     contactInfo: JSON.stringify({
       email: 'info@gacam.media',
@@ -398,7 +398,8 @@ db.courses = [
     endDate: '2026-07-25',
     capacity: 25,
     isActive: true,
-    price: 150.00
+    price: 150.00,
+    createdAt: '2026-06-10T10:00:00Z'
   },
   {
     id: 2,
@@ -411,16 +412,17 @@ db.courses = [
     endDate: '2026-08-20',
     capacity: 40,
     isActive: true,
-    price: 120.00
+    price: 120.00,
+    createdAt: '2026-06-12T10:00:00Z'
   }
 ];
 
 // Seed strategic corporate partners
 db.partners = [
-  { id: 1, nameEn: 'Global Broadcast Corp', nameAr: 'المجموعة العالمية للبث والإنتاج', logoUrl: 'https://picsum.photos/seed/gbc/200/100', websiteUrl: 'https://example.com/gbc', category: 'Gold' },
-  { id: 2, nameEn: 'Canada Media Union', nameAr: 'اتحاد الإعلاميين ونقابة الصحافة الكندية', logoUrl: 'https://picsum.photos/seed/cmu/200/100', websiteUrl: 'https://example.com/cmu', category: 'Gold' },
-  { id: 3, nameEn: 'Arab-Canadian Cultural Center', nameAr: 'المركز الثقافي العربي الكندي بتورونتو', logoUrl: 'https://picsum.photos/seed/acc/200/100', websiteUrl: 'https://example.com/acc', category: 'Silver' },
-  { id: 4, nameEn: 'Media Trust International', nameAr: 'مؤسسة الثقة الإعلامية الدولية', logoUrl: 'https://picsum.photos/seed/mti/200/100', websiteUrl: 'https://example.com/mti', category: 'Regular' }
+  { id: 1, nameEn: 'Global Broadcast Corp', nameAr: 'المجموعة العالمية للبث والإنتاج', logoUrl: 'https://picsum.photos/seed/gbc/200/100', websiteUrl: 'https://example.com/gbc', category: 'Gold', createdAt: '2026-06-01T09:00:00Z' },
+  { id: 2, nameEn: 'Canada Media Union', nameAr: 'اتحاد الإعلاميين ونقابة الصحافة الكندية', logoUrl: 'https://picsum.photos/seed/cmu/200/100', websiteUrl: 'https://example.com/cmu', category: 'Gold', createdAt: '2026-06-02T09:00:00Z' },
+  { id: 3, nameEn: 'Arab-Canadian Cultural Center', nameAr: 'المركز الثقافي العربي الكندي بتورونتو', logoUrl: 'https://picsum.photos/seed/acc/200/100', websiteUrl: 'https://example.com/acc', category: 'Silver', createdAt: '2026-06-03T09:00:00Z' },
+  { id: 4, nameEn: 'Media Trust International', nameAr: 'مؤسسة الثقة الإعلامية الدولية', logoUrl: 'https://picsum.photos/seed/mti/200/100', websiteUrl: 'https://example.com/mti', category: 'Regular', createdAt: '2026-06-04T09:00:00Z' }
 ];
 
 // Seeding test Accreditations, Volunteers, Payments, Certificates for Admin visibility
@@ -1485,6 +1487,120 @@ app.put('/api/ServiceFees/:code', (req: Request, res: Response) => {
 
   logAction(admin.id, 'UPDATE_SERVICE_FEE', 'ServiceFees', fee.code, `Modified GACAM official Service prices: orderType ${fee.orderType} set to UnitPrice: ${fee.unitPrice}, Shipping: ${fee.shippingFee}`);
   return res.status(200).json(fee);
+});
+
+
+// --- Dashboard Summary API ---
+
+// Helpers for date ranges
+const getPeriodRange = (period?: string | number, from?: string, to?: string) => {
+  const now = new Date();
+  
+  let selectedPeriod = 'Month';
+  if (period !== undefined && period !== null) {
+    const pStr = String(period).toLowerCase().trim();
+    if (pStr === '0' || pStr === 'month') {
+      selectedPeriod = 'Month';
+    } else if (pStr === '1' || pStr === 'week') {
+      selectedPeriod = 'Week';
+    } else if (pStr === '2' || pStr === 'year') {
+      selectedPeriod = 'Year';
+    } else if (pStr === '3' || pStr === 'default') {
+      selectedPeriod = 'Default';
+    } else if (pStr) {
+      selectedPeriod = pStr.charAt(0).toUpperCase() + pStr.slice(1);
+    }
+  }
+  
+  if ((!period || selectedPeriod === 'Custom') && (from || to)) {
+    selectedPeriod = 'Custom';
+  }
+
+  let startDate = new Date();
+  let endDate = new Date();
+
+  if (selectedPeriod === 'Month' || selectedPeriod === 'Default') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  } else if (selectedPeriod === 'Week') {
+    const currentDay = now.getDay();
+    const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + distanceToMonday);
+    startDate = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0, 0);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    endDate = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate(), 23, 59, 59, 999);
+  } else if (selectedPeriod === 'Year') {
+    startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+  } else if (selectedPeriod === 'Custom') {
+    if (from) startDate = new Date(from);
+    if (to) endDate = new Date(to);
+  }
+
+  return { startDate, endDate };
+};
+
+const getItemDate = (item: any): Date => {
+  const val = item.submittedAt || item.createdAt || item.enrolledAt || item.startDate;
+  if (val) return new Date(val);
+  return new Date();
+};
+
+app.post('/api/dashboard/summary', (req: Request, res: Response) => {
+  try {
+    const body = req.body || {};
+    const Period = body.Period ?? body.period;
+    const From = body.From ?? body.from;
+    const To = body.To ?? body.to;
+    
+    if (From && To && new Date(From) > new Date(To)) {
+      return res.status(400).send("Bad Request: 'From' date cannot be later than 'To' date.");
+    }
+
+    const { startDate, endDate } = getPeriodRange(Period, From, To);
+
+    const isInPeriod = (item: any) => {
+      const itemDate = getItemDate(item);
+      return itemDate >= startDate && itemDate <= endDate;
+    };
+
+    const periodPayments = db.payments.filter(isInPeriod);
+    const periodCourses = db.courses.filter(isInPeriod);
+    const periodAccreditations = db.accreditations.filter(isInPeriod);
+    const periodEnrollments = db.enrollments.filter(isInPeriod);
+    const periodPartners = db.partners.filter(isInPeriod);
+    const periodVolunteers = db.volunteers.filter(isInPeriod);
+
+    const totalRevenue = periodPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    const responseDto = {
+      // camelCase representation
+      paymentsCount: periodPayments.length,
+      coursesCount: periodCourses.length,
+      accreditationsCount: periodAccreditations.length,
+      ordersCount: periodEnrollments.length,
+      partnersCount: periodPartners.length,
+      volunteersCount: periodVolunteers.length,
+      totalRevenue: Number(totalRevenue.toFixed(2)),
+
+      // PascalCase representation
+      PaymentsCount: periodPayments.length,
+      CoursesCount: periodCourses.length,
+      AccreditationsCount: periodAccreditations.length,
+      OrdersCount: periodEnrollments.length,
+      PartnersCount: periodPartners.length,
+      VolunteersCount: periodVolunteers.length,
+      TotalRevenue: Number(totalRevenue.toFixed(2))
+    };
+
+    return res.status(200).json(responseDto);
+  } catch (error: any) {
+    console.error('Error in /api/dashboard/summary:', error);
+    return res.status(500).send("Internal server error");
+  }
 });
 
 

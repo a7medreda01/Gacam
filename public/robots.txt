@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block Angular internals from crawlers
+Disallow: /assets/
+Disallow: /*.js$
+Disallow: /*.css$
+
+Sitemap: https://www.gacam.ca/sitemap.xml
