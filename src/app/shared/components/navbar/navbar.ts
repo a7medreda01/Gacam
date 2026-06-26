@@ -34,19 +34,17 @@ export class NavbarComponent implements OnInit {
   // الصفحات اللي بتروح في "المزيد" / "Portals & Policies" dropdown
   // (الأساسيين: الرئيسية، البرامج التدريبية، الخدمات المهنية، التطوع، التحقق، من نحن — موجودين بشكل ثابت في الـ nav)
   sectionsPages = [
-    { slug: 'media-authority', labelEn: 'Media Authority', labelAr: 'الهيئة الإعلامية والرقابية', icon: 'gavel' },
+    { slug: 'leadership-board-of-directors', labelEn: 'Board of Directors & Leadership', labelAr: 'أعضاء مجلس الإدارة والقيادة', icon: 'groups' },
+    { slug: 'media-authority', labelEn: 'Media Oversight', labelAr: 'الإشراف الإعلامي', icon: 'gavel' },
     { slug: 'editorial-policy', labelEn: 'Editorial Policy', labelAr: 'السياسة التحريرية', icon: 'article' },
-    { slug: 'complaints-policy', labelEn: 'Complaints Policy', labelAr: 'سياسة الشكاوى والملاحظات', icon: 'feedback' },
-    { slug: 'corrections-policy', labelEn: 'Corrections Policy', labelAr: 'سياسة التصحيح والتوضيح', icon: 'spellcheck' },
-    { slug: 'code-of-ethics', labelEn: 'Code of Ethics', labelAr: 'ميثاق الشرف الأخلاقي', icon: 'verified_user' },
-    { slug: 'media-accreditation', labelEn: 'Media Accreditation', labelAr: 'طلب الاعتماد الإعلامي', icon: 'badge' },
-    { slug: 'partners', labelEn: 'Our Core Partners', labelAr: 'الشركاء والجهات الداعمة', icon: 'handshake' },
-    { slug: 'news', labelEn: 'Press Releases & News', labelAr: 'الأخبار والخبر العاجل', icon: 'campaign' },
-    { slug: 'leadership-board-of-directors', labelEn: 'Board of Directors', labelAr: 'أعضاء مجلس الإدارة والقيادة', icon: 'groups' },
-    { slug: 'faq', labelEn: 'FAQ', labelAr: 'الأسئلة الشائعة والمساعدة', icon: 'help_outline' },
+    { slug: 'complaints-policy', labelEn: 'Complaints & Feedback Policy', labelAr: 'سياسة الشكاوى والملاحظات', icon: 'feedback' },
+    { slug: 'corrections-policy', labelEn: 'Corrections & Clarifications Policy', labelAr: 'سياسة التصحيح والتوضيح', icon: 'spellcheck' },
+    { slug: 'code-of-ethics', labelEn: 'Code of Professional Conduct', labelAr: 'ميثاق السلوك المهني', icon: 'verified_user' },
+    { slug: 'partners', labelEn: 'Partners & Sponsors', labelAr: 'الشركاء والجهات الداعمة', icon: 'handshake' },
+    { slug: 'faq', labelEn: 'FAQ & Help', labelAr: 'الأسئلة الشائعة والمساعدة', icon: 'help_outline' },
     { slug: 'contact-us', labelEn: 'Contact Us', labelAr: 'تواصل معنا', icon: 'alternate_email' },
-    { slug: 'terms-of-use', labelEn: 'Terms of Use', labelAr: 'شروط وبنود استخدام المواقع', icon: 'policy' },
-    { slug: 'privacy-policy', labelEn: 'Privacy Policy', labelAr: 'سياسة الخصوصية والأمان', icon: 'security' }
+    { slug: 'terms-of-use', labelEn: 'Terms of Use', labelAr: 'شروط وبنود استخدام الموقع', icon: 'policy' },
+    { slug: 'privacy-policy', labelEn: 'Privacy & Security Policy', labelAr: 'سياسة الخصوصية والأمان', icon: 'security' }
   ];
 
   // slugs اللي ليها لينك ثابت أساسي في الـ nav، عشان منكررش الصفحات الديناميكية المطابقة ليهم في الـ dropdown

@@ -43,7 +43,10 @@ import { TranslatePipe } from '../../shared/pipes/translate';
               <span>{{ langService.lang() === 'ar' ? 'الرؤية الاستراتيجية' : 'Strategic Vision' }}</span>
             </h3>
             <p class="text-xs sm:text-sm text-white/85 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'تأسيس إطار عمل إعلامي احترافي يعزز وجود الإعلام الخليجي والعربي في كندا ويرسخ قيم التميز والمصداقية بمهنية رائدة.' : 'To establish an objective professional media framework that consolidates Gulf & Arab pluralistic viewpoints safely across Canada.' }}
+              {{ langService.lang() === 'ar'
+                ? 'بناء إطار إعلامي حديث ومهني يعزز حضور وتأثير الإعلام الخليجي والعربي في كندا، ويرسخ قيم التميز والمصداقية والتواصل المسؤول بين مختلف المجتمعات.'
+                : 'To establish a modern and professional media framework that elevates the presence and impact of Gulf and Arab media in Canada, while promoting excellence, credibility, and responsible communication across diverse communities.'
+              }}
             </p>
           </div>
 
@@ -53,38 +56,74 @@ import { TranslatePipe } from '../../shared/pipes/translate';
               <span>{{ langService.lang() === 'ar' ? 'الرسالة التشغيلية' : 'Operational Mission' }}</span>
             </h3>
             <p class="text-xs sm:text-sm text-white/85 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'تمكين وتطوير مهارات الإعلاميين وصناع المحتوى من خلال البرامج والندوات التعليمية الرشيدة وحماية هيبة الصحيفة ومصداقية التقارير.' : 'To empower and mentor emerging reporters and creators through structured educational curriculums, certifications, and compliance metrics.' }}
+              {{ langService.lang() === 'ar'
+                ? 'تمكين الإعلاميين وصنّاع المحتوى من خلال برامج تدريبية ومبادرات إعلامية وتعليمية تُسهم في تطوير مهاراتهم المهنية، وترسخ الممارسات الأخلاقية، وتدعم سرداً إعلامياً مسؤولاً وشاملاً.'
+                : 'To support and empower media professionals and content creators through training, development programs, and media initiatives that uphold ethical standards, strengthen professional skills, and encourage responsible and inclusive storytelling.'
+              }}
             </p>
           </div>
         </div>
 
-        <!-- 3. GACAM Commission Code of Ethics / Editorial Guidelines -->
-        <div class="bg-white p-8 sm:p-10 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-6">
+        <!-- 3. Core Values Grid -->
+        <div class="bg-white p-8 sm:p-10 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-6 mb-10">
           <h2 class="text-xl font-bold text-royal-teal border-b border-light-ivory pb-3 flex items-center gap-2">
-            <mat-icon class="text-champagne-gold">gavel</mat-icon>
-            <span>{{ langService.lang() === 'ar' ? 'القيم الأساسية وسياسة النشر والتصحيح' : 'Core Principles & Editorial Code' }}</span>
+            <mat-icon class="text-champagne-gold">verified_user</mat-icon>
+            <span>{{ langService.lang() === 'ar' ? 'القيم الأساسية' : 'Core Values' }}</span>
           </h2>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="flex flex-col gap-2">
-              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">1. {{ langService.lang() === 'ar' ? 'النزاهة والتوثيق' : 'Transparency & Accuracy' }}</h4>
-              <p class="text-[11px] text-deep-teal/80 font-sans leading-relaxed">
-                {{ langService.lang() === 'ar' ? 'التقصي والتدقيق وإسناد المصادر والشفافية قبل النشر لضمان البعد عن الشائعات.' : 'Rigorous source checking, factual auditing, and copyright compliance remain non-negotiable standards.' }}
-              </p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">shield</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'النزاهة' : 'Integrity' }}
+              </h4>
             </div>
-            <div class="flex flex-col gap-2">
-              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">2. {{ langService.lang() === 'ar' ? 'التصحيح المفتوح والشكاوى' : 'Corrections & Complaints' }}</h4>
-              <p class="text-[11px] text-deep-teal/80 font-sans leading-relaxed">
-                {{ langService.lang() === 'ar' ? 'نلتزم ميكانيكياً بتصحيح أي خطأ إيجابي يتم تحديده ونشر اعتذارات توضيحية عاجلة.' : 'Honoring corrections transparently and responding promptly to public concerns regarding visual or print statements.' }}
-              </p>
+
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">workspace_premium</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'المهنية' : 'Professionalism' }}
+              </h4>
             </div>
-            <div class="flex flex-col gap-2">
-              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">3. {{ langService.lang() === 'ar' ? 'التنوع الثقافي والمسؤولية' : 'Representation & Diversity' }}</h4>
-              <p class="text-[11px] text-deep-teal/80 font-sans leading-relaxed">
-                {{ langService.lang() === 'ar' ? 'التوازن التام ومكافحة خطابات الكراهية وتعزيز حضور متميز للمصالح الخليجية والعربية بشكل مسؤول.' : 'Rejecting hate-speech, and representing multi-cultural identities objectively across all audiovisual activities.' }}
-              </p>
+
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">balance</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'الاستقلالية' : 'Independence' }}
+              </h4>
+            </div>
+
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">verified_user</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'المسؤولية' : 'Accountability' }}
+              </h4>
+            </div>
+
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">visibility</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'الشفافية' : 'Transparency' }}
+              </h4>
+            </div>
+
+            <div class="bg-light-ivory/40 border border-champagne-gold/10 p-5 rounded-xl flex flex-col items-center text-center gap-3 hover:shadow-sm transition-shadow">
+              <mat-icon class="text-royal-teal text-3xl" style="font-size:32px;width:32px;height:32px;">groups</mat-icon>
+              <h4 class="text-xs font-bold text-royal-teal uppercase tracking-wider">
+                {{ langService.lang() === 'ar' ? 'احترام التنوع' : 'Respect for Diversity' }}
+              </h4>
             </div>
           </div>
+        </div>
+
+        <!-- 4. Commitment Quote -->
+        <div class="bg-royal-teal text-white p-6 rounded-2xl text-center border border-champagne-gold/20 shadow-md">
+          <p class="text-sm font-bold italic leading-relaxed">
+            "{{ langService.lang() === 'ar'
+              ? 'نلتزم بالمعايير المهنية والأخلاقية ونعمل من أجل إعلام يعكس هوية مجتمعاتنا ويخدم قضاياها ويواكب تطلعاتها.'
+              : 'We commit to professional and ethical standards, working towards media that reflects our communities\' identity, serves their causes, and keeps pace with their aspirations.'
+            }}"
+          </p>
         </div>
 
       </div>

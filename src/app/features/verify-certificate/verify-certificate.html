@@ -3,14 +3,14 @@
 
     <!-- Topic Heading -->
     <div class="text-center mb-12 flex flex-col gap-3">
-      <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">Cryptography Validators</span>
+      <span class="text-xs font-bold uppercase tracking-widest text-champagne-gold">GACAM Validators</span>
       <h1 class="text-3xl font-extrabold text-royal-teal tracking-tight">
-        {{ 'CERT.VERIFY_TITLE' | translate }}
+        {{ langService.lang() === 'ar' ? 'التحقق الإلكتروني' : 'Digital Verification' }}
       </h1>
       <p class="text-xs sm:text-sm text-deep-teal/75 font-sans leading-relaxed mt-2 max-w-2xl mx-auto">
         {{ langService.lang() === 'ar'
-          ? 'التحقق الآني المشفر والميكانيكي من صحة بطاقات الإعلام والشهادات التدريبية الرسمية المعتمدة الصادرة بكندا.'
-          : 'Audit and inspect GACAM-enlisted credential status, active journalist records, and certified PDF validity seals.'
+          ? 'آلية تحقق رقمية تمكن من التأكد من بيانات البطاقة أو الشهادة بشكل مباشر وآمن.'
+          : 'A digital verification mechanism that enables direct and secure confirmation of card or certificate data.'
         }}
       </p>
     </div>
@@ -22,7 +22,7 @@
       <div class="bg-white p-6 sm:p-8 rounded-2xl border border-champagne-gold/15 shadow-sm text-start flex flex-col gap-5">
         <h3 class="text-sm font-extrabold text-royal-teal uppercase tracking-widest flex items-center gap-1.5 border-b border-light-ivory pb-2">
           <mat-icon class="text-champagne-gold">search</mat-icon>
-          <span>{{ langService.lang() === 'ar' ? 'التحقق السريع الكودي' : 'Serial & Ref Queries' }}</span>
+          <span>{{ langService.lang() === 'ar' ? 'التحقق الفوري عبر الرمز الرقمي' : 'Instant Verification via Digital Code' }}</span>
         </h3>
 
         <p class="text-xs text-deep-teal/70 leading-relaxed font-sans mb-2">
@@ -103,8 +103,8 @@
 
         <p class="text-xs text-deep-teal/70 leading-relaxed font-sans mb-1">
           {{ langService.lang() === 'ar'
-            ? 'قم بسحب وإلقاء ملف الهوية أو الشهادة بصيغة (XML/PDF) أو النقر لتحديد المستند للمثول للتدقيق الرقمي.'
-            : 'Upload digital press transcripts or certified certificate documents to check authentic cryptographic seals.'
+            ? 'قم بسحب وإفلات ملف البطاقة أو الشهادة بصيغة (PDF/XML) أو النقر لاختيار المستند لإجراء الفحص الرقمي المعتمد عبر منظومة التحقق الإلكترونية.'
+            : 'Drag and drop the card or certificate file (PDF/XML) or click to select the document to perform the certified digital scan via the electronic verification system.'
           }}
         </p>
 
@@ -128,7 +128,7 @@
         <button (click)="onVerifyFile()" [disabled]="!selectedFile()"
                 class="px-5 py-2.5 bg-royal-teal text-white font-bold hover:bg-champagne-gold hover:text-royal-teal text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
           <mat-icon class="text-xs">task_alt</mat-icon>
-          <span>{{ langService.lang() === 'ar' ? 'بدء فك التشفير والتأكيد' : 'Decode Integrity Signatures' }}</span>
+          <span>{{ langService.lang() === 'ar' ? 'بدء التحقق الرقمي للمستند' : 'Start Document Digital Verification' }}</span>
         </button>
 
         @if (fileResult()) {

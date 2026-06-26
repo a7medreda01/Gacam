@@ -62,6 +62,8 @@ export class AdminCmsComponent implements OnInit {
     imageUrl: new FormControl('')
   });
 
+  isNewPage = signal(false);
+
   ngOnInit() {
     // Automatically load the primary 'home' page or 'about-us' on init
     this.loadCmsPage('home');
@@ -70,6 +72,7 @@ export class AdminCmsComponent implements OnInit {
   loadCmsPage(slug: string) {
     this.loading.set(true);
     this.cmsSlug.set(slug);
+    this.isNewPage.set(false);
     this.apiService.getPage(slug).subscribe({
       next: (pg) => {
         this.cmsForm.setValue({
@@ -82,7 +85,21 @@ export class AdminCmsComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.toastService.showError('Could not retrieve requested page template.');
+        const defaultPage = this.availablePages.find(p => p.slug === slug);
+        this.cmsForm.setValue({
+          titleEn: defaultPage?.labelEn || '',
+          titleAr: defaultPage?.labelAr || '',
+          contentEn: '',
+          contentAr: '',
+          imageUrl: ''
+        });
+        this.isNewPage.set(true);
+        this.toastService.show(
+          this.langService.lang() === 'ar'
+            ? 'هذه الصفحة غير موجودة حالياً بقاعدة البيانات. يمكنك ملء الحقول وحفظها لإنشائها.'
+            : 'This page does not exist in the database. You can fill the fields and save to create it.',
+          'info'
+        );
         this.loading.set(false);
       }
     });
@@ -93,15 +110,63 @@ export class AdminCmsComponent implements OnInit {
     const slug = this.cmsSlug();
     this.loading.set(true);
 
-    this.apiService.updatePage(slug, this.cmsForm.value).subscribe({
-      next: () => {
-        this.toastService.showSuccess('Page template saved successfully.');
-        this.loading.set(false);
-      },
-      error: () => {
-        this.toastService.showError('Error updating page nodes.');
-        this.loading.set(false);
-      }
-    });
+    if (this.isNewPage()) {
+      const payload = {
+        slug,
+        ...this.cmsForm.value
+      };
+      this.apiService.createPage(payload).subscribe({
+        next: () => {
+          this.toastService.showSuccess(
+            this.langService.lang() === 'ar'
+              ? 'تم إنشاء وحفظ الصفحة بنجاح.'
+              : 'Page template created and saved successfully.'
+          );
+          this.isNewPage.set(false);
+          this.loading.set(false);
+        },
+        error: () => {
+          // If creation POST fails, fallback to update PUT
+          this.apiService.updatePage(slug, this.cmsForm.value).subscribe({
+            next: () => {
+              this.toastService.showSuccess(
+                this.langService.lang() === 'ar'
+                  ? 'تم تحديث الصفحة بنجاح.'
+                  : 'Page template updated successfully.'
+              );
+              this.isNewPage.set(false);
+              this.loading.set(false);
+            },
+            error: () => {
+              this.toastService.showError(
+                this.langService.lang() === 'ar'
+                  ? 'خطأ أثناء إنشاء أو تحديث الصفحة.'
+                  : 'Error creating or updating page nodes.'
+              );
+              this.loading.set(false);
+            }
+          });
+        }
+      });
+    } else {
+      this.apiService.updatePage(slug, this.cmsForm.value).subscribe({
+        next: () => {
+          this.toastService.showSuccess(
+            this.langService.lang() === 'ar'
+              ? 'تم حفظ التعديلات بنجاح.'
+              : 'Page template saved successfully.'
+          );
+          this.loading.set(false);
+        },
+        error: () => {
+          this.toastService.showError(
+            this.langService.lang() === 'ar'
+              ? 'خطأ أثناء تحديث الصفحة.'
+              : 'Error updating page nodes.'
+          );
+          this.loading.set(false);
+        }
+      });
+    }
   }
 }

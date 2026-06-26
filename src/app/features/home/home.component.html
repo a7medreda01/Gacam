@@ -13,7 +13,7 @@
       <!-- Text column -->
       <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-start">
         <span class="inline-flex self-center lg:self-start items-center gap-1.5 px-3.5 py-1 text-xs font-semibold tracking-wider text-champagne-gold bg-white/5 border border-champagne-gold/25 rounded-full uppercase">
-          {{ langService.lang() === 'ar' ? 'الهوية الرسمية للجنة بكندا' : 'Official Portal - Canada Division' }}
+          {{ langService.lang() === 'ar' ? 'الهوية الرسمية للهيئة في كندا' : 'Official Portal - Canada Division' }}
         </span>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight lg:leading-tight">
           {{ 'HOME.HERO_TITLE' | translate }}
@@ -34,47 +34,8 @@
 
       <!-- Press Card Preview Column -->
       <div class="lg:col-span-5 flex justify-center relative">
-        <div class="relative w-72 sm:w-80 bg-gradient-to-b from-royal-teal to-deep-teal rounded-2xl border-2 border-champagne-gold/40 shadow-2xl p-6 text-center overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-300">
-          <div class="absolute -right-12 -bottom-12 w-32 h-32 rounded-full bg-champagne-gold/15 blur-2xl"></div>
-
-          <!-- Card Header -->
-          <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-4">
-            <div class="flex items-center gap-2">
-              <div class="h-8 w-8 rounded-full border border-champagne-gold bg-deep-teal flex items-center justify-center">
-                <span class="text-champagne-gold font-bold text-xs">GA</span>
-              </div>
-              <div class="text-start">
-                <h5 class="text-xs font-bold leading-none tracking-wider font-sans">GACAM</h5>
-                <span class="text-[7px] text-champagne-gold leading-none">Audiovisual Commission</span>
-              </div>
-            </div>
-            <div class="text-end">
-              <span class="text-[8px] px-2 py-0.5 rounded-full bg-champagne-gold/20 text-champagne-gold font-bold">PRESS / إعلام</span>
-            </div>
-          </div>
-
-          <!-- Holder Face -->
-          <div class="h-28 w-28 rounded-xl border border-champagne-gold/40 mx-auto overflow-hidden bg-deep-teal flex items-center justify-center relative shadow-inner mb-4">
-            <mat-icon class="text-white/40 text-4xl h-10 w-10">account_circle</mat-icon>
-          </div>
-
-          <!-- Names -->
-          <div class="mb-4">
-            <h4 class="text-sm font-bold text-white">SAID AL-MANSOUR</h4>
-            <p class="text-[10px] text-champagne-gold leading-normal font-sans tracking-wide">Correspondent Photojournalist</p>
-            <p class="text-[10px] text-white/60">GULF REPORT NEWS</p>
-          </div>
-
-          <!-- Footer -->
-          <div class="flex justify-between items-center border-t border-white/10 pt-4 text-start">
-            <div>
-              <p class="text-[8px] text-white/50 leading-none">CARD SERIAL</p>
-              <p class="text-[9px] text-champagne-gold font-mono leading-none font-bold">GACAM-MC-2026-48291</p>
-            </div>
-            <div class="h-8 w-8 bg-white p-1 rounded border border-champagne-gold flex items-center justify-center">
-              <div class="h-full w-full bg-royal-teal"></div>
-            </div>
-          </div>
+        <div class="relative w-full max-w-md aspect-[4/4] rounded-2xl border-2 border-champagne-gold/40 shadow-2xl overflow-hidden">
+          <img src="mainbanner.jfif" alt="GACAM Official Card" class="w-full h-full object-cover" />
         </div>
       </div>
     </div>
@@ -103,10 +64,10 @@
               <mat-icon>badge</mat-icon>
             </div>
             <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
-              {{ langService.lang() === 'ar' ? 'الاعتماد الإعلامي' : 'Media Accreditation' }}
+              {{ langService.lang() === 'ar' ? 'الدعم المهني للإعلاميين' : 'Professional Support' }}
             </h3>
             <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'برامج متكاملة لإصدار الاعتمادات والمراجعة والتحقق التلقائي للصحفيين والنشطاء.' : 'Professional accreditation programs based on established press and ethical standards.' }}
+              {{ langService.lang() === 'ar' ? 'برامج متخصصة تُسهم في تمكين الإعلاميين وصنّاع المحتوى، وتوفير أدوات عملية تساعدهم على تعزيز حضورهم المهني داخل كندا.' : 'Specialized programs contributing to the empowerment of media practitioners and content creators in Canada.' }}
             </p>
           </div>
           <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'إبدأ التقديم' : 'Apply Now' }}</span>
@@ -119,10 +80,10 @@
               <mat-icon>credit_card</mat-icon>
             </div>
             <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
-              {{ langService.lang() === 'ar' ? 'البطاقات الرقمية والمطبوعة' : 'Media Cards' }}
+              {{ langService.lang() === 'ar' ? 'البطاقات المهنية' : 'Professional Cards' }}
             </h3>
             <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'إصدار بطاقات ذات موثوقية عالية مع كود QR مشفر للتحقق الميداني الفوري.' : 'Issuing secure verified and authenticated professional hard-printed cards.' }}
+              {{ langService.lang() === 'ar' ? 'بطاقات تعريف مهنية تُعزز موثوقية الهوية الإعلامية، وتتضمن رمز QR للاستخدام الميداني عند الحاجة.' : 'Professional identification cards enhancing the credibility of media identity, featuring QR codes for field verification.' }}
             </p>
           </div>
           <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'التفاصيل' : 'Details' }}</span>
@@ -135,10 +96,10 @@
               <mat-icon>school</mat-icon>
             </div>
             <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
-              {{ langService.lang() === 'ar' ? 'التطوير المهني والتدريب' : 'Training & Academy' }}
+              {{ langService.lang() === 'ar' ? 'التطوير المهني والتدريب' : 'Training & Development' }}
             </h3>
             <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'دورات منهجية متطورة لتأهيل الصحفيين والمساهمة في صقل المعارف المهنية.' : 'Intensive educational classes to enhance digital broadcast integrity and journalism knowledge.' }}
+              {{ langService.lang() === 'ar' ? 'برامج تدريبية متقدمة تهدف إلى رفع كفاءة الإعلاميين وصنّاع المحتوى، وصقل مهاراتهم وفق معايير مهنية معتمدة.' : 'Advanced training programs aiming to elevate media competencies and polish skills according to approved professional standards.' }}
             </p>
           </div>
           <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'البرامج المتاحة' : 'Courses' }}</span>
@@ -151,10 +112,10 @@
               <mat-icon>workspace_premium</mat-icon>
             </div>
             <h3 class="text-base font-bold mb-2 group-hover:text-champagne-gold transition-colors">
-              {{ langService.lang() === 'ar' ? 'الشهادات الموثقة' : 'Professional Certificates' }}
+              {{ langService.lang() === 'ar' ? 'الشهادات المهنية' : 'Professional Certificates' }}
             </h3>
             <p class="text-xs text-deep-teal/70 group-hover:text-white/80 leading-relaxed font-sans">
-              {{ langService.lang() === 'ar' ? 'منح شهادات إلكترونية للمميزين والخريجين قابلة للتنزيل بصيغة PDF.' : 'Certified dynamic PDF certificates with dynamic signatures and logo style configuration.' }}
+              {{ langService.lang() === 'ar' ? 'شهادات مشاركة وإنجاز تُمنح للمشاركين في البرامج التدريبية، متاحة بصيغة رقمية قابلة للتنزيل.' : 'Participation and achievement certificates awarded to training program attendees, available in downloadable digital format.' }}
             </p>
           </div>
           <span class="text-xs font-semibold text-champagne-gold pt-4 block group-hover:translate-x-1 transition-transform">→ {{ langService.lang() === 'ar' ? 'الاستعلام' : 'Enquire' }}</span>
@@ -211,8 +172,10 @@
 
         <p class="text-sm text-deep-teal/80 leading-relaxed font-sans max-w-lg">
           {{ langService.lang() === 'ar'
-            ? 'الهيئة العامة للإعلام المرئي والمسموع الخليجي والعربي في كندا هي مؤسسة مرخصة تهدف لرسم أطر التعاون الإيجابي للإعلامي الخليجي والعربي وإظهار المساهمة الفكرية والثقافية للمتطوعين بكندا. نهتم بصياغة مذكرات السياسة الصحفية وأخلاقيات التغطية الرصينة.'
-            : 'The Gulf & Arab General Commission for Audiovisual Media in Canada is a professional licensing organization advocating for multicultural journalism inclusion, regulatory standards, ethical compliance, and safe journalistic development across the Canadian landscape.'
+            ? 'الهيئة العامة للإعلام المرئي والمسموع الخليجي والعربي في كندا تعمل تحت مظلة جمعية الثقافة والفنون الخليجية في كندا، وتهدف إلى دعم العمل الإعلامي، وتعزيز التعاون بين المؤسسات الخليجية والعربية، وإبراز دور المتطوعين في المجالين الثقافي والإعلامي داخل المجتمع الكندي.
+وتلتزم الهيئة بتطوير سياسات إعلامية مهنية، ووضع معايير تغطية تتوافق مع مبادئ الدقة والحياد والمسؤولية.
+'
+            : 'The General Authority for Audiovisual Media (Canada) operates under the umbrella of the Gulf Culture and Arts Association in Canada. It aims to support media initiatives, foster collaboration among Gulf and Arab institutions, and highlight the role of volunteers in the cultural and media sectors within Canadian society. The Authority adheres to official media policies and establishes specific standards grounded in the principles of accuracy, leadership, and responsibility.'
           }}
         </p>
 
@@ -224,7 +187,7 @@
   <mat-icon class="text-champagne-gold text-xl leading-none">school</mat-icon>
 </div>
             <span class="text-sm font-bold text-royal-teal">
-              {{ langService.lang() === 'ar' ? 'النزاهة الأكاديمية والمصداقية المهنية' : 'Academic Rigor & Press Credibility' }}
+              {{ langService.lang() === 'ar' ? 'النزاهة والمصداقية المهنية. ' : 'Professional integrity and credibility.' }}
             </span>
             <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
           </div>
@@ -234,7 +197,7 @@
   <mat-icon class="text-champagne-gold text-xl leading-none">verified_user</mat-icon>
 </div>
             <span class="text-sm font-bold text-royal-teal">
-              {{ langService.lang() === 'ar' ? 'حماية الصحفي وحرية البث المسؤول' : 'Journalistic Safety & Objective Broadcasting' }}
+              {{ langService.lang() === 'ar' ? 'حماية الصحفي ودعم حرية الممارسة الإعلامية المسؤولة' : 'Protecting journalists and supporting the freedom of responsible media practice.' }}
             </span>
             <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
           </div>
@@ -244,7 +207,7 @@
   <mat-icon class="text-champagne-gold text-xl leading-none">fact_check</mat-icon>
 </div>
             <span class="text-sm font-bold text-royal-teal">
-              {{ langService.lang() === 'ar' ? 'إثباتات الدفع بالبريد والشفافية التامة' : 'Audit Trails & Complete Payment Transparencies' }}
+              {{ langService.lang() === 'ar' ? 'الالتزام بالمعايير الأخلاقية للعمل الإعلامي.' : 'Adherence to ethical standards in media work.' }}
             </span>
             <span class="flex-1 border-t border-dotted border-champagne-gold/50 ms-2"></span>
           </div>

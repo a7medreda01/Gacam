@@ -68,9 +68,9 @@ const db = {
       // linkedin: 'https://linkedin.com/company/gacam'
     }),
     contactInfo: JSON.stringify({
-      email: 'info@gacam.media',
-      phone: '+1 (437) 990-0166',
-      address: 'Toronto, Ontario, Canada'
+      email: 'media@gacam.ca',
+      phone: '+1 (416) 832-3566',
+      address: '525 Highland Road West, Kitchener, ON, N2M 5P4'
     })
   },
   certificateDesign: {
@@ -141,8 +141,8 @@ const rawPagesSeed = [
     slug: 'vision-mission',
     titleEn: 'Vision & Mission',
     titleAr: 'الرؤية والرسالة',
-    contentEn: 'Vision: To establish a professional media framework that strengthens the presence of Gulf and Arab media in Canada and promotes excellence, credibility, and responsible communication.\n\nMission: To support and empower media professionals and content creators through professional development, media initiatives, and educational programs while fostering ethical and responsible media practices.',
-    contentAr: 'الرؤية: تأسيس إطار عمل إعلامي احترافي يعزز وجود الإعلام الخليجي والعربي في كندا ويرسخ قيم التميز والمصداقية.\nالرسالة: تمكين الإعلاميين وصناع المحتوى من خلال برامج التطوير المهني والمبادرات التعليمية وتحفيز الممارسات المسؤولة والنزيهة.'
+    contentEn: 'Vision: To establish a modern and professional media framework that elevates the presence and impact of Gulf and Arab media in Canada, while promoting excellence, credibility, and responsible communication across diverse communities.\n\nMission: To support and empower media professionals and content creators through training, development programs, and media initiatives that uphold ethical standards, strengthen professional skills, and encourage responsible and inclusive storytelling.',
+    contentAr: 'الرؤية: بناء إطار إعلامي حديث ومهني يعزز حضور وتأثير الإعلام الخليجي والعربي في كندا، ويرسخ قيم التميز والمصداقية والتواصل المسؤول بين مختلف المجتمعات.\nالرسالة: تمكين الإعلاميين وصنّاع المحتوى من خلال برامج تدريبية ومبادرات إعلامية وتعليمية تُسهم في تطوير مهاراتهم المهنية، وترسخ الممارسات الأخلاقية، وتدعم سرداً إعلامياً مسؤولاً وشاملاً.'
   },
   {
     slug: 'board-members',
@@ -321,8 +321,8 @@ const rawPagesSeed = [
   },
   {
     slug: 'leadership-board-of-directors',
-    titleEn: 'Board of Directors Leadership Council',
-    titleAr: 'مجلس القيادة والشركات المهنية',
+    titleEn: 'Board of Directors & Leadership',
+    titleAr: 'أعضاء مجلس الإدارة والقيادة',
     contentEn: 'Meet GACAM\'s leading council, directors, advisors, administrative managers, and steering committee members navigating our vision.',
     contentAr: 'تعرف على أعضاء مجلس الإدارة والقيادات التنفيذية والاستشاريين الذين يساهمون بخبراتهم الريادية في صك وتنظيم استراتيجيات الهيئة.'
   },

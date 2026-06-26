@@ -83,6 +83,10 @@ export class GacamApiService {
     return this.http.put<any>(`${this.base}/Pages/${slug}`, payload);
   }
 
+  createPage(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.base}/Pages`, payload);
+  }
+
   // --- Site General Settings & Visual templates ---
   getSettings(): Observable<Setting> {
     return this.http.get<Setting>(`${this.base}/Settings`);

@@ -26,9 +26,7 @@ import { TranslatePipe } from '../../pipes/translate';
           <p class="text-xs text-white/70 leading-relaxed font-sans">
             {{ 'FOOTER.DESC' | translate }}
           </p>
-          <div class="flex items-center gap-3 text-white/50 pt-2">
-            <a href="https://instagram.com/gacam.ca" target="_blank" class="hover:text-champagne-gold transition-colors"><i class="bi bi-instagram"></i></a>
-          </div>
+
         </div>
 
         <!-- Column 2: Public Portals Links -->
@@ -67,15 +65,19 @@ import { TranslatePipe } from '../../pipes/translate';
           <div class="flex flex-col gap-3 text-xs text-white/80">
             <span class="flex items-start gap-2">
               <mat-icon class="text-champagne-gold text-lg h-5 w-5">place</mat-icon>
-              <span>Toronto, Ontario, Canada - Ottawa Media Branch Office</span>
+              <span>525 Highland Road West, Kitchener, ON, N2M 5P4</span>
             </span>
             <span class="flex items-center gap-2">
               <mat-icon class="text-champagne-gold text-lg h-5 w-5">email</mat-icon>
-              <span>info&#64;gacam.media</span>
+              <span>media&#64;gacam.ca</span>
             </span>
             <span class="flex items-center gap-2">
               <mat-icon class="text-champagne-gold text-lg h-5 w-5">phone</mat-icon>
-              <span>+1 (437) 990-0166</span>
+              <span>+1 (416) 832-3566</span>
+            </span>
+                        <span class="flex items-center gap-2">
+              <mat-icon class="text-champagne-gold text-lg h-5 w-5">favorite</mat-icon>
+              <a href="https://instagram.com/gacam.ca" target="_blank" rel="noopener noreferrer" class="hover:text-champagne-gold transition-colors">Instagram: @gacam.ca</a>
             </span>
           </div>
         </div>
@@ -87,9 +89,7 @@ import { TranslatePipe } from '../../pipes/translate';
         <div class="flex items-center gap-3">
           <span class="text-champagne-gold">One Media • One Future</span>
           <span class="text-white/20">|</span>
-          <a href="https://www.facebook.com/RunXTech" target="_blank" rel="noopener noreferrer" class="text-[10px] text-white/40 hover:text-champagne-gold transition-colors">
-            Developed by RunX
-          </a>
+
         </div>
       </div>
     </footer>
